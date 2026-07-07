@@ -1,6 +1,7 @@
 import { Hero } from "@/components/home/Hero";
 import { TrustBar } from "@/components/home/TrustBar";
 import { FeaturedCollections } from "@/components/home/FeaturedCollections";
+import { SignatureSection } from "@/components/home/SignatureSection";
 
 export default function Home() {
   return (
@@ -8,6 +9,7 @@ export default function Home() {
       <Hero />
       <TrustBar />
       <FeaturedCollections />
+      <SignatureSection />
     </>
   );
 }
