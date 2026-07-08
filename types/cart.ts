@@ -25,3 +25,12 @@ export interface Cart {
   readonly items: readonly CartItem[];
   readonly total: Money;
 }
+
+/** Order-summary breakdown. Shipping/tax/discount are placeholders for V1. */
+export interface CartTotals {
+  readonly subtotal: Money;
+  readonly shipping: Money;
+  readonly tax: Money;
+  readonly discount: Money;
+  readonly total: Money;
+}

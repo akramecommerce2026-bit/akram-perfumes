@@ -1,17 +1,26 @@
-import { multiplyMoney, sumMoney } from "@/lib/money";
-import type { CartItem } from "@/types/cart";
+import { addMoney, createMoney, multiplyMoney, sumMoney } from "@/lib/money";
+import type { CartItem, CartTotals } from "@/types/cart";
 import type { Money } from "@/types/money";
 import type { Product } from "@/types/product";
 import type { ProductVariant } from "@/types/variant";
 
 /**
- * Pure helpers that turn a product + selected variant into a cart line and
- * compute totals. Framework-agnostic and state-free so they can back any future
- * cart implementation (context, store, or server) without change.
+ * Pure, framework-agnostic cart helpers.
+ *
+ * All cart mutation and totalling logic lives here so it can back any cart
+ * implementation (context today, Supabase-synced store tomorrow) without change.
+ * The cart context is a thin stateful wrapper over these functions.
  */
 
+/** The minimal product shape a cart line needs (snapshotted at add time). */
+export type CartProductInput = Pick<Product, "id" | "name" | "slug" | "featuredImage">;
+
+/** Free shipping at/over this subtotal (paise); flat fee below it. */
+export const FREE_SHIPPING_THRESHOLD = 99900;
+export const STANDARD_SHIPPING = 7900;
+
 export function createCartItem(
-  product: Pick<Product, "id" | "name" | "slug" | "featuredImage">,
+  product: CartProductInput,
   variant: ProductVariant,
   quantity: number,
 ): CartItem {
@@ -30,6 +39,63 @@ export function createCartItem(
   };
 }
 
+/** Add a variant to the cart, merging with an existing line for that variant. */
+export function addItemToCart(
+  items: readonly CartItem[],
+  product: CartProductInput,
+  variant: ProductVariant,
+  quantity: number,
+): CartItem[] {
+  const existing = items.find((item) => item.variantId === variant.id);
+  if (existing) {
+    return updateItemQuantity(items, variant.id, existing.quantity + quantity);
+  }
+  return [...items, createCartItem(product, variant, quantity)];
+}
+
+export function updateItemQuantity(
+  items: readonly CartItem[],
+  variantId: string,
+  quantity: number,
+): CartItem[] {
+  const nextQuantity = Math.floor(quantity);
+  if (nextQuantity <= 0) return removeItemFromCart(items, variantId);
+  return items.map((item) =>
+    item.variantId === variantId
+      ? { ...item, quantity: nextQuantity, subtotal: multiplyMoney(item.unitPrice, nextQuantity) }
+      : item,
+  );
+}
+
+export function removeItemFromCart(items: readonly CartItem[], variantId: string): CartItem[] {
+  return items.filter((item) => item.variantId !== variantId);
+}
+
+export function countCartItems(items: readonly CartItem[]): number {
+  return items.reduce((total, item) => total + item.quantity, 0);
+}
+
 export function calculateCartTotal(items: readonly CartItem[]): Money {
   return sumMoney(items.map((item) => item.subtotal));
+}
+
+export function computeCartTotals(items: readonly CartItem[]): CartTotals {
+  const subtotal = calculateCartTotal(items);
+  const { currency } = subtotal;
+
+  const shipping = createMoney(
+    subtotal.amount === 0 || subtotal.amount >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING,
+    currency,
+  );
+  // Placeholders for V1 — real tax/discount arrive with the checkout module.
+  const tax = createMoney(0, currency);
+  const discount = createMoney(0, currency);
+
+  const total = addMoney(addMoney(subtotal, shipping), addMoney(tax, negate(discount)));
+
+  return { subtotal, shipping, tax, discount, total };
+}
+
+function negate(value: Money): Money {
+  return { amount: -value.amount, currency: value.currency };
 }

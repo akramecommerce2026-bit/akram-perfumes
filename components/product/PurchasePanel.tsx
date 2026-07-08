@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Check, Heart, RotateCcw, ShieldCheck, Truck } from "lucide-react";
 
+import { useCart } from "@/components/cart/cart-context";
 import { PriceDisplay } from "@/components/product/PriceDisplay";
 import { QuantitySelector } from "@/components/product/QuantitySelector";
 import { VariantSelector } from "@/components/product/VariantSelector";
@@ -18,6 +20,8 @@ const LOW_STOCK_THRESHOLD = 5;
  * the two handlers so the upcoming cart module plugs in without touching layout.
  */
 export function PurchasePanel({ product }: { product: Product }) {
+  const router = useRouter();
+  const { addItem, openDrawer } = useCart();
   const [selectedId, setSelectedId] = useState(product.variants[0]?.id ?? "");
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
@@ -43,10 +47,17 @@ export function PurchasePanel({ product }: { product: Product }) {
   }
 
   function handleAddToCart() {
-    // Placeholder for the upcoming cart module — payload is fully derived here:
-    // { productId, variantId, sku, unitPrice, quantity }.
+    if (isSoldOut || !selectedVariant) return;
+    addItem(product, selectedVariant, quantity);
     setAdded(true);
+    openDrawer();
     window.setTimeout(() => setAdded(false), 2000);
+  }
+
+  function handleBuyNow() {
+    if (isSoldOut || !selectedVariant) return;
+    addItem(product, selectedVariant, quantity);
+    router.push("/cart");
   }
 
   return (
@@ -118,7 +129,7 @@ export function PurchasePanel({ product }: { product: Product }) {
         </button>
         <button
           type="button"
-          onClick={handleAddToCart}
+          onClick={handleBuyNow}
           disabled={isSoldOut}
           className={cn(
             "inline-flex h-12 w-full items-center justify-center rounded-full bg-accent px-6 text-sm font-medium text-accent-foreground transition-all duration-300",
