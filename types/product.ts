@@ -1,6 +1,6 @@
 import type { Category } from "@/types/category";
 import type { Money } from "@/types/money";
-import type { FragranceFamily, Gender, Occasion } from "@/types/product-attributes";
+import type { FragranceFamily, Gender, Occasion, Season } from "@/types/product-attributes";
 import type { ProductVariant } from "@/types/variant";
 
 /** Scent pyramid — top / heart / base notes. */
@@ -8,6 +8,17 @@ export interface FragranceNotes {
   readonly top: readonly string[];
   readonly heart: readonly string[];
   readonly base: readonly string[];
+}
+
+/**
+ * Performance / character attributes shown on the Product page. `longevity`
+ * and `projection` are 1–5 scores; the rest map onto lookup columns later.
+ */
+export interface FragranceProfile {
+  readonly concentration: string;
+  readonly longevity: number;
+  readonly projection: number;
+  readonly seasons: readonly Season[];
 }
 
 /**
@@ -31,6 +42,7 @@ export interface ProductRecord {
   readonly gender: Gender;
   readonly occasions: readonly Occasion[];
   readonly notes: FragranceNotes;
+  readonly profile: FragranceProfile;
   readonly isFeatured: boolean;
   readonly isSignature: boolean;
   /** ISO 8601 timestamp. */
@@ -58,6 +70,7 @@ export interface Product {
   readonly gender: Gender;
   readonly occasions: readonly Occasion[];
   readonly notes: FragranceNotes;
+  readonly profile: FragranceProfile;
   readonly isFeatured: boolean;
   readonly isSignature: boolean;
   readonly createdAt: string;

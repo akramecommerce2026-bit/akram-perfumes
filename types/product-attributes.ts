@@ -12,6 +12,8 @@ export type FragranceFamily = "oriental" | "woody" | "floral" | "fresh" | "musk"
 
 export type Occasion = "everyday" | "office" | "evening" | "festive" | "signature";
 
+export type Season = "spring" | "summer" | "autumn" | "winter";
+
 export const GENDER_LABELS: Record<Gender, string> = {
   men: "Men",
   women: "Women",
@@ -53,3 +55,12 @@ export const OCCASIONS: readonly Occasion[] = [
   "festive",
   "signature",
 ];
+
+export const SEASON_LABELS: Record<Season, string> = {
+  spring: "Spring",
+  summer: "Summer",
+  autumn: "Autumn",
+  winter: "Winter",
+};
+
+export const SEASONS: readonly Season[] = ["spring", "summer", "autumn", "winter"];

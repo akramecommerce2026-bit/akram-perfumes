@@ -1,0 +1,208 @@
+import type { Review } from "@/types/review";
+
+/**
+ * Temporary mock product reviews.
+ *
+ * Consumed only through `@/services/review-service`. Products without written
+ * reviews here still carry an aggregate rating/reviewCount on the product
+ * record; the Review section handles the empty-written-reviews case gracefully.
+ */
+export const reviewRecords: readonly Review[] = [
+  // Bin Sheikh
+  {
+    id: "rev_bs_1",
+    productId: "prod_bin_sheikh",
+    name: "Aarav Sharma",
+    rating: 5,
+    verified: true,
+    title: "My signature scent",
+    body: "The projection is unreal — I get compliments every single time I wear it. A little goes a very long way and it lasts all day.",
+    createdAt: "2026-06-14T10:05:00.000Z",
+  },
+  {
+    id: "rev_bs_2",
+    productId: "prod_bin_sheikh",
+    name: "Imran Q.",
+    rating: 5,
+    verified: true,
+    title: "Worth every rupee",
+    body: "Opens with a beautiful saffron and settles into a warm, smoky oud. Genuinely luxurious and long-lasting.",
+    createdAt: "2026-05-28T18:40:00.000Z",
+  },
+  {
+    id: "rev_bs_3",
+    productId: "prod_bin_sheikh",
+    name: "Neha D.",
+    rating: 4,
+    verified: true,
+    body: "Gorgeous fragrance and beautiful bottle. Took off one star only because I wish the 12ml came in a spray.",
+    createdAt: "2026-05-02T08:15:00.000Z",
+  },
+  {
+    id: "rev_bs_4",
+    productId: "prod_bin_sheikh",
+    name: "Karan V.",
+    rating: 5,
+    verified: true,
+    title: "Compliment magnet",
+    body: "Wore the 30ml to a wedding and three people asked what I was wearing. Rich, elegant, unforgettable.",
+    createdAt: "2026-04-19T21:30:00.000Z",
+  },
+  // White Oud
+  {
+    id: "rev_wo_1",
+    productId: "prod_white_oud",
+    name: "Rahul M.",
+    rating: 5,
+    verified: true,
+    title: "Perfect daily oud",
+    body: "Bright and citrusy up top, refined oud underneath. Office-appropriate but still distinctive.",
+    createdAt: "2026-06-09T12:00:00.000Z",
+  },
+  {
+    id: "rev_wo_2",
+    productId: "prod_white_oud",
+    name: "Sana K.",
+    rating: 5,
+    verified: true,
+    body: "Lasts the entire workday and the tobacco base is so cosy. Bought a backup already.",
+    createdAt: "2026-05-21T09:45:00.000Z",
+  },
+  {
+    id: "rev_wo_3",
+    productId: "prod_white_oud",
+    name: "Devansh P.",
+    rating: 4,
+    verified: false,
+    body: "Lovely scent, very versatile. Projection is moderate rather than beast-mode, which I actually prefer.",
+    createdAt: "2026-04-30T15:20:00.000Z",
+  },
+  // Royal Attar
+  {
+    id: "rev_ra_1",
+    productId: "prod_royal_attar",
+    name: "Priya Nair",
+    rating: 5,
+    verified: true,
+    title: "Pure luxury",
+    body: "The oil quality is exceptional — deep rose and saffron that stays close to the skin all day.",
+    createdAt: "2026-06-01T11:10:00.000Z",
+  },
+  {
+    id: "rev_ra_2",
+    productId: "prod_royal_attar",
+    name: "Ahmed R.",
+    rating: 5,
+    verified: true,
+    body: "One of the best attars I have tried. The roll-on is perfect for travel.",
+    createdAt: "2026-05-12T17:05:00.000Z",
+  },
+  {
+    id: "rev_ra_3",
+    productId: "prod_royal_attar",
+    name: "Meera S.",
+    rating: 4,
+    verified: true,
+    body: "Beautiful and rich. A single dab is more than enough — very concentrated.",
+    createdAt: "2026-04-08T13:25:00.000Z",
+  },
+  // Amber Nuit
+  {
+    id: "rev_an_1",
+    productId: "prod_amber_nuit",
+    name: "Ananya Iyer",
+    rating: 5,
+    verified: true,
+    title: "Evening perfection",
+    body: "Warm, sweet and enveloping without being cloying. My go-to for dinners and date nights.",
+    createdAt: "2026-06-11T20:00:00.000Z",
+  },
+  {
+    id: "rev_an_2",
+    productId: "prod_amber_nuit",
+    name: "Zoya H.",
+    rating: 4,
+    verified: true,
+    body: "Gorgeous amber-vanilla. Wish it projected a touch more, but the longevity is excellent.",
+    createdAt: "2026-05-18T19:15:00.000Z",
+  },
+  // Musk Al Ghazal
+  {
+    id: "rev_mg_1",
+    productId: "prod_musk_ghazal",
+    name: "Fatima B.",
+    rating: 5,
+    verified: true,
+    body: "The cleanest, softest musk. Smells like freshly laundered luxury. I wear it every day.",
+    createdAt: "2026-06-03T07:50:00.000Z",
+  },
+  {
+    id: "rev_mg_2",
+    productId: "prod_musk_ghazal",
+    name: "Rhea T.",
+    rating: 5,
+    verified: true,
+    body: "Intimate and powdery — the kind of scent people notice only when they lean in. Love it.",
+    createdAt: "2026-05-06T10:30:00.000Z",
+  },
+  // Rose Taifi
+  {
+    id: "rev_rt_1",
+    productId: "prod_rose_taifi",
+    name: "Simran K.",
+    rating: 5,
+    verified: true,
+    title: "A real rose",
+    body: "Not synthetic at all — a deep, honeyed Taif rose that unfolds beautifully over hours.",
+    createdAt: "2026-05-30T14:00:00.000Z",
+  },
+  {
+    id: "rev_rt_2",
+    productId: "prod_rose_taifi",
+    name: "Naina G.",
+    rating: 4,
+    verified: false,
+    body: "Rich and opulent. A little goes a long way, so the small bottle lasts ages.",
+    createdAt: "2026-04-22T16:40:00.000Z",
+  },
+  // Oud Incense
+  {
+    id: "rev_oi_1",
+    productId: "prod_oud_incense",
+    name: "Bilal A.",
+    rating: 5,
+    verified: true,
+    body: "Fills the whole house with a warm, resinous aroma. Perfect for the weekend and for guests.",
+    createdAt: "2026-06-07T09:00:00.000Z",
+  },
+  {
+    id: "rev_oi_2",
+    productId: "prod_oud_incense",
+    name: "Tanvi R.",
+    rating: 4,
+    verified: true,
+    body: "Lovely quality bakhoor. Burns cleanly and the scent lingers for hours.",
+    createdAt: "2026-05-15T18:20:00.000Z",
+  },
+  // Sandal Mystique
+  {
+    id: "rev_sm_1",
+    productId: "prod_sandal_mystique",
+    name: "Yash M.",
+    rating: 5,
+    verified: true,
+    title: "Serene and creamy",
+    body: "Proper creamy sandalwood with a little spice. Calming and very wearable to the office.",
+    createdAt: "2026-05-24T11:35:00.000Z",
+  },
+  // Citrus Majlis
+  {
+    id: "rev_cm_1",
+    productId: "prod_citrus_majlis",
+    name: "Aditya S.",
+    rating: 4,
+    verified: true,
+    body: "Super fresh and energetic for summer mornings. Longevity is average but that's expected for citrus.",
+    createdAt: "2026-06-16T08:10:00.000Z",
+  },
+];

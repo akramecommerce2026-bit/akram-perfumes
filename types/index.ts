@@ -6,6 +6,7 @@ export type {
   FragranceFamily,
   Gender,
   Occasion,
+  Season,
 } from "@/types/product-attributes";
 export {
   FRAGRANCE_FAMILIES,
@@ -14,9 +15,12 @@ export {
   GENDERS,
   OCCASION_LABELS,
   OCCASIONS,
+  SEASON_LABELS,
+  SEASONS,
 } from "@/types/product-attributes";
 export type {
   FragranceNotes,
+  FragranceProfile,
   PaginatedResult,
   Product,
   ProductQuery,
@@ -24,6 +28,7 @@ export type {
   ProductSort,
   ProductSummary,
 } from "@/types/product";
+export type { Review } from "@/types/review";
 export type { Cart, CartItem } from "@/types/cart";
 export type { Order, OrderItem, OrderStatus } from "@/types/order";
 export type { Testimonial } from "@/types/testimonial";

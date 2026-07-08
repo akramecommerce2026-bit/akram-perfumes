@@ -103,6 +103,7 @@ export class ProductService {
       gender: record.gender,
       occasions: record.occasions,
       notes: record.notes,
+      profile: record.profile,
       isFeatured: record.isFeatured,
       isSignature: record.isSignature,
       createdAt: record.createdAt,
