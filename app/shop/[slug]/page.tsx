@@ -17,6 +17,12 @@ import type { Product, ProductSummary } from "@/types/product";
 
 const RELATED_LIMIT = 6;
 
+// Prebuild the known products, refresh from Supabase every 5 minutes (ISR), and
+// render any product added later (e.g. via a future Admin Panel) on first
+// request rather than 404ing.
+export const revalidate = 300;
+export const dynamicParams = true;
+
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }

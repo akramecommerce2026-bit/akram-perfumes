@@ -4,6 +4,11 @@ import { Container } from "@/components/common/container";
 import { ShopView } from "@/components/shop/ShopView";
 import { productService } from "@/services/product-service";
 
+// Incremental Static Regeneration: serve fast cached HTML, refreshed from
+// Supabase every 5 minutes so catalogue edits (e.g. from a future Admin Panel)
+// appear without a redeploy.
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: "Shop — Akram Perfumes",
   description:

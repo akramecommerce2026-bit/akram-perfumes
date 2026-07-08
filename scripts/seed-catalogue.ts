@@ -15,18 +15,18 @@ import { createClient } from "@supabase/supabase-js";
 import { categoryRecords } from "../lib/categories";
 import { productRecords, variantRecords } from "../lib/products";
 import type { Database, TablesInsert } from "../lib/supabase/database.types";
+// Reuse the app's normalized URL (strips a stray trailing slash / `/rest/v1`)
+// and validated service-role key so the script and app connect identically.
+import { getServiceRoleKey, isSupabaseConfigured, supabaseUrl } from "../lib/supabase/env";
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!url || !serviceRoleKey) {
+if (!isSupabaseConfigured()) {
   throw new Error(
-    "Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY. " +
+    "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY. " +
       "Run with: npx tsx --env-file=.env.local scripts/seed-catalogue.ts",
   );
 }
 
-const db = createClient<Database>(url, serviceRoleKey, {
+const db = createClient<Database>(supabaseUrl, getServiceRoleKey(), {
   auth: { persistSession: false },
 });
 

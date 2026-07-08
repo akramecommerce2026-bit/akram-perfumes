@@ -24,14 +24,17 @@ alter table order_items       enable row level security;
 -- ---------------------------------------------------------------------------
 -- Catalogue: public read (anon + authenticated)
 -- ---------------------------------------------------------------------------
+drop policy if exists "Categories are publicly readable" on categories;
 create policy "Categories are publicly readable"
   on categories for select
   using (true);
 
+drop policy if exists "Active products are publicly readable" on products;
 create policy "Active products are publicly readable"
   on products for select
   using (active = true);
 
+drop policy if exists "Active variants are publicly readable" on product_variants;
 create policy "Active variants are publicly readable"
   on product_variants for select
   using (
@@ -42,6 +45,7 @@ create policy "Active variants are publicly readable"
     )
   );
 
+drop policy if exists "Images of active products are publicly readable" on product_images;
 create policy "Images of active products are publicly readable"
   on product_images for select
   using (
@@ -51,6 +55,7 @@ create policy "Images of active products are publicly readable"
     )
   );
 
+drop policy if exists "Notes of active products are publicly readable" on fragrance_notes;
 create policy "Notes of active products are publicly readable"
   on fragrance_notes for select
   using (
@@ -63,14 +68,17 @@ create policy "Notes of active products are publicly readable"
 -- ---------------------------------------------------------------------------
 -- Profiles: a user manages only their own profile
 -- ---------------------------------------------------------------------------
+drop policy if exists "Users can read their own profile" on profiles;
 create policy "Users can read their own profile"
   on profiles for select
   using (auth.uid() = id);
 
+drop policy if exists "Users can insert their own profile" on profiles;
 create policy "Users can insert their own profile"
   on profiles for insert
   with check (auth.uid() = id);
 
+drop policy if exists "Users can update their own profile" on profiles;
 create policy "Users can update their own profile"
   on profiles for update
   using (auth.uid() = id)
@@ -81,10 +89,12 @@ create policy "Users can update their own profile"
 -- ---------------------------------------------------------------------------
 -- No anon policies → guest customers/orders are created server-side with the
 -- service-role key. Once auth lands, registered users read their own records.
+drop policy if exists "Users can read their own customer record" on customers;
 create policy "Users can read their own customer record"
   on customers for select
   using (profile_id = auth.uid());
 
+drop policy if exists "Users can read their own addresses" on addresses;
 create policy "Users can read their own addresses"
   on addresses for select
   using (
@@ -94,6 +104,7 @@ create policy "Users can read their own addresses"
     )
   );
 
+drop policy if exists "Users can manage their own addresses" on addresses;
 create policy "Users can manage their own addresses"
   on addresses for all
   using (
@@ -114,6 +125,7 @@ create policy "Users can manage their own addresses"
 -- ---------------------------------------------------------------------------
 -- Writes happen server-side (service role) after Razorpay verification. Anon
 -- has no access; authenticated users can read their own orders.
+drop policy if exists "Users can read their own orders" on orders;
 create policy "Users can read their own orders"
   on orders for select
   using (
@@ -123,6 +135,7 @@ create policy "Users can read their own orders"
     )
   );
 
+drop policy if exists "Users can read their own order items" on order_items;
 create policy "Users can read their own order items"
   on order_items for select
   using (
