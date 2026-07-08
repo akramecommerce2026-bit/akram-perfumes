@@ -8,3 +8,4 @@
 export { ProductService, productService } from "@/services/product-service";
 export { getProductRepository } from "@/services/repositories";
 export type { ProductRepository } from "@/services/repositories/product-repository";
+export { getTestimonials } from "@/services/testimonial-service";

@@ -12,3 +12,4 @@ export type {
 } from "@/types/product";
 export type { Cart, CartItem } from "@/types/cart";
 export type { Order, OrderItem, OrderStatus } from "@/types/order";
+export type { Testimonial } from "@/types/testimonial";
