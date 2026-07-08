@@ -1,4 +1,4 @@
-import { computeCheckoutTotals } from "@/lib/checkout";
+import { computeCheckoutTotals, generateOrderNumber } from "@/lib/checkout";
 import type { OrderRepository } from "@/services/repositories/order-repository";
 import type { Order, PlaceOrderInput } from "@/types/checkout";
 
@@ -40,12 +40,4 @@ export class MockOrderRepository implements OrderRepository {
   async findByNumber(orderNumber: string): Promise<Order | null> {
     return this.orders.get(orderNumber) ?? null;
   }
-}
-
-/** Human-friendly, reasonably-unique order number, e.g. AKR-LZ4F9K-2X7. */
-function generateOrderNumber(): string {
-  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789";
-  const pick = (length: number) =>
-    Array.from({ length }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join("");
-  return `AKR-${pick(6)}-${pick(3)}`;
 }

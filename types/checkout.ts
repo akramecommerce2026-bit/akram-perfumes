@@ -4,8 +4,12 @@ import type { Money } from "@/types/money";
 /** Delivery speeds offered at checkout. Extend the union to add new tiers. */
 export type DeliveryMethodId = "standard" | "express";
 
-/** Payment methods shown at checkout (UI only for V1 — no gateway wired yet). */
-export type PaymentMethodId = "razorpay" | "upi" | "card" | "netbanking";
+/**
+ * The project settles exclusively through Razorpay — a single method. Razorpay
+ * Checkout handles UPI, cards, net banking and wallets internally, so there is
+ * intentionally only one payment method in the domain.
+ */
+export type PaymentMethodId = "razorpay";
 
 export interface ContactInfo {
   readonly fullName: string;
@@ -35,15 +39,36 @@ export interface CheckoutDetails {
   readonly paymentMethod: PaymentMethodId;
 }
 
-export type OrderStatus = "pending" | "confirmed" | "cancelled";
-export type PaymentStatus = "pending" | "paid" | "failed";
+/** Order lifecycle — mirrors the `order_status` enum in the database. */
+export type OrderStatus =
+  | "pending"
+  | "confirmed"
+  | "packed"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
+
+/** Payment lifecycle — mirrors the `payment_status` enum in the database. */
+export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
 
 /**
- * A placed order. Payment fields are intentionally present but unsettled so a
- * Razorpay flow can later populate `paymentStatus` / a gateway reference
+ * Razorpay settlement references attached to an order. All empty until the
+ * payment phase verifies a Razorpay payment; present here so the domain and
+ * database are ready with no further changes.
+ */
+export interface RazorpayPayment {
+  readonly razorpayOrderId?: string;
+  readonly razorpayPaymentId?: string;
+  readonly razorpaySignature?: string;
+  readonly paymentTimestamp?: string;
+}
+
+/**
+ * A placed order. Payment fields are intentionally present but unsettled so the
+ * Razorpay flow can later populate `paymentStatus` and the gateway references
  * without any schema change.
  */
-export interface Order {
+export interface Order extends RazorpayPayment {
   readonly orderNumber: string;
   readonly createdAt: string;
   readonly items: readonly CartItem[];

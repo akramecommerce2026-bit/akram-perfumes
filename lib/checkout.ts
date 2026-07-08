@@ -55,11 +55,17 @@ export interface PaymentOption {
   readonly description: string;
 }
 
+/**
+ * The site exposes a single payment method. Razorpay Checkout handles every
+ * underlying method (UPI, cards, net banking, wallets) internally, so there is
+ * intentionally no multi-provider selection.
+ */
 export const PAYMENT_OPTIONS: readonly PaymentOption[] = [
-  { id: "razorpay", name: "Razorpay", description: "Cards, UPI, wallets & more" },
-  { id: "upi", name: "UPI", description: "Google Pay, PhonePe, Paytm" },
-  { id: "card", name: "Credit / Debit Card", description: "Visa, Mastercard, RuPay, Amex" },
-  { id: "netbanking", name: "Net Banking", description: "All major Indian banks" },
+  {
+    id: "razorpay",
+    name: "Secure Payment via Razorpay",
+    description: "Pay by UPI, cards, net banking or wallets — all handled securely by Razorpay.",
+  },
 ];
 
 export const DEFAULT_PAYMENT_METHOD: PaymentMethodId = "razorpay";
@@ -95,4 +101,12 @@ export function computeCheckoutTotals(
 
 function negate(value: Money): Money {
   return { amount: -value.amount, currency: value.currency };
+}
+
+/** Human-friendly, reasonably-unique order number, e.g. AKR-LZ4F9K-2X7. */
+export function generateOrderNumber(): string {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789";
+  const pick = (length: number) =>
+    Array.from({ length }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join("");
+  return `AKR-${pick(6)}-${pick(3)}`;
 }
