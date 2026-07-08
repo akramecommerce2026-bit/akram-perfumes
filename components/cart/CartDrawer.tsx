@@ -90,7 +90,7 @@ export function CartDrawer() {
                           : "Shipping & taxes calculated at checkout."}
                       </p>
                       <Link
-                        href="/cart"
+                        href="/checkout"
                         onClick={closeDrawer}
                         className="group inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground transition-all duration-300 hover:shadow-gold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                       >
@@ -99,6 +99,13 @@ export function CartDrawer() {
                           className="size-4 transition-transform duration-300 group-hover:translate-x-0.5"
                           aria-hidden="true"
                         />
+                      </Link>
+                      <Link
+                        href="/cart"
+                        onClick={closeDrawer}
+                        className="text-center text-sm font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-accent hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                      >
+                        View Cart
                       </Link>
                       <button
                         type="button"
