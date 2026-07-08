@@ -3,6 +3,20 @@ export type { CurrencyCode, Money } from "@/types/money";
 export type { ProductVariant, VariantStatus, VariantWeight, WeightUnit } from "@/types/variant";
 export type { Category } from "@/types/category";
 export type {
+  FragranceFamily,
+  Gender,
+  Occasion,
+} from "@/types/product-attributes";
+export {
+  FRAGRANCE_FAMILIES,
+  FRAGRANCE_FAMILY_LABELS,
+  GENDER_LABELS,
+  GENDERS,
+  OCCASION_LABELS,
+  OCCASIONS,
+} from "@/types/product-attributes";
+export type {
+  FragranceNotes,
   PaginatedResult,
   Product,
   ProductQuery,

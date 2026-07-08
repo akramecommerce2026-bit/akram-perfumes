@@ -1,6 +1,14 @@
 import type { Category } from "@/types/category";
 import type { Money } from "@/types/money";
+import type { FragranceFamily, Gender, Occasion } from "@/types/product-attributes";
 import type { ProductVariant } from "@/types/variant";
+
+/** Scent pyramid — top / heart / base notes. */
+export interface FragranceNotes {
+  readonly top: readonly string[];
+  readonly heart: readonly string[];
+  readonly base: readonly string[];
+}
 
 /**
  * Persistence shape of a product — mirrors a future Supabase `products` row.
@@ -13,9 +21,16 @@ export interface ProductRecord {
   readonly name: string;
   readonly slug: string;
   readonly categoryId: string;
+  readonly shortDescription: string;
   readonly description: string;
   readonly featuredImage: string;
   readonly galleryImages: readonly string[];
+  readonly rating: number;
+  readonly reviewCount: number;
+  readonly fragranceFamily: FragranceFamily;
+  readonly gender: Gender;
+  readonly occasions: readonly Occasion[];
+  readonly notes: FragranceNotes;
   readonly isFeatured: boolean;
   readonly isSignature: boolean;
   /** ISO 8601 timestamp. */
@@ -33,9 +48,16 @@ export interface Product {
   readonly name: string;
   readonly slug: string;
   readonly category: Category;
+  readonly shortDescription: string;
   readonly description: string;
   readonly featuredImage: string;
   readonly galleryImages: readonly string[];
+  readonly rating: number;
+  readonly reviewCount: number;
+  readonly fragranceFamily: FragranceFamily;
+  readonly gender: Gender;
+  readonly occasions: readonly Occasion[];
+  readonly notes: FragranceNotes;
   readonly isFeatured: boolean;
   readonly isSignature: boolean;
   readonly createdAt: string;
@@ -53,24 +75,53 @@ export interface ProductSummary {
   readonly name: string;
   readonly slug: string;
   readonly category: Category;
+  readonly shortDescription: string;
   readonly featuredImage: string;
+  readonly rating: number;
+  readonly reviewCount: number;
+  readonly fragranceFamily: FragranceFamily;
+  readonly gender: Gender;
+  readonly occasions: readonly Occasion[];
   readonly isFeatured: boolean;
   readonly isSignature: boolean;
   /** Lowest active-variant price, or null when nothing is purchasable. */
   readonly priceFrom: Money | null;
+  /** Compare-at price of the lowest-priced variant, when it is on sale. */
+  readonly comparePriceFrom: Money | null;
+  /** Active variant labels ("6ml", "Roll-On", ...) in display order. */
+  readonly variantNames: readonly string[];
   readonly variantCount: number;
   readonly inStock: boolean;
   readonly createdAt: string;
 }
 
-export type ProductSort = "featured" | "newest" | "price-asc" | "price-desc" | "name-asc";
+export type ProductSort =
+  | "featured"
+  | "newest"
+  | "best-selling"
+  | "price-asc"
+  | "price-desc"
+  | "rating-desc"
+  | "name-asc";
 
-/** Filter / sort / paginate options for product listings. */
+/**
+ * Filter / sort / paginate options for product listings.
+ *
+ * Multi-value facets are arrays so the same shape serves both a Supabase query
+ * (`in (...)`) and the client-side instant filtering used on the Shop page.
+ */
 export interface ProductQuery {
+  readonly search?: string;
   readonly categorySlug?: string;
+  readonly genders?: readonly Gender[];
+  readonly fragranceFamilies?: readonly FragranceFamily[];
+  readonly occasions?: readonly Occasion[];
+  /** Inclusive price bounds in minor currency units (paise). */
+  readonly priceMin?: number;
+  readonly priceMax?: number;
+  readonly inStockOnly?: boolean;
   readonly featured?: boolean;
   readonly signature?: boolean;
-  readonly search?: string;
   readonly sort?: ProductSort;
   readonly limit?: number;
   readonly offset?: number;

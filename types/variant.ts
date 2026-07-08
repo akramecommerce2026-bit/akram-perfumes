@@ -25,6 +25,8 @@ export interface ProductVariant {
   readonly productId: string;
   readonly variantName: string;
   readonly price: Money;
+  /** Original price before discount — present only when the variant is on sale. */
+  readonly comparePrice?: Money;
   readonly stockQuantity: number;
   readonly sku: string;
   readonly weight?: VariantWeight;

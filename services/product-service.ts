@@ -1,13 +1,12 @@
+import { filterSummaries, paginate, sortSummaries } from "@/lib/product-filters";
 import { getProductRepository } from "@/services/repositories";
 import type { ProductRepository } from "@/services/repositories/product-repository";
 import type { Category } from "@/types/category";
-import type { Money } from "@/types/money";
 import type {
   PaginatedResult,
   Product,
   ProductQuery,
   ProductRecord,
-  ProductSort,
   ProductSummary,
 } from "@/types/product";
 import type { ProductVariant } from "@/types/variant";
@@ -23,45 +22,16 @@ export class ProductService {
   constructor(private readonly repository: ProductRepository) {}
 
   async listProducts(query: ProductQuery = {}): Promise<PaginatedResult<ProductSummary>> {
-    const [products, variants, categories] = await Promise.all([
-      this.repository.findAllProducts(),
-      this.repository.findAllVariants(),
-      this.repository.findAllCategories(),
-    ]);
+    const summaries = await this.buildSummaries();
 
-    const categoryById = new Map(categories.map((category) => [category.id, category]));
-    const activeVariantsByProduct = groupActiveVariantsByProduct(variants);
+    const filtered = filterSummaries(summaries, query);
+    const sorted = sortSummaries(filtered, query.sort ?? "featured");
 
-    let summaries = products.map((product) =>
-      toSummary(
-        product,
-        categoryById.get(product.categoryId) ?? unknownCategory(product.categoryId),
-        activeVariantsByProduct.get(product.id) ?? [],
-      ),
-    );
-
-    if (query.categorySlug) {
-      summaries = summaries.filter((summary) => summary.category.slug === query.categorySlug);
-    }
-    if (query.featured !== undefined) {
-      summaries = summaries.filter((summary) => summary.isFeatured === query.featured);
-    }
-    if (query.signature !== undefined) {
-      summaries = summaries.filter((summary) => summary.isSignature === query.signature);
-    }
-    if (query.search) {
-      const needle = query.search.trim().toLowerCase();
-      summaries = summaries.filter((summary) => summary.name.toLowerCase().includes(needle));
-    }
-
-    summaries = sortSummaries(summaries, query.sort ?? "featured");
-
-    const total = summaries.length;
+    const total = sorted.length;
     const offset = Math.max(0, query.offset ?? 0);
     const limit = query.limit ?? total;
-    const items = summaries.slice(offset, offset + limit);
 
-    return { items, total, limit, offset };
+    return { items: paginate(sorted, limit, offset), total, limit, offset };
   }
 
   async getProductBySlug(slug: string): Promise<Product | null> {
@@ -93,6 +63,25 @@ export class ProductService {
     return this.repository.findCategoryBySlug(slug);
   }
 
+  private async buildSummaries(): Promise<ProductSummary[]> {
+    const [products, variants, categories] = await Promise.all([
+      this.repository.findAllProducts(),
+      this.repository.findAllVariants(),
+      this.repository.findAllCategories(),
+    ]);
+
+    const categoryById = new Map(categories.map((category) => [category.id, category]));
+    const activeVariantsByProduct = groupActiveVariantsByProduct(variants);
+
+    return products.map((product) =>
+      toSummary(
+        product,
+        categoryById.get(product.categoryId) ?? unknownCategory(product.categoryId),
+        activeVariantsByProduct.get(product.id) ?? [],
+      ),
+    );
+  }
+
   private async composeProduct(record: ProductRecord): Promise<Product> {
     const [category, variants] = await Promise.all([
       this.repository.findCategoryById(record.categoryId),
@@ -104,9 +93,16 @@ export class ProductService {
       name: record.name,
       slug: record.slug,
       category: category ?? unknownCategory(record.categoryId),
+      shortDescription: record.shortDescription,
       description: record.description,
       featuredImage: record.featuredImage,
       galleryImages: record.galleryImages,
+      rating: record.rating,
+      reviewCount: record.reviewCount,
+      fragranceFamily: record.fragranceFamily,
+      gender: record.gender,
+      occasions: record.occasions,
+      notes: record.notes,
       isFeatured: record.isFeatured,
       isSignature: record.isSignature,
       createdAt: record.createdAt,
@@ -146,51 +142,38 @@ function toSummary(
   category: Category,
   activeVariants: readonly ProductVariant[],
 ): ProductSummary {
+  const cheapest = lowestPricedVariant(activeVariants);
+
   return {
     id: record.id,
     name: record.name,
     slug: record.slug,
     category,
+    shortDescription: record.shortDescription,
     featuredImage: record.featuredImage,
+    rating: record.rating,
+    reviewCount: record.reviewCount,
+    fragranceFamily: record.fragranceFamily,
+    gender: record.gender,
+    occasions: record.occasions,
     isFeatured: record.isFeatured,
     isSignature: record.isSignature,
-    priceFrom: lowestPrice(activeVariants),
+    priceFrom: cheapest?.price ?? null,
+    comparePriceFrom: cheapest?.comparePrice ?? null,
+    variantNames: activeVariants.map((variant) => variant.variantName),
     variantCount: activeVariants.length,
     inStock: activeVariants.some((variant) => variant.stockQuantity > 0),
     createdAt: record.createdAt,
   };
 }
 
-function lowestPrice(variants: readonly ProductVariant[]): Money | null {
-  return variants.reduce<Money | null>((lowest, variant) => {
-    if (!lowest || variant.price.amount < lowest.amount) {
-      return variant.price;
+function lowestPricedVariant(variants: readonly ProductVariant[]): ProductVariant | null {
+  return variants.reduce<ProductVariant | null>((lowest, variant) => {
+    if (!lowest || variant.price.amount < lowest.price.amount) {
+      return variant;
     }
     return lowest;
   }, null);
-}
-
-function sortSummaries(summaries: ProductSummary[], sort: ProductSort): ProductSummary[] {
-  const copy = [...summaries];
-  switch (sort) {
-    case "price-asc":
-      return copy.sort((a, b) => priceValue(a) - priceValue(b));
-    case "price-desc":
-      return copy.sort((a, b) => priceValue(b) - priceValue(a));
-    case "name-asc":
-      return copy.sort((a, b) => a.name.localeCompare(b.name));
-    case "newest":
-      return copy.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-    case "featured":
-    default:
-      return copy.sort(
-        (a, b) => Number(b.isFeatured) - Number(a.isFeatured) || a.name.localeCompare(b.name),
-      );
-  }
-}
-
-function priceValue(summary: ProductSummary): number {
-  return summary.priceFrom?.amount ?? Number.POSITIVE_INFINITY;
 }
 
 function unknownCategory(id: string): Category {
