@@ -5,6 +5,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminTopBar } from "@/components/admin/AdminTopBar";
+import { ToastProvider } from "@/components/admin/ui/toast";
 import { cn } from "@/lib/utils";
 
 interface AdminShellProps {
@@ -25,6 +26,7 @@ export function AdminShell({ adminName, adminInitials, dateLabel, children }: Ad
   const shouldReduceMotion = useReducedMotion();
 
   return (
+    <ToastProvider>
     <div className="min-h-dvh bg-background">
       {/* Persistent sidebar (md+) */}
       <aside
@@ -73,5 +75,6 @@ export function AdminShell({ adminName, adminInitials, dateLabel, children }: Ad
         )}
       </AnimatePresence>
     </div>
+    </ToastProvider>
   );
 }

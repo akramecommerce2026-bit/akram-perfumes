@@ -75,6 +75,12 @@ export interface Database {
           is_featured: boolean;
           is_signature: boolean;
           active: boolean;
+          brand: string;
+          meta_title: string | null;
+          meta_description: string | null;
+          keywords: string[];
+          og_image: string | null;
+          deleted_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -98,6 +104,12 @@ export interface Database {
           is_featured?: boolean;
           is_signature?: boolean;
           active?: boolean;
+          brand?: string;
+          meta_title?: string | null;
+          meta_description?: string | null;
+          keywords?: string[];
+          og_image?: string | null;
+          deleted_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -121,6 +133,7 @@ export interface Database {
           currency: string;
           sku: string;
           stock: number;
+          low_stock_threshold: number;
           weight_value: number | null;
           weight_unit: WeightUnitEnum | null;
           status: VariantStatusEnum;
@@ -137,6 +150,7 @@ export interface Database {
           currency?: string;
           sku: string;
           stock?: number;
+          low_stock_threshold?: number;
           weight_value?: number | null;
           weight_unit?: WeightUnitEnum | null;
           status?: VariantStatusEnum;
