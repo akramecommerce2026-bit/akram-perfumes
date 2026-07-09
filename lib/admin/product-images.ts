@@ -21,11 +21,12 @@ function extensionFor(type: string): string {
 }
 
 /**
- * Uploads an image to the public product-images bucket and returns its public
- * URL. Validates type + size. Uses the service-role client (server-only), so
- * uploads are never exposed to the browser.
+ * Uploads an image to a folder within the public product-images bucket and
+ * returns its public URL. Validates type + size. Uses the service-role client
+ * (server-only), so uploads are never exposed to the browser. Shared by both
+ * the product and category editors.
  */
-export async function uploadProductImage(file: File): Promise<string> {
+export async function uploadImageToBucket(file: File, folder: string): Promise<string> {
   if (!ALLOWED_TYPES.has(file.type)) {
     throw new Error("Unsupported image type. Use JPEG, PNG, WebP or AVIF.");
   }
@@ -34,7 +35,7 @@ export async function uploadProductImage(file: File): Promise<string> {
   }
 
   const db = getSupabaseAdminClient();
-  const path = `products/${crypto.randomUUID()}.${extensionFor(file.type)}`;
+  const path = `${folder}/${crypto.randomUUID()}.${extensionFor(file.type)}`;
   const { error } = await db.storage.from(PRODUCT_IMAGE_BUCKET).upload(path, file, {
     cacheControl: "31536000",
     contentType: file.type,
@@ -43,6 +44,11 @@ export async function uploadProductImage(file: File): Promise<string> {
   if (error) throw error;
 
   return db.storage.from(PRODUCT_IMAGE_BUCKET).getPublicUrl(path).data.publicUrl;
+}
+
+/** Uploads a product image (into the `products/` folder). */
+export function uploadProductImage(file: File): Promise<string> {
+  return uploadImageToBucket(file, "products");
 }
 
 /**
