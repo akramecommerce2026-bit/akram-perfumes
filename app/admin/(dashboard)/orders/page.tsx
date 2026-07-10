@@ -7,6 +7,7 @@ import {
 } from "@/services/repositories/admin-order-repository";
 import type { AdminOrderQuery } from "@/types/admin-order";
 import type { OrderStatus, PaymentStatus } from "@/types/checkout";
+import { SHIPMENT_STATUSES, type ShipmentStatus } from "@/types/shipment";
 
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -20,6 +21,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const status = first(params.status);
   const payment = first(params.payment);
+  const shipment = first(params.shipment);
   const sort = first(params.sort);
 
   const query: AdminOrderQuery = {
@@ -27,6 +29,9 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
     status: ORDER_STATUSES.includes(status as OrderStatus) ? (status as OrderStatus) : "all",
     paymentStatus: PAYMENT_STATUSES.includes(payment as PaymentStatus)
       ? (payment as PaymentStatus)
+      : "all",
+    shipmentStatus: SHIPMENT_STATUSES.includes(shipment as ShipmentStatus)
+      ? (shipment as ShipmentStatus)
       : "all",
     sort: sort === "oldest" ? "oldest" : "newest",
     page: Math.max(1, Number(first(params.page)) || 1),

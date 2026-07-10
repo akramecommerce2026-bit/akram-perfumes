@@ -2,6 +2,7 @@ import { createMoney } from "@/lib/money";
 import type { Tables } from "@/lib/supabase/database.types";
 import type { Category } from "@/types/category";
 import type { FragranceNotes, ProductRecord } from "@/types/product";
+import type { ShipmentStatus, ShipmentTracking, TrackingEvent } from "@/types/shipment";
 import type { ProductVariant } from "@/types/variant";
 
 /**
@@ -84,5 +85,28 @@ export function mapProduct(
     isSignature: row.is_signature,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  };
+}
+
+/** Map an orders row's shipment columns to the domain ShipmentTracking. */
+export function mapShipmentRow(row: Tables<"orders">): ShipmentTracking {
+  return {
+    courierPartner: row.courier_partner ?? "",
+    trackingNumber: row.tracking_number ?? "",
+    trackingUrl: row.tracking_url ?? "",
+    shipmentStatus: row.shipment_status as ShipmentStatus,
+    shippedAt: row.shipped_at,
+    estimatedDelivery: row.estimated_delivery,
+    deliveredAt: row.delivered_at,
+    shippingNotes: row.shipping_notes ?? "",
+  };
+}
+
+export function mapTrackingEventRow(row: Tables<"order_tracking_events">): TrackingEvent {
+  return {
+    id: row.id,
+    status: row.status as ShipmentStatus | null,
+    message: row.message,
+    createdAt: row.created_at,
   };
 }

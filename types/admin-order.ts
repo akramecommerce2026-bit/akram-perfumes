@@ -1,5 +1,6 @@
 import type { DeliveryMethodId, OrderStatus, PaymentMethodId, PaymentStatus } from "@/types/checkout";
 import type { Money } from "@/types/money";
+import type { ShipmentStatus, ShipmentTracking, TrackingTimelineEntry } from "@/types/shipment";
 
 /** Row shape for the admin orders table. */
 export interface AdminOrderListItem {
@@ -11,6 +12,9 @@ export interface AdminOrderListItem {
   readonly total: Money;
   readonly status: OrderStatus;
   readonly paymentStatus: PaymentStatus;
+  readonly shipmentStatus: ShipmentStatus;
+  readonly trackingNumber: string;
+  readonly estimatedDelivery: string | null;
   readonly createdAt: string;
 }
 
@@ -55,12 +59,15 @@ export interface AdminOrderDetail {
   readonly razorpayOrderId: string;
   readonly razorpayPaymentId: string;
   readonly paymentTimestamp: string;
+  readonly shipment: ShipmentTracking;
+  readonly timeline: readonly TrackingTimelineEntry[];
 }
 
 export interface AdminOrderQuery {
   readonly search?: string;
   readonly status?: OrderStatus | "all";
   readonly paymentStatus?: PaymentStatus | "all";
+  readonly shipmentStatus?: ShipmentStatus | "all";
   readonly sort?: "newest" | "oldest";
   readonly page?: number;
   readonly pageSize?: number;

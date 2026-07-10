@@ -9,6 +9,7 @@
     "lint": "eslint",
     "seed:catalogue": "tsx --env-file=.env.local scripts/seed-catalogue.ts",
     "seed:customers": "tsx --env-file=.env.local scripts/seed-customers.ts",
+    "seed:shipments": "tsx --env-file=.env.local scripts/seed-shipments.ts",
     "types:generate": "supabase gen types typescript --linked > lib/supabase/database.types.ts"
   },
   "dependencies": {

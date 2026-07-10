@@ -6,9 +6,11 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, Eye, Search } from "lucide-react";
 
 import { OrderStatusBadge, PaymentStatusBadge } from "@/components/admin/orders/StatusBadge";
+import { ShipmentStatusBadge } from "@/components/shipment/ShipmentStatusBadge";
 import { Select } from "@/components/admin/ui/form-fields";
 import { ORDER_STATUSES, PAYMENT_STATUSES } from "@/services/repositories/admin-order-repository";
 import { formatMoney } from "@/lib/money";
+import { SHIPMENT_STATUSES, SHIPMENT_STATUS_LABELS } from "@/types/shipment";
 import type { AdminOrderListItem, AdminOrderQuery } from "@/types/admin-order";
 
 interface OrdersManagerProps {
@@ -28,6 +30,13 @@ function formatDate(iso: string): string {
     hour: "2-digit",
     minute: "2-digit",
   }).format(new Date(iso));
+}
+
+function formatDeliveryDate(iso: string | null): string {
+  if (!iso) return "—";
+  return new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" }).format(
+    new Date(iso),
+  );
 }
 
 export function OrdersManager({ items, total, page, pageSize, totalPages, query }: OrdersManagerProps) {
@@ -102,6 +111,19 @@ export function OrdersManager({ items, total, page, pageSize, totalPages, query 
           ))}
         </Select>
         <Select
+          aria-label="Filter by shipment"
+          value={query.shipmentStatus ?? "all"}
+          onChange={(e) => pushWith({ shipment: e.target.value })}
+          className="sm:w-44"
+        >
+          <option value="all">All shipments</option>
+          {SHIPMENT_STATUSES.map((status) => (
+            <option key={status} value={status}>
+              {SHIPMENT_STATUS_LABELS[status]}
+            </option>
+          ))}
+        </Select>
+        <Select
           aria-label="Sort"
           value={query.sort ?? "newest"}
           onChange={(e) => pushWith({ sort: e.target.value })}
@@ -113,15 +135,16 @@ export function OrdersManager({ items, total, page, pageSize, totalPages, query 
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card">
-        <table className="w-full min-w-[820px] text-sm">
+        <table className="w-full min-w-[1040px] text-sm">
           <thead>
             <tr className="border-b border-border text-left text-xs font-medium tracking-wide text-muted-foreground uppercase">
               <th className="px-4 py-3">Order</th>
               <th className="px-4 py-3">Customer</th>
-              <th className="px-4 py-3">Items</th>
               <th className="px-4 py-3">Total</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Payment</th>
+              <th className="px-4 py-3">Shipment</th>
+              <th className="px-4 py-3">Est. Delivery</th>
               <th className="px-4 py-3">Date</th>
               <th className="w-12 px-4 py-3" />
             </tr>
@@ -129,7 +152,7 @@ export function OrdersManager({ items, total, page, pageSize, totalPages, query 
           <tbody>
             {items.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-16 text-center text-sm text-muted-foreground">
+                <td colSpan={9} className="px-4 py-16 text-center text-sm text-muted-foreground">
                   No orders found. Orders placed on the storefront will appear here.
                 </td>
               </tr>
@@ -147,10 +170,18 @@ export function OrdersManager({ items, total, page, pageSize, totalPages, query 
                       <span className="text-xs text-muted-foreground">{order.customerEmail}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">{order.itemCount}</td>
                   <td className="px-4 py-3 font-medium text-foreground">{formatMoney(order.total)}</td>
                   <td className="px-4 py-3"><OrderStatusBadge status={order.status} /></td>
                   <td className="px-4 py-3"><PaymentStatusBadge status={order.paymentStatus} /></td>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-col gap-1">
+                      <ShipmentStatusBadge status={order.shipmentStatus} className="w-fit" />
+                      {order.trackingNumber && (
+                        <span className="font-mono text-xs text-muted-foreground">{order.trackingNumber}</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-muted-foreground">{formatDeliveryDate(order.estimatedDelivery)}</td>
                   <td className="px-4 py-3 text-muted-foreground">{formatDate(order.createdAt)}</td>
                   <td className="px-4 py-3">
                     <Link

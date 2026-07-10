@@ -28,6 +28,15 @@ export type OrderStatusEnum =
   | "delivered"
   | "cancelled";
 export type PaymentStatusEnum = "pending" | "paid" | "failed" | "refunded";
+export type ShipmentStatusEnum =
+  | "pending"
+  | "confirmed"
+  | "packed"
+  | "shipped"
+  | "out_for_delivery"
+  | "delivered"
+  | "cancelled"
+  | "returned";
 
 export interface Database {
   public: {
@@ -351,6 +360,14 @@ export interface Database {
           razorpay_payment_id: string | null;
           razorpay_signature: string | null;
           payment_timestamp: string | null;
+          courier_partner: string | null;
+          tracking_number: string | null;
+          tracking_url: string | null;
+          shipment_status: ShipmentStatusEnum;
+          shipped_at: string | null;
+          estimated_delivery: string | null;
+          delivered_at: string | null;
+          shipping_notes: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -382,6 +399,14 @@ export interface Database {
           razorpay_payment_id?: string | null;
           razorpay_signature?: string | null;
           payment_timestamp?: string | null;
+          courier_partner?: string | null;
+          tracking_number?: string | null;
+          tracking_url?: string | null;
+          shipment_status?: ShipmentStatusEnum;
+          shipped_at?: string | null;
+          estimated_delivery?: string | null;
+          delivered_at?: string | null;
+          shipping_notes?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -438,6 +463,31 @@ export interface Database {
           },
         ];
       };
+      order_tracking_events: {
+        Row: {
+          id: string;
+          order_id: string;
+          status: ShipmentStatusEnum | null;
+          message: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          order_id: string;
+          status?: ShipmentStatusEnum | null;
+          message: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["order_tracking_events"]["Insert"]>;
+        Relationships: [
+          {
+            foreignKeyName: "order_tracking_events_order_id_fkey";
+            columns: ["order_id"];
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -451,6 +501,7 @@ export interface Database {
       note_type: NoteTypeEnum;
       order_status: OrderStatusEnum;
       payment_status: PaymentStatusEnum;
+      shipment_status: ShipmentStatusEnum;
     };
     CompositeTypes: Record<string, never>;
   };

@@ -8,6 +8,7 @@ import type {
   AdminOrderQuery,
 } from "@/types/admin-order";
 import type { OrderStatus, PaymentStatus } from "@/types/checkout";
+import type { ShipmentUpdateInput } from "@/types/shipment";
 
 /**
  * Read + status-transition service for admin order management. Depends only on
@@ -31,6 +32,10 @@ export class AdminOrderService {
 
   updatePaymentStatus(id: string, paymentStatus: PaymentStatus): Promise<void> {
     return this.repository.updatePaymentStatus(id, paymentStatus);
+  }
+
+  updateShipment(id: string, input: ShipmentUpdateInput): Promise<void> {
+    return this.repository.updateShipment(id, input);
   }
 }
 

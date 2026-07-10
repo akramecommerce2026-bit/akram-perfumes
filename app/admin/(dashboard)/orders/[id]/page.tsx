@@ -4,7 +4,10 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { OrderStatusControl } from "@/components/admin/orders/OrderStatusControl";
+import { ShipmentTrackingControl } from "@/components/admin/orders/ShipmentTrackingControl";
 import { OrderStatusBadge, PaymentStatusBadge } from "@/components/admin/orders/StatusBadge";
+import { ShipmentStatusBadge } from "@/components/shipment/ShipmentStatusBadge";
+import { TrackingTimeline } from "@/components/shipment/TrackingTimeline";
 import { formatMoney } from "@/lib/money";
 import { adminOrderService } from "@/services/admin-order-service";
 import type { Money } from "@/types/money";
@@ -54,9 +57,10 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
             <p className="text-sm text-muted-foreground">{formatDate(order.createdAt)}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <OrderStatusBadge status={order.status} />
           <PaymentStatusBadge status={order.paymentStatus} />
+          <ShipmentStatusBadge status={order.shipment.shipmentStatus} />
         </div>
       </div>
 
@@ -111,6 +115,15 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
               </address>
             </section>
           </div>
+
+          {/* Tracking timeline */}
+          <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <h2 className="mb-4 font-heading text-lg font-semibold text-foreground">Tracking timeline</h2>
+            <TrackingTimeline
+              timeline={order.timeline}
+              emptyMessage="No tracking updates yet. Set a shipment status to start the timeline."
+            />
+          </section>
         </div>
 
         {/* Right column: summary + management */}
@@ -141,6 +154,8 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
             status={order.status}
             paymentStatus={order.paymentStatus}
           />
+
+          <ShipmentTrackingControl orderId={order.id} shipment={order.shipment} />
         </div>
       </div>
     </div>

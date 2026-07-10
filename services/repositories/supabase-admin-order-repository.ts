@@ -1,7 +1,9 @@
 import "server-only";
 
 import { createMoney } from "@/lib/money";
+import { buildTrackingTimeline } from "@/lib/shipment";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
+import { mapShipmentRow, mapTrackingEventRow } from "@/lib/supabase/mappers";
 import type { Tables, TablesUpdate } from "@/lib/supabase/database.types";
 import {
   DEFAULT_ORDER_PAGE_SIZE,
@@ -20,10 +22,11 @@ import type {
   PaymentMethodId,
   PaymentStatus,
 } from "@/types/checkout";
+import type { ShipmentStatus, ShipmentUpdateInput } from "@/types/shipment";
 
 const LIST_SELECT =
-  "id, order_number, contact_name, contact_email, total, status, payment_status, created_at, " +
-  "order_items(id)";
+  "id, order_number, contact_name, contact_email, total, status, payment_status, " +
+  "shipment_status, tracking_number, estimated_delivery, created_at, order_items(id)";
 
 /**
  * Supabase-backed admin order repository (service-role, server-only). Read +
@@ -47,6 +50,9 @@ export class SupabaseAdminOrderRepository implements AdminOrderRepository {
     if (query.status && query.status !== "all") request = request.eq("status", query.status);
     if (query.paymentStatus && query.paymentStatus !== "all") {
       request = request.eq("payment_status", query.paymentStatus);
+    }
+    if (query.shipmentStatus && query.shipmentStatus !== "all") {
+      request = request.eq("shipment_status", query.shipmentStatus);
     }
 
     request = request.order("created_at", { ascending: query.sort === "oldest" }).range(from, to);
@@ -73,14 +79,23 @@ export class SupabaseAdminOrderRepository implements AdminOrderRepository {
     if (error) throw error;
     if (!order) return null;
 
-    const { data: items, error: itemsError } = await this.db
-      .from("order_items")
-      .select("*")
-      .eq("order_id", id)
-      .order("created_at", { ascending: true });
+    const [{ data: items, error: itemsError }, { data: events, error: eventsError }] =
+      await Promise.all([
+        this.db
+          .from("order_items")
+          .select("*")
+          .eq("order_id", id)
+          .order("created_at", { ascending: true }),
+        this.db
+          .from("order_tracking_events")
+          .select("*")
+          .eq("order_id", id)
+          .order("created_at", { ascending: true }),
+      ]);
     if (itemsError) throw itemsError;
+    if (eventsError) throw eventsError;
 
-    return mapDetail(order, items ?? []);
+    return mapDetail(order, items ?? [], events ?? []);
   }
 
   async updateStatus(id: string, status: OrderStatus): Promise<void> {
@@ -94,6 +109,29 @@ export class SupabaseAdminOrderRepository implements AdminOrderRepository {
     const { error } = await this.db.from("orders").update(patch).eq("id", id);
     if (error) throw error;
   }
+
+  async updateShipment(id: string, input: ShipmentUpdateInput): Promise<void> {
+    const patch: TablesUpdate<"orders"> = {
+      courier_partner: input.courierPartner.trim() || null,
+      tracking_number: input.trackingNumber.trim() || null,
+      tracking_url: input.trackingUrl.trim() || null,
+      shipment_status: input.shipmentStatus,
+      shipped_at: input.shippedAt || null,
+      estimated_delivery: input.estimatedDelivery || null,
+      shipping_notes: input.shippingNotes.trim() || null,
+    };
+    // Stamp fulfilment timestamps from the status when the admin hasn't set them.
+    if (input.shipmentStatus === "shipped" && !input.shippedAt) {
+      patch.shipped_at = new Date().toISOString();
+    }
+    if (input.shipmentStatus === "delivered") {
+      patch.delivered_at = new Date().toISOString();
+    }
+    // The `orders_log_shipment_status` trigger appends a timeline event whenever
+    // shipment_status actually changes — no manual event insert here.
+    const { error } = await this.db.from("orders").update(patch).eq("id", id);
+    if (error) throw error;
+  }
 }
 
 interface ListRow {
@@ -104,6 +142,9 @@ interface ListRow {
   total: number;
   status: string;
   payment_status: string;
+  shipment_status: string;
+  tracking_number: string | null;
+  estimated_delivery: string | null;
   created_at: string;
   order_items: { id: string }[];
 }
@@ -118,6 +159,9 @@ function mapListItem(row: ListRow): AdminOrderListItem {
     total: createMoney(row.total),
     status: row.status as OrderStatus,
     paymentStatus: row.payment_status as PaymentStatus,
+    shipmentStatus: row.shipment_status as ShipmentStatus,
+    trackingNumber: row.tracking_number ?? "",
+    estimatedDelivery: row.estimated_delivery,
     createdAt: row.created_at,
   };
 }
@@ -136,7 +180,11 @@ function mapLine(row: Tables<"order_items">): AdminOrderLine {
   };
 }
 
-function mapDetail(row: Tables<"orders">, items: readonly Tables<"order_items">[]): AdminOrderDetail {
+function mapDetail(
+  row: Tables<"orders">,
+  items: readonly Tables<"order_items">[],
+  events: readonly Tables<"order_tracking_events">[],
+): AdminOrderDetail {
   return {
     id: row.id,
     orderNumber: row.order_number,
@@ -164,5 +212,12 @@ function mapDetail(row: Tables<"orders">, items: readonly Tables<"order_items">[
     razorpayOrderId: row.razorpay_order_id ?? "",
     razorpayPaymentId: row.razorpay_payment_id ?? "",
     paymentTimestamp: row.payment_timestamp ?? "",
+    shipment: mapShipmentRow(row),
+    timeline: buildTrackingTimeline({
+      createdAt: row.created_at,
+      paymentStatus: row.payment_status as PaymentStatus,
+      paymentTimestamp: row.payment_timestamp,
+      events: events.map(mapTrackingEventRow),
+    }),
   };
 }

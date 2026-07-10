@@ -67,10 +67,10 @@ export function SuccessView({ orderNumber }: SuccessViewProps) {
           Continue Shopping
         </Link>
         <Link
-          href="/account/orders"
+          href={`/track/${encodeURIComponent(orderNumber)}`}
           className="inline-flex h-12 items-center justify-center rounded-full border border-border px-8 text-sm font-medium text-foreground transition-colors hover:border-accent hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         >
-          View Orders
+          Track Order
         </Link>
       </div>
     </motion.div>

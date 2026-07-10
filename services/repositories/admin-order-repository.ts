@@ -4,6 +4,7 @@ import type {
   AdminOrderListResult,
   AdminOrderQuery,
 } from "@/types/admin-order";
+import type { ShipmentUpdateInput } from "@/types/shipment";
 
 /**
  * Read + status-write contract for admin order management. Orders are created
@@ -15,6 +16,7 @@ export interface AdminOrderRepository {
   getById(id: string): Promise<AdminOrderDetail | null>;
   updateStatus(id: string, status: OrderStatus): Promise<void>;
   updatePaymentStatus(id: string, paymentStatus: PaymentStatus): Promise<void>;
+  updateShipment(id: string, input: ShipmentUpdateInput): Promise<void>;
 }
 
 export const DEFAULT_ORDER_PAGE_SIZE = 10;

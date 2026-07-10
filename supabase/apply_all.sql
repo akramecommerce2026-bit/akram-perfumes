@@ -626,3 +626,83 @@ from orders o
 where o.customer_id is not null
   and not exists (select 1 from addresses a where a.customer_id = o.customer_id)
 order by o.customer_id, o.created_at desc;
+
+
+-- =============================================================================
+-- Akram Perfumes — Manual Shipment Tracking
+-- =============================================================================
+-- Extends orders with manual courier/shipment fields + an append-only
+-- order_tracking_events timeline, with a trigger that auto-logs an event on
+-- every shipment-status change. Fully idempotent + safe to re-run.
+-- =============================================================================
+
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'shipment_status') then
+    create type shipment_status as enum (
+      'pending', 'confirmed', 'packed', 'shipped',
+      'out_for_delivery', 'delivered', 'cancelled', 'returned'
+    );
+  end if;
+end
+$$;
+
+alter table orders
+  add column if not exists courier_partner    text,
+  add column if not exists tracking_number    text,
+  add column if not exists tracking_url        text,
+  add column if not exists shipment_status     shipment_status not null default 'pending',
+  add column if not exists shipped_at          timestamptz,
+  add column if not exists estimated_delivery  date,
+  add column if not exists delivered_at        timestamptz,
+  add column if not exists shipping_notes      text;
+
+create index if not exists orders_shipment_status_idx on orders (shipment_status);
+create index if not exists orders_tracking_number_idx on orders (tracking_number);
+
+create table if not exists order_tracking_events (
+  id         uuid primary key default gen_random_uuid(),
+  order_id   uuid not null references orders (id) on delete cascade,
+  status     shipment_status,
+  message    text not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists order_tracking_events_order_idx
+  on order_tracking_events (order_id, created_at);
+
+create or replace function log_shipment_status_change()
+returns trigger
+language plpgsql
+as $$
+begin
+  if tg_op = 'UPDATE' and new.shipment_status is distinct from old.shipment_status then
+    insert into order_tracking_events (order_id, status, message)
+    values (
+      new.id,
+      new.shipment_status,
+      initcap(replace(new.shipment_status::text, '_', ' '))
+    );
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists orders_log_shipment_status on orders;
+create trigger orders_log_shipment_status
+  after update of shipment_status on orders
+  for each row execute function log_shipment_status_change();
+
+alter table order_tracking_events enable row level security;
+
+drop policy if exists "Users can read their own order tracking events" on order_tracking_events;
+create policy "Users can read their own order tracking events"
+  on order_tracking_events for select
+  using (
+    exists (
+      select 1
+      from orders o
+      join customers c on c.id = o.customer_id
+      where o.id = order_tracking_events.order_id and c.profile_id = auth.uid()
+    )
+  );
