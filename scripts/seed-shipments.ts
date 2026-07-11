@@ -12,7 +12,7 @@
  */
 import { createClient } from "@supabase/supabase-js";
 
-import type { Database } from "../lib/supabase/database.types";
+import type { Database, TablesUpdate } from "../lib/supabase/database.types";
 import { getServiceRoleKey, isSupabaseConfigured, supabaseUrl } from "../lib/supabase/env";
 
 if (!isSupabaseConfigured()) {
@@ -129,7 +129,7 @@ async function main() {
     }
 
     // Stamp fulfilment timestamps for a realistic record.
-    const patch: Record<string, string | null> = {};
+    const patch: TablesUpdate<"orders"> = {};
     if (profile.shippedDaysAgo != null) {
       patch.shipped_at = new Date(Date.now() - profile.shippedDaysAgo * DAY).toISOString();
     }
