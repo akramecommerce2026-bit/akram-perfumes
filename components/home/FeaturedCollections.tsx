@@ -10,25 +10,25 @@ const collections: Collection[] = [
   {
     title: "Attars",
     description: "Pure oil-based fragrances with depth that lingers.",
-    href: "/shop/attars",
+    href: "/collections/attars",
     image: "/collections/attars.webp",
   },
   {
     title: "Perfumes",
     description: "Signature eaux de parfum for every occasion.",
-    href: "/shop/perfumes",
+    href: "/collections/perfumes",
     image: "/collections/perfumes.webp",
   },
   {
     title: "Incense",
     description: "Bakhoor and oud to perfume your every space.",
-    href: "/shop/incense",
+    href: "/collections/incense",
     image: "/collections/incense.webp",
   },
   {
     title: "Solid Perfumes",
     description: "Travel-ready balms crafted for life in motion.",
-    href: "/shop/solid-perfumes",
+    href: "/collections/solid-perfumes",
     image: "/collections/solid-perfumes.webp",
   },
 ];

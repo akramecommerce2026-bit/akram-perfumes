@@ -143,7 +143,7 @@ export function MobileMenu({ open, onOpenChange }: MobileMenuProps) {
                 </nav>
 
                 <div className="border-t border-border px-gutter py-6">
-                  <NavActions />
+                  <NavActions onNavigate={() => onOpenChange(false)} />
                 </div>
               </Drawer.Popup>
             </Drawer.Viewport>

@@ -14,3 +14,13 @@ export async function signOutAction(): Promise<void> {
   await supabase.auth.signOut();
   redirect("/admin/login");
 }
+
+/**
+ * Storefront customer sign-out. Same server-side cookie clearing as the admin
+ * variant, but returns the customer to the home page.
+ */
+export async function signOutCustomerAction(): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+  await supabase.auth.signOut();
+  redirect("/");
+}

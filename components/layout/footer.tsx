@@ -1,22 +1,18 @@
 import Link from "next/link";
+import { Mail, MapPin, Phone } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { Container } from "@/components/common/container";
-import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/layout/logo";
+import { NewsletterForm } from "@/components/layout/newsletter-form";
 import { navItems } from "@/lib/navigation";
+import { BUSINESS, SOCIAL_LINKS } from "@/lib/site";
 
 const supportLinks = [
-  { label: "Shipping & Returns", href: "/shipping-returns" },
-  { label: "FAQs", href: "/faq" },
-  { label: "Privacy Policy", href: "/privacy-policy" },
-  { label: "Terms of Service", href: "/terms-of-service" },
-];
-
-const contactDetails = [
-  { label: "hello@example.com", href: "mailto:hello@example.com" },
-  { label: "+1 (000) 000-0000", href: "tel:+10000000000" },
-  { label: "@akramperfumes", href: "https://instagram.com" },
+  { label: "Track Order", href: "/track" },
+  { label: "Contact Us", href: "/contact" },
+  { label: "FAQs", href: "/contact#faq" },
+  { label: "All Products", href: "/shop" },
 ];
 
 interface FooterColumnProps {
@@ -58,8 +54,27 @@ export function Footer() {
           <FooterCard>
             <Logo />
             <p className="max-w-xs text-sm text-muted-foreground">
-              Crafted fragrances for the modern connoisseur.
+              Crafted fragrances for the modern connoisseur — attars, perfumes and more, made in
+              Madurai.
             </p>
+            <ul className="flex flex-col gap-2.5 text-sm text-muted-foreground">
+              <li className="flex items-start gap-2.5">
+                <MapPin className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden="true" />
+                <span>{BUSINESS.addressOneLine}</span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Phone className="size-4 shrink-0 text-accent" aria-hidden="true" />
+                <a href={BUSINESS.phoneHref} className="transition-colors hover:text-foreground">
+                  {BUSINESS.phone}
+                </a>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Mail className="size-4 shrink-0 text-accent" aria-hidden="true" />
+                <a href={BUSINESS.emailHref} className="transition-colors hover:text-foreground">
+                  {BUSINESS.email}
+                </a>
+              </li>
+            </ul>
           </FooterCard>
 
           <FooterColumn title="Quick Links" links={quickLinks} />
@@ -70,28 +85,17 @@ export function Footer() {
             <p className="text-sm text-muted-foreground">
               Sign up for updates on new arrivals and collections.
             </p>
-            <form className="flex gap-2">
-              <label htmlFor="footer-newsletter-email" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="footer-newsletter-email"
-                type="email"
-                placeholder="Email address"
-                className="h-10 w-full min-w-0 rounded-full border border-border bg-background px-4 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-ring"
-              />
-              <Button type="submit" size="sm" className="shrink-0 rounded-full">
-                Subscribe
-              </Button>
-            </form>
+            <NewsletterForm />
             <ul className="flex flex-wrap gap-x-4 gap-y-1 pt-2">
-              {contactDetails.map((item) => (
-                <li key={item.label}>
+              {SOCIAL_LINKS.map((social) => (
+                <li key={social.label}>
                   <a
-                    href={item.href}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    {item.label}
+                    {social.label}
                   </a>
                 </li>
               ))}
@@ -103,13 +107,13 @@ export function Footer() {
           <p>&copy; {new Date().getFullYear()} Akram Perfumes. All rights reserved.</p>
           <ul className="flex gap-4">
             <li>
-              <Link href="/privacy-policy" className="hover:text-foreground">
-                Privacy
+              <Link href="/contact" className="hover:text-foreground">
+                Contact
               </Link>
             </li>
             <li>
-              <Link href="/terms-of-service" className="hover:text-foreground">
-                Terms
+              <Link href="/track" className="hover:text-foreground">
+                Track Order
               </Link>
             </li>
           </ul>

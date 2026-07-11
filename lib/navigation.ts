@@ -33,16 +33,25 @@ export const navItems: NavItem[] = [
       {
         title: "Shop by Type",
         links: [
-          { label: "Attars", href: "/shop/attars" },
-          { label: "Perfumes", href: "/shop/perfumes" },
-          { label: "Incense", href: "/shop/incense" },
-          { label: "Solid Perfumes", href: "/shop/solid-perfumes" },
+          { label: "Attars", href: "/collections/attars" },
+          { label: "Perfumes", href: "/collections/perfumes" },
+          { label: "Incense", href: "/collections/incense" },
+          { label: "Solid Perfumes", href: "/collections/solid-perfumes" },
+        ],
+      },
+      {
+        title: "Discover",
+        links: [
+          { label: "All Products", href: "/shop" },
+          { label: "New Arrivals", href: "/new-arrivals" },
+          { label: "Best Sellers", href: "/best-sellers" },
+          { label: "Collections", href: "/collections" },
         ],
       },
     ],
   },
   { type: "link", label: "Collections", href: "/collections" },
-  { type: "link", label: "About", href: "/about" },
+  { type: "link", label: "New Arrivals", href: "/new-arrivals" },
+  { type: "link", label: "Best Sellers", href: "/best-sellers" },
   { type: "link", label: "Contact", href: "/contact" },
-  { type: "link", label: "Track Order", href: "/track-order" },
 ];

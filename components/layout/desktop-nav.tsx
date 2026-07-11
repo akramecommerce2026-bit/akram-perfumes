@@ -15,8 +15,8 @@ function isActivePath(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-function MenuLink(props: NavigationMenu.Link.Props) {
-  return <NavigationMenu.Link render={<NextLink href="#" />} {...props} />;
+function MenuLink({ href, ...props }: NavigationMenu.Link.Props & { href: string }) {
+  return <NavigationMenu.Link render={<NextLink href={href} />} {...props} />;
 }
 
 const baseLinkClassName =

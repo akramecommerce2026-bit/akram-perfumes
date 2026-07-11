@@ -9,6 +9,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { ProductBadge } from "@/components/shop/ProductBadge";
 import { ProductPrice } from "@/components/shop/ProductPrice";
 import { ProductVariant } from "@/components/shop/ProductVariant";
+import { WishlistButton } from "@/components/wishlist/WishlistButton";
 import { cn } from "@/lib/utils";
 import type { ProductSummary } from "@/types/product";
 
@@ -52,6 +53,8 @@ export function ProductCard({ product }: { product: ProductSummary }) {
           {isOnSale && <ProductBadge label="Sale" tone="sale" />}
           {!product.inStock && <ProductBadge label="Sold Out" tone="sold-out" />}
         </div>
+
+        <WishlistButton product={product} className="absolute right-3 top-3 z-10" />
 
         {/* Slide-up action panel on hover */}
         <div className="absolute inset-x-0 bottom-0 translate-y-full bg-card/95 p-3 backdrop-blur-sm transition-transform duration-500 ease-out group-hover:translate-y-0 motion-reduce:transition-none">
