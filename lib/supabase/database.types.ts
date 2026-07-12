@@ -368,6 +368,16 @@ export interface Database {
           estimated_delivery: string | null;
           delivered_at: string | null;
           shipping_notes: string | null;
+          bill_name: string | null;
+          bill_line1: string | null;
+          bill_line2: string | null;
+          bill_landmark: string | null;
+          bill_city: string | null;
+          bill_state: string | null;
+          bill_pincode: string | null;
+          bill_country: string | null;
+          billing_same_as_shipping: boolean;
+          idempotency_key: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -407,6 +417,16 @@ export interface Database {
           estimated_delivery?: string | null;
           delivered_at?: string | null;
           shipping_notes?: string | null;
+          bill_name?: string | null;
+          bill_line1?: string | null;
+          bill_line2?: string | null;
+          bill_landmark?: string | null;
+          bill_city?: string | null;
+          bill_state?: string | null;
+          bill_pincode?: string | null;
+          bill_country?: string | null;
+          billing_same_as_shipping?: boolean;
+          idempotency_key?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -490,7 +510,16 @@ export interface Database {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      place_order: {
+        Args: { payload: Json };
+        Returns: Json;
+      };
+      confirm_order_payment: {
+        Args: { p_order_id: string; p_payment_id: string; p_signature: string };
+        Returns: Json;
+      };
+    };
     Enums: {
       gender: Gender;
       fragrance_family: FragranceFamily;

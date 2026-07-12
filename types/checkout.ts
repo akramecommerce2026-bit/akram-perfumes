@@ -1,15 +1,15 @@
-import type { CartItem } from "@/types/cart";
+import type { CartItem, CartTotals } from "@/types/cart";
 import type { Money } from "@/types/money";
 
 /** Delivery speeds offered at checkout. Extend the union to add new tiers. */
 export type DeliveryMethodId = "standard" | "express";
 
 /**
- * The project settles exclusively through Razorpay — a single method. Razorpay
- * Checkout handles UPI, cards, net banking and wallets internally, so there is
- * intentionally only one payment method in the domain.
+ * Payment methods. `razorpay` settles online (Razorpay Checkout handles UPI,
+ * cards, net banking and wallets internally); `cod` is cash on delivery, which
+ * is created with a pending payment status and settled on delivery.
  */
-export type PaymentMethodId = "razorpay";
+export type PaymentMethodId = "razorpay" | "cod";
 
 export interface ContactInfo {
   readonly fullName: string;
@@ -25,18 +25,6 @@ export interface ShippingAddress {
   readonly state: string;
   readonly pincode: string;
   readonly country: string;
-}
-
-/**
- * Everything the customer entered at checkout, independent of the cart.
- * This is the shape a Supabase `orders` row / Razorpay order payload is built
- * from, so the future integration reads from here without touching the UI.
- */
-export interface CheckoutDetails {
-  readonly contact: ContactInfo;
-  readonly address: ShippingAddress;
-  readonly deliveryMethod: DeliveryMethodId;
-  readonly paymentMethod: PaymentMethodId;
 }
 
 /** Order lifecycle — mirrors the `order_status` enum in the database. */
@@ -69,6 +57,7 @@ export interface RazorpayPayment {
  * without any schema change.
  */
 export interface Order extends RazorpayPayment {
+  readonly id: string;
   readonly orderNumber: string;
   readonly createdAt: string;
   readonly items: readonly CartItem[];
@@ -85,8 +74,20 @@ export interface Order extends RazorpayPayment {
   readonly paymentStatus: PaymentStatus;
 }
 
-/** Input required to place an order (cart lines + entered checkout details). */
-export interface PlaceOrderInput {
+/**
+ * Fully server-resolved order input passed to the repository. Prices and totals
+ * here are recomputed on the server from the live catalogue (never trusted from
+ * the client), and `idempotencyKey` dedupes double-submits / retries.
+ */
+export interface CreateOrderInput {
+  readonly contact: ContactInfo;
+  readonly shippingAddress: ShippingAddress;
+  readonly billingAddress: ShippingAddress | null;
+  readonly billingSameAsShipping: boolean;
+  readonly deliveryMethod: DeliveryMethodId;
+  readonly paymentMethod: PaymentMethodId;
   readonly items: readonly CartItem[];
-  readonly details: CheckoutDetails;
+  readonly totals: CartTotals;
+  readonly idempotencyKey: string;
+  readonly profileId: string | null;
 }

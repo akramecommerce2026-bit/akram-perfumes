@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,17 +14,58 @@ import { OrderReview } from "@/components/checkout/OrderReview";
 import { OrderSummary } from "@/components/checkout/OrderSummary";
 import { PaymentOptions } from "@/components/checkout/PaymentOptions";
 import { useCart } from "@/components/cart/cart-context";
+import { computeCheckoutTotals, DEFAULT_DELIVERY_METHOD, getDefaultPaymentMethod } from "@/lib/checkout";
 import {
-  computeCheckoutTotals,
-  DEFAULT_DELIVERY_METHOD,
-  DEFAULT_PAYMENT_METHOD,
-} from "@/lib/checkout";
+  createOrderAction,
+  verifyPaymentAction,
+  type CreateOrderActionResult,
+} from "@/lib/checkout-actions";
 import { checkoutSchema, type CheckoutFormValues } from "@/lib/checkout-schema";
 import { formatMoney } from "@/lib/money";
-import { orderService } from "@/services/order-service";
 import { useMounted } from "@/lib/use-mounted";
 
 type CheckoutStep = "details" | "review";
+
+interface RazorpayResponse {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+}
+interface RazorpayOptions {
+  key: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description?: string;
+  order_id: string;
+  prefill?: { name?: string; email?: string; contact?: string };
+  theme?: { color?: string };
+  handler: (response: RazorpayResponse) => void;
+  modal?: { ondismiss?: () => void };
+}
+declare global {
+  interface Window {
+    Razorpay?: new (options: RazorpayOptions) => { open: () => void };
+  }
+}
+
+function loadRazorpayScript(): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (window.Razorpay) return resolve(true);
+    const existing = document.getElementById("razorpay-checkout-js") as HTMLScriptElement | null;
+    if (existing) {
+      existing.addEventListener("load", () => resolve(true));
+      existing.addEventListener("error", () => resolve(false));
+      return;
+    }
+    const script = document.createElement("script");
+    script.id = "razorpay-checkout-js";
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
 
 export function CheckoutForm() {
   const router = useRouter();
@@ -33,6 +74,9 @@ export function CheckoutForm() {
   const [step, setStep] = useState<CheckoutStep>("details");
   const [isPlacing, setIsPlacing] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  // Stable per order-creation attempt so a network retry can't create duplicates;
+  // reset when the customer goes back to edit their details.
+  const idempotencyKey = useRef<string | null>(null);
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
@@ -49,15 +93,12 @@ export function CheckoutForm() {
       pincode: "",
       country: "India",
       deliveryMethod: DEFAULT_DELIVERY_METHOD,
-      paymentMethod: DEFAULT_PAYMENT_METHOD,
+      paymentMethod: getDefaultPaymentMethod(),
     },
   });
 
   const deliveryMethod = useWatch({ control: form.control, name: "deliveryMethod" });
-  const totals = useMemo(
-    () => computeCheckoutTotals(items, deliveryMethod),
-    [items, deliveryMethod],
-  );
+  const totals = useMemo(() => computeCheckoutTotals(items, deliveryMethod), [items, deliveryMethod]);
 
   function scrollToTop() {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -70,39 +111,106 @@ export function CheckoutForm() {
 
   function handleEdit() {
     setStep("details");
+    idempotencyKey.current = null; // details changed → a fresh order next submit
     scrollToTop();
+  }
+
+  function finishSuccess(orderNumber: string) {
+    clearCart();
+    router.push(`/checkout/success?order=${encodeURIComponent(orderNumber)}`);
+  }
+
+  async function startRazorpay(
+    orderId: string,
+    orderNumber: string,
+    payment: Extract<CreateOrderActionResult, { ok: true }>["payment"],
+  ) {
+    if (payment.provider !== "razorpay") return;
+    const loaded = await loadRazorpayScript();
+    if (!loaded || !window.Razorpay) {
+      setSubmitError("Couldn't load the payment gateway. Please try again.");
+      setIsPlacing(false);
+      return;
+    }
+    const checkout = new window.Razorpay({
+      key: payment.keyId,
+      amount: payment.amount,
+      currency: payment.currency,
+      name: "Akram Perfumes",
+      description: `Order ${orderNumber}`,
+      order_id: payment.razorpayOrderId,
+      prefill: payment.prefill,
+      theme: { color: "#c8962a" },
+      handler: (response) => {
+        void (async () => {
+          const verified = await verifyPaymentAction({
+            orderId,
+            razorpayOrderId: response.razorpay_order_id,
+            razorpayPaymentId: response.razorpay_payment_id,
+            signature: response.razorpay_signature,
+          });
+          if (verified.ok) finishSuccess(verified.orderNumber);
+          else {
+            setSubmitError(verified.error);
+            setIsPlacing(false);
+          }
+        })();
+      },
+      modal: {
+        ondismiss: () => {
+          setIsPlacing(false);
+          setSubmitError("Payment was cancelled. You can retry when you're ready.");
+        },
+      },
+    });
+    checkout.open();
   }
 
   async function placeOrder(values: CheckoutFormValues) {
     setIsPlacing(true);
     setSubmitError(null);
+    if (!idempotencyKey.current) idempotencyKey.current = crypto.randomUUID();
+
     try {
-      const order = await orderService.placeOrder({
-        items,
-        details: {
-          contact: { fullName: values.fullName, email: values.email, mobile: values.mobile },
-          address: {
-            line1: values.line1,
-            line2: values.line2 || undefined,
-            landmark: values.landmark || undefined,
-            city: values.city,
-            state: values.state,
-            pincode: values.pincode,
-            country: values.country,
-          },
-          deliveryMethod: values.deliveryMethod,
-          paymentMethod: values.paymentMethod,
+      const result = await createOrderAction({
+        contact: { fullName: values.fullName, email: values.email, mobile: values.mobile },
+        address: {
+          line1: values.line1,
+          line2: values.line2 || "",
+          landmark: values.landmark || "",
+          city: values.city,
+          state: values.state,
+          pincode: values.pincode,
+          country: values.country,
         },
+        billingSameAsShipping: true,
+        deliveryMethod: values.deliveryMethod,
+        paymentMethod: values.paymentMethod,
+        lines: items.map((item) => ({ variantId: item.variantId, quantity: item.quantity })),
+        idempotencyKey: idempotencyKey.current,
       });
-      clearCart();
-      router.push(`/checkout/success?order=${encodeURIComponent(order.orderNumber)}`);
+
+      if (!result.ok) {
+        setSubmitError(result.error);
+        setIsPlacing(false);
+        return;
+      }
+
+      if (result.payment.provider === "cod") {
+        finishSuccess(result.orderNumber);
+        return;
+      }
+
+      await startRazorpay(result.orderId, result.orderNumber, result.payment);
     } catch {
-      setIsPlacing(false);
       setSubmitError("Something went wrong placing your order. Please try again.");
+      setIsPlacing(false);
     }
   }
 
-  const onSubmit = form.handleSubmit(step === "details" ? handleContinue : placeOrder);
+  function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    void form.handleSubmit(step === "details" ? handleContinue : placeOrder)(event);
+  }
 
   // Wait for cart hydration before deciding the cart is empty (avoids a flash).
   if (!mounted) {

@@ -56,9 +56,10 @@ export interface PaymentOption {
 }
 
 /**
- * The site exposes a single payment method. Razorpay Checkout handles every
- * underlying method (UPI, cards, net banking, wallets) internally, so there is
- * intentionally no multi-provider selection.
+ * Payment methods. Razorpay Checkout handles every online method (UPI, cards,
+ * net banking, wallets) internally; Cash on Delivery settles on arrival. The
+ * Razorpay option is only offered when the gateway is configured
+ * (`NEXT_PUBLIC_RAZORPAY_KEY_ID`) — see `isRazorpayEnabled`.
  */
 export const PAYMENT_OPTIONS: readonly PaymentOption[] = [
   {
@@ -66,9 +67,29 @@ export const PAYMENT_OPTIONS: readonly PaymentOption[] = [
     name: "Secure Payment via Razorpay",
     description: "Pay by UPI, cards, net banking or wallets — all handled securely by Razorpay.",
   },
+  {
+    id: "cod",
+    name: "Cash on Delivery",
+    description: "Pay in cash when your order is delivered.",
+  },
 ];
 
+/** True when the Razorpay public key is present (client + server safe). */
+export function isRazorpayEnabled(): boolean {
+  return Boolean((process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ?? "").trim());
+}
+
+/** Payment methods available to the customer, given the current configuration. */
+export function availablePaymentMethods(): readonly PaymentOption[] {
+  return PAYMENT_OPTIONS.filter((option) => option.id !== "razorpay" || isRazorpayEnabled());
+}
+
+/** Default method: Razorpay when configured, otherwise Cash on Delivery. */
 export const DEFAULT_PAYMENT_METHOD: PaymentMethodId = "razorpay";
+
+export function getDefaultPaymentMethod(): PaymentMethodId {
+  return isRazorpayEnabled() ? "razorpay" : "cod";
+}
 
 /** Resolve the shipping fee for a subtotal + chosen delivery tier. */
 export function resolveShippingFee(subtotalAmount: number, deliveryId: DeliveryMethodId): number {

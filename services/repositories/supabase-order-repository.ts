@@ -1,110 +1,156 @@
 import "server-only";
 
-import { computeCheckoutTotals, generateOrderNumber } from "@/lib/checkout";
 import { createMoney } from "@/lib/money";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
-import type { Tables, TablesInsert } from "@/lib/supabase/database.types";
+import type { Json, Tables } from "@/lib/supabase/database.types";
 import type { OrderRepository } from "@/services/repositories/order-repository";
 import type { CartItem } from "@/types/cart";
 import type {
+  CreateOrderInput,
   DeliveryMethodId,
   Order,
   OrderStatus,
+  PaymentMethodId,
   PaymentStatus,
-  PlaceOrderInput,
 } from "@/types/checkout";
 
 /**
- * Supabase-backed order repository. Writes with the service-role admin client
- * (RLS-bypassing) so it must run server-side only — hence `server-only`.
+ * Supabase-backed order repository. All writes run with the service-role admin
+ * client (RLS-bypassing) so it must run server-side only.
  *
- * PREPARED, NOT YET WIRED: order creation will be invoked from a server action
- * after Razorpay payment verification in the next phase. Until then the live
- * checkout flow uses the in-memory mock. Orders are created `pending` with empty
- * Razorpay references; the verification step later flips `payment_status`/status
- * and fills the gateway ids — no schema or architectural change required.
+ * Order creation goes through the transactional `place_order` RPC — customer
+ * upsert, order + items insert, atomic race-safe stock decrement and the initial
+ * timeline event all commit or roll back together. Payment settlement goes
+ * through the idempotent `confirm_order_payment` RPC.
  */
 export class SupabaseOrderRepository implements OrderRepository {
   private get db() {
     return getSupabaseAdminClient();
   }
 
-  async create(input: PlaceOrderInput): Promise<Order> {
-    const { items, details } = input;
-    const totals = computeCheckoutTotals(items, details.deliveryMethod);
-
-    const orderInsert: TablesInsert<"orders"> = {
-      order_number: generateOrderNumber(),
-      contact_name: details.contact.fullName,
-      contact_email: details.contact.email,
-      contact_phone: details.contact.mobile,
-      ship_line1: details.address.line1,
-      ship_line2: details.address.line2 ?? null,
-      ship_landmark: details.address.landmark ?? null,
-      ship_city: details.address.city,
-      ship_state: details.address.state,
-      ship_pincode: details.address.pincode,
-      ship_country: details.address.country,
-      delivery_method: details.deliveryMethod,
-      subtotal: totals.subtotal.amount,
-      shipping: totals.shipping.amount,
-      tax: totals.tax.amount,
-      discount: totals.discount.amount,
-      total: totals.total.amount,
-      currency: totals.total.currency,
-      status: "pending",
-      payment_status: "pending",
-      payment_method: "razorpay",
+  async create(input: CreateOrderInput): Promise<Order> {
+    const billing = input.billingSameAsShipping ? null : input.billingAddress;
+    const payload = {
+      idempotency_key: input.idempotencyKey,
+      profile_id: input.profileId ?? "",
+      payment_method: input.paymentMethod,
+      delivery_method: input.deliveryMethod,
+      currency: input.totals.total.currency,
+      subtotal: input.totals.subtotal.amount,
+      shipping_fee: input.totals.shipping.amount,
+      tax: input.totals.tax.amount,
+      discount: input.totals.discount.amount,
+      total: input.totals.total.amount,
+      billing_same_as_shipping: input.billingSameAsShipping,
+      contact: {
+        name: input.contact.fullName,
+        email: input.contact.email,
+        phone: input.contact.mobile,
+      },
+      shipping: addressJson(input.shippingAddress),
+      billing: billing ? { name: input.contact.fullName, ...addressJson(billing) } : {},
+      items: input.items.map((item) => ({
+        product_id: item.productId,
+        variant_id: item.variantId,
+        product_name: item.productName,
+        product_slug: item.productSlug,
+        variant_name: item.variantName,
+        sku: item.sku,
+        featured_image: item.featuredImage,
+        unit_price: item.unitPrice.amount,
+        quantity: item.quantity,
+        line_total: item.subtotal.amount,
+        currency: item.unitPrice.currency,
+      })),
     };
 
-    const { data: order, error: orderError } = await this.db
-      .from("orders")
-      .insert(orderInsert)
-      .select("*")
-      .single();
-    if (orderError) throw orderError;
+    const { data, error } = await this.db.rpc("place_order", { payload: payload as unknown as Json });
+    if (error) throw normalizeOrderError(error);
 
-    const itemsInsert: TablesInsert<"order_items">[] = items.map((item) => ({
-      order_id: order.id,
-      product_id: item.productId,
-      variant_id: item.variantId,
-      product_name: item.productName,
-      product_slug: item.productSlug,
-      variant_name: item.variantName,
-      sku: item.sku,
-      featured_image: item.featuredImage,
-      unit_price: item.unitPrice.amount,
-      quantity: item.quantity,
-      line_total: item.subtotal.amount,
-      currency: item.unitPrice.currency,
-    }));
+    const result = data as { order_id: string; order_number: string } | null;
+    if (!result?.order_id) throw new Error("Order could not be created.");
 
-    const { data: orderItems, error: itemsError } = await this.db
-      .from("order_items")
-      .insert(itemsInsert)
-      .select("*");
-    if (itemsError) throw itemsError;
-
-    return mapOrder(order, orderItems ?? []);
+    const order = await this.findById(result.order_id);
+    if (!order) throw new Error("Order was created but could not be loaded.");
+    return order;
   }
 
   async findByNumber(orderNumber: string): Promise<Order | null> {
+    return this.loadOrder("order_number", orderNumber);
+  }
+
+  async findById(id: string): Promise<Order | null> {
+    return this.loadOrder("id", id);
+  }
+
+  async findByRazorpayOrderId(razorpayOrderId: string): Promise<Order | null> {
+    return this.loadOrder("razorpay_order_id", razorpayOrderId);
+  }
+
+  async attachRazorpayOrder(orderId: string, razorpayOrderId: string): Promise<void> {
+    const { error } = await this.db
+      .from("orders")
+      .update({ razorpay_order_id: razorpayOrderId })
+      .eq("id", orderId);
+    if (error) throw error;
+  }
+
+  async confirmPayment(orderId: string, paymentId: string, signature: string): Promise<void> {
+    const { error } = await this.db.rpc("confirm_order_payment", {
+      p_order_id: orderId,
+      p_payment_id: paymentId,
+      p_signature: signature,
+    });
+    if (error) throw error;
+  }
+
+  async markPaymentFailed(orderId: string): Promise<void> {
+    const { error } = await this.db
+      .from("orders")
+      .update({ payment_status: "failed" })
+      .eq("id", orderId)
+      .neq("payment_status", "paid");
+    if (error) throw error;
+  }
+
+  private async loadOrder(column: "id" | "order_number" | "razorpay_order_id", value: string) {
     const { data: order, error } = await this.db
       .from("orders")
       .select("*")
-      .eq("order_number", orderNumber)
+      .eq(column, value)
       .maybeSingle();
     if (error) throw error;
     if (!order) return null;
 
-    const { data: orderItems, error: itemsError } = await this.db
+    const { data: items, error: itemsError } = await this.db
       .from("order_items")
       .select("*")
-      .eq("order_id", order.id);
+      .eq("order_id", order.id)
+      .order("created_at", { ascending: true });
     if (itemsError) throw itemsError;
 
-    return mapOrder(order, orderItems ?? []);
+    return mapOrder(order, items ?? []);
   }
+}
+
+function addressJson(address: CreateOrderInput["shippingAddress"]) {
+  return {
+    line1: address.line1,
+    line2: address.line2 ?? "",
+    landmark: address.landmark ?? "",
+    city: address.city,
+    state: address.state,
+    pincode: address.pincode,
+    country: address.country,
+  };
+}
+
+/** Surface the RPC's out-of-stock signal as a friendly, typed error. */
+function normalizeOrderError(error: { message: string }): Error {
+  if (error.message.includes("INSUFFICIENT_STOCK")) {
+    return new Error("One or more items are out of stock. Please review your cart and try again.");
+  }
+  return error instanceof Error ? error : new Error(error.message);
 }
 
 function mapOrderItem(row: Tables<"order_items">): CartItem {
@@ -124,6 +170,7 @@ function mapOrderItem(row: Tables<"order_items">): CartItem {
 
 function mapOrder(row: Tables<"orders">, items: readonly Tables<"order_items">[]): Order {
   return {
+    id: row.id,
     orderNumber: row.order_number,
     createdAt: row.created_at,
     items: items.map(mapOrderItem),
@@ -142,7 +189,7 @@ function mapOrder(row: Tables<"orders">, items: readonly Tables<"order_items">[]
       country: row.ship_country,
     },
     deliveryMethod: row.delivery_method as DeliveryMethodId,
-    paymentMethod: "razorpay",
+    paymentMethod: row.payment_method as PaymentMethodId,
     subtotal: createMoney(row.subtotal),
     shipping: createMoney(row.shipping),
     tax: createMoney(row.tax),

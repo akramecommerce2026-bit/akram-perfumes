@@ -1,39 +1,48 @@
-import { MockOrderRepository } from "@/services/repositories/mock-order-repository";
+import "server-only";
+
 import type { OrderRepository } from "@/services/repositories/order-repository";
-import type { Order, PlaceOrderInput } from "@/types/checkout";
+import { SupabaseOrderRepository } from "@/services/repositories/supabase-order-repository";
+import type { CreateOrderInput, Order } from "@/types/checkout";
 
 /**
- * Order write/read service consumed by the checkout flow. Depends only on the
- * OrderRepository abstraction, so moving from the in-memory mock to Supabase
- * (and wiring Razorpay inside the repository's `create`) never touches this
- * file or the UI.
+ * Order write/read service consumed by the checkout server actions and the
+ * customer confirmation/tracking pages. Depends only on the OrderRepository
+ * abstraction; the production data source is Supabase (transactional RPCs).
+ * Server-only — order writes use the RLS-bypassing service-role client.
  */
 export class OrderService {
   constructor(private readonly repository: OrderRepository) {}
 
-  async placeOrder(input: PlaceOrderInput): Promise<Order> {
+  createOrder(input: CreateOrderInput): Promise<Order> {
     if (input.items.length === 0) {
-      throw new Error("Cannot place an order with an empty cart");
+      throw new Error("Cannot place an order with an empty cart.");
     }
     return this.repository.create(input);
   }
 
-  async getOrder(orderNumber: string): Promise<Order | null> {
+  getOrder(orderNumber: string): Promise<Order | null> {
     return this.repository.findByNumber(orderNumber);
   }
-}
 
-let instance: OrderRepository | null = null;
-
-/**
- * Single point of control for the order data source. Today it returns the mock
- * repository; going live means returning a `SupabaseOrderRepository` here only.
- */
-export function getOrderRepository(): OrderRepository {
-  if (!instance) {
-    instance = new MockOrderRepository();
+  getOrderById(id: string): Promise<Order | null> {
+    return this.repository.findById(id);
   }
-  return instance;
+
+  getOrderByRazorpayOrderId(razorpayOrderId: string): Promise<Order | null> {
+    return this.repository.findByRazorpayOrderId(razorpayOrderId);
+  }
+
+  attachRazorpayOrder(orderId: string, razorpayOrderId: string): Promise<void> {
+    return this.repository.attachRazorpayOrder(orderId, razorpayOrderId);
+  }
+
+  confirmPayment(orderId: string, paymentId: string, signature: string): Promise<void> {
+    return this.repository.confirmPayment(orderId, paymentId, signature);
+  }
+
+  markPaymentFailed(orderId: string): Promise<void> {
+    return this.repository.markPaymentFailed(orderId);
+  }
 }
 
-export const orderService = new OrderService(getOrderRepository());
+export const orderService = new OrderService(new SupabaseOrderRepository());

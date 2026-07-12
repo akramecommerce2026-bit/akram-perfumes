@@ -1,21 +1,22 @@
 "use client";
 
-import { useFormContext } from "react-hook-form";
-import { ShieldCheck } from "lucide-react";
+import { useFormContext, useWatch } from "react-hook-form";
+import { ShieldCheck, Wallet } from "lucide-react";
 
 import { CheckoutSection } from "@/components/checkout/CheckoutSection";
-import { PAYMENT_OPTIONS } from "@/lib/checkout";
+import { SelectableCard } from "@/components/checkout/SelectableCard";
+import { availablePaymentMethods } from "@/lib/checkout";
 import type { CheckoutFormValues } from "@/lib/checkout-schema";
 
 /**
- * Payment section — a single method: Secure Payment via Razorpay. Razorpay
- * Checkout handles UPI, cards, net banking and wallets internally, so no
- * provider selection is exposed. The gateway itself is wired in a later phase;
- * the method is registered on the form so every order is tied to Razorpay.
+ * Payment method selector. Cash on Delivery is always available; Razorpay is
+ * offered only when the gateway is configured (`NEXT_PUBLIC_RAZORPAY_KEY_ID`).
+ * Razorpay Checkout handles UPI, cards, net banking and wallets internally.
  */
 export function PaymentOptions() {
-  const { register } = useFormContext<CheckoutFormValues>();
-  const razorpay = PAYMENT_OPTIONS[0];
+  const { register, control } = useFormContext<CheckoutFormValues>();
+  const selected = useWatch({ control, name: "paymentMethod" });
+  const methods = availablePaymentMethods();
 
   return (
     <CheckoutSection
@@ -23,22 +24,29 @@ export function PaymentOptions() {
       title="Payment Method"
       description="Secured payments — no charge until you confirm."
     >
-      {/* Single fixed method; value is submitted via this hidden field. */}
-      <input type="hidden" value="razorpay" {...register("paymentMethod")} />
-
-      <div className="flex items-center gap-4 rounded-xl border border-accent bg-[color-mix(in_oklab,var(--accent)_8%,transparent)] p-4 shadow-sm">
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground">
-          <ShieldCheck className="size-5" aria-hidden="true" />
-        </span>
-        <div className="flex flex-1 flex-col">
-          <span className="text-sm font-medium text-foreground">{razorpay.name}</span>
-          <span className="text-xs text-muted-foreground">{razorpay.description}</span>
-        </div>
+      <div className="flex flex-col gap-3">
+        {methods.map((method) => (
+          <SelectableCard
+            key={method.id}
+            value={method.id}
+            checked={selected === method.id}
+            register={register("paymentMethod")}
+            icon={
+              method.id === "cod" ? (
+                <Wallet className="size-5" aria-hidden="true" />
+              ) : (
+                <ShieldCheck className="size-5" aria-hidden="true" />
+              )
+            }
+            title={method.name}
+            description={method.description}
+          />
+        ))}
       </div>
 
       <p className="mt-4 rounded-lg bg-muted px-4 py-3 text-xs text-muted-foreground">
-        You&rsquo;ll complete payment securely via Razorpay. Card, UPI and banking details are
-        handled by Razorpay and never stored on our servers.
+        Online payments are handled securely by Razorpay — card, UPI and banking details are never
+        stored on our servers. Choose Cash on Delivery to pay when your order arrives.
       </p>
     </CheckoutSection>
   );
