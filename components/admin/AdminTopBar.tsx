@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Menu, PanelLeft, Search } from "lucide-react";
+import { Menu, PanelLeft, Search } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -56,18 +56,6 @@ export function AdminTopBar({
 
       <div className="ml-auto flex items-center gap-2 sm:gap-4">
         <span className="hidden text-sm text-muted-foreground lg:block">{dateLabel}</span>
-
-        <button
-          type="button"
-          aria-label="Notifications"
-          className="relative flex size-9 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-        >
-          <Bell className="size-5" aria-hidden="true" />
-          <span
-            aria-hidden="true"
-            className="absolute top-2 right-2.5 size-1.5 rounded-full bg-accent"
-          />
-        </button>
 
         <div className="flex items-center gap-2.5">
           <span

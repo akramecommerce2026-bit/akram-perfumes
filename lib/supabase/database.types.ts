@@ -483,6 +483,20 @@ export interface Database {
           },
         ];
       };
+      store_settings: {
+        Row: {
+          id: number;
+          data: Json;
+          updated_at: string;
+        };
+        Insert: {
+          id?: number;
+          data?: Json;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["store_settings"]["Insert"]>;
+        Relationships: [];
+      };
       order_tracking_events: {
         Row: {
           id: string;

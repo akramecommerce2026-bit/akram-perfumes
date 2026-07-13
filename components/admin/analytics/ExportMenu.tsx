@@ -147,17 +147,18 @@ function download(content: string, filename: string, mime: string) {
 }
 
 export function ExportMenu({ dashboard }: { dashboard: AnalyticsDashboard }) {
-  const stamp = new Date().toISOString().slice(0, 10);
-  const base = `akram-analytics-${dashboard.range.preset}-${stamp}`;
+  // Computed at click time (not render) so no clock value enters SSR markup.
+  const baseName = () =>
+    `akram-analytics-${dashboard.range.preset}-${new Date().toISOString().slice(0, 10)}`;
 
   function onCsv() {
-    download(toCsv(buildBlocks(dashboard)), `${base}.csv`, "text/csv;charset=utf-8");
+    download(toCsv(buildBlocks(dashboard)), `${baseName()}.csv`, "text/csv;charset=utf-8");
   }
 
   function onExcel() {
     download(
       toHtml(buildBlocks(dashboard), dashboard.range.label),
-      `${base}.xls`,
+      `${baseName()}.xls`,
       "application/vnd.ms-excel",
     );
   }

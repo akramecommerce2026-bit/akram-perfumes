@@ -85,8 +85,6 @@ export function availablePaymentMethods(): readonly PaymentOption[] {
 }
 
 /** Default method: Razorpay when configured, otherwise Cash on Delivery. */
-export const DEFAULT_PAYMENT_METHOD: PaymentMethodId = "razorpay";
-
 export function getDefaultPaymentMethod(): PaymentMethodId {
   return isRazorpayEnabled() ? "razorpay" : "cod";
 }

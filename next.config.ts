@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
     },
   },
   images: {
+    // Allowed <Image quality> values (hero art is served at 85). Next 16 warns
+    // for any quality not listed here.
+    qualities: [75, 85],
     // Product images uploaded to Supabase Storage are served from the project's
     // public storage endpoint.
     remotePatterns: [

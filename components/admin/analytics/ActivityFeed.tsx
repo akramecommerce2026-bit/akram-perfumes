@@ -46,7 +46,12 @@ export function ActivityFeed({ items }: { items: readonly ActivityItem[] }) {
                     <span className="truncate text-xs text-muted-foreground">{item.description}</span>
                   )}
                 </div>
-                <span className="shrink-0 text-xs text-muted-foreground/70">{timeAgo(item.at)}</span>
+                {/* Relative time is computed from the current clock, so it can
+                    differ between server render and client hydration — suppress
+                    that expected mismatch. */}
+                <span suppressHydrationWarning className="shrink-0 text-xs text-muted-foreground/70">
+                  {timeAgo(item.at)}
+                </span>
               </li>
             );
           })}

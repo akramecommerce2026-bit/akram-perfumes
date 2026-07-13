@@ -69,12 +69,20 @@ export class SupabaseAdminAnalyticsRepository implements AdminAnalyticsRepositor
   }
 
   async getDashboard(range: ResolvedRange): Promise<AnalyticsDashboard> {
-    const [orders, items, customers, events] = await Promise.all([
+    // Resilient parallel load: a transient failure in one query degrades that
+    // section to empty rather than failing the whole dashboard (so the fallback
+    // error screen never appears for a partial backend hiccup).
+    const [ordersR, itemsR, customersR, eventsR] = await Promise.allSettled([
       this.fetchOrders(),
       this.fetchItems(range),
       this.fetchCustomers(),
       this.fetchEvents(),
     ]);
+
+    const orders = settled(ordersR, "orders");
+    const items = settled(itemsR, "order items");
+    const customers = settled(customersR, "customers");
+    const events = settled(eventsR, "tracking events");
 
     return {
       range,
@@ -131,6 +139,13 @@ export class SupabaseAdminAnalyticsRepository implements AdminAnalyticsRepositor
 }
 
 // --- pure aggregation -------------------------------------------------------
+
+/** Unwrap a settled fetch, degrading a failed query to an empty list. */
+function settled<T>(result: PromiseSettledResult<T[]>, label: string): T[] {
+  if (result.status === "fulfilled") return result.value;
+  console.error(`[analytics] failed to load ${label}:`, result.reason);
+  return [];
+}
 
 function startOfDay(date: Date): number {
   const d = new Date(date);
