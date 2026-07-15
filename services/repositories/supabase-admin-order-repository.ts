@@ -46,7 +46,11 @@ export class SupabaseAdminOrderRepository implements AdminOrderRepository {
     let request = this.db.from("orders").select(LIST_SELECT, { count: "exact" });
 
     const term = query.search?.trim();
-    if (term) request = request.or(`order_number.ilike.%${term}%,contact_name.ilike.%${term}%`);
+    if (term) {
+      // Neutralize PostgREST filter metacharacters before interpolating into `.or()`.
+      const safe = term.replace(/[%,()]/g, " ");
+      request = request.or(`order_number.ilike.%${safe}%,contact_name.ilike.%${safe}%`);
+    }
     if (query.status && query.status !== "all") request = request.eq("status", query.status);
     if (query.paymentStatus && query.paymentStatus !== "all") {
       request = request.eq("payment_status", query.paymentStatus);

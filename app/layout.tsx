@@ -14,9 +14,30 @@ const playfairDisplay = Playfair_Display({
   display: "swap",
 });
 
+const SITE_URL = "https://akramperfumes.com";
+const SITE_DESCRIPTION =
+  "Discover Akram Perfumes — handcrafted attars, eaux de parfum, incense and solid perfumes, made in Madurai. Secure checkout and fast delivery across India.";
+
 export const metadata: Metadata = {
-  title: "Akram Perfumes",
-  description: "Luxury fragrances by Akram Perfumes.",
+  metadataBase: new URL(SITE_URL),
+  title: "Akram Perfumes — Luxury Attars & Perfumes",
+  description: SITE_DESCRIPTION,
+  applicationName: "Akram Perfumes",
+  keywords: ["Akram Perfumes", "attar", "perfume", "oud", "fragrance", "eau de parfum", "Madurai"],
+  robots: { index: true, follow: true },
+  openGraph: {
+    type: "website",
+    siteName: "Akram Perfumes",
+    title: "Akram Perfumes — Luxury Attars & Perfumes",
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    locale: "en_IN",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Akram Perfumes — Luxury Attars & Perfumes",
+    description: SITE_DESCRIPTION,
+  },
 };
 
 export default function RootLayout({

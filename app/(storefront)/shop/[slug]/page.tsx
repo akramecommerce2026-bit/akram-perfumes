@@ -40,7 +40,55 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   return {
     title: `${product.name} — Akram Perfumes`,
     description: product.shortDescription,
+    alternates: { canonical: `/shop/${product.slug}` },
+    openGraph: {
+      type: "website",
+      title: `${product.name} — Akram Perfumes`,
+      description: product.shortDescription,
+      url: `/shop/${product.slug}`,
+      images: product.featuredImage ? [{ url: product.featuredImage }] : undefined,
+    },
   };
+}
+
+/** Product schema.org JSON-LD for rich search results. */
+function productJsonLd(product: Product, images: string[]): string {
+  const cheapest = product.variants.reduce<Product["variants"][number] | null>(
+    (lowest, variant) =>
+      !lowest || variant.price.amount < lowest.price.amount ? variant : lowest,
+    null,
+  );
+  const inStock = product.variants.some((variant) => variant.stockQuantity > 0);
+
+  return JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.shortDescription,
+    image: images,
+    category: product.category.name,
+    brand: { "@type": "Brand", name: "Akram Perfumes" },
+    ...(product.reviewCount > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: product.rating,
+            reviewCount: product.reviewCount,
+          },
+        }
+      : {}),
+    ...(cheapest
+      ? {
+          offers: {
+            "@type": "Offer",
+            price: (cheapest.price.amount / 100).toFixed(2),
+            priceCurrency: "INR",
+            availability: inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+            url: `https://akramperfumes.com/shop/${product.slug}`,
+          },
+        }
+      : {}),
+  });
 }
 
 async function getRelatedProducts(product: Product): Promise<ProductSummary[]> {
@@ -77,6 +125,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   return (
     <div className="py-section-sm lg:py-section">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: productJsonLd(product, galleryImages) }}
+      />
       <Container>
         <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground lg:mb-10">
           <Link href="/" className="transition-colors hover:text-foreground">
