@@ -37,7 +37,7 @@ export function LoginForm() {
   async function onSubmit(values: LoginValues) {
     setFormError(null);
     const supabase = getSupabaseBrowserClient();
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: values.email,
       password: values.password,
     });
@@ -48,6 +48,16 @@ export function LoginForm() {
           ? "Incorrect email or password. Please try again."
           : error.message,
       );
+      return;
+    }
+
+    // Valid credentials, but a storefront customer rather than an admin. Drop the
+    // session and say so, instead of bouncing them off /admin with no
+    // explanation. The proxy and requireAdmin enforce this regardless — this
+    // check is only here to give an honest message.
+    if (data.user?.app_metadata?.role !== "admin") {
+      await supabase.auth.signOut();
+      setFormError("This account doesn't have admin access.");
       return;
     }
 
