@@ -1,6 +1,6 @@
 import { PRICE_BUCKETS } from "@/lib/product-filters";
 import type { ProductQuery } from "@/types/product";
-import type { FragranceFamily, Gender, Occasion } from "@/types/product-attributes";
+import type { Gender } from "@/types/product-attributes";
 
 /** UI state for the Shop filters + search. Maps directly onto a ProductQuery. */
 export interface ShopFilterState {
@@ -8,8 +8,6 @@ export interface ShopFilterState {
   categorySlug: string | null;
   priceBucketId: string | null;
   genders: Gender[];
-  fragranceFamilies: FragranceFamily[];
-  occasions: Occasion[];
   inStockOnly: boolean;
 }
 
@@ -18,8 +16,6 @@ export const EMPTY_FILTERS: ShopFilterState = {
   categorySlug: null,
   priceBucketId: null,
   genders: [],
-  fragranceFamilies: [],
-  occasions: [],
   inStockOnly: false,
 };
 
@@ -33,8 +29,6 @@ export function filtersToQuery(state: ShopFilterState): ProductQuery {
     search: state.search || undefined,
     categorySlug: state.categorySlug ?? undefined,
     genders: state.genders.length ? state.genders : undefined,
-    fragranceFamilies: state.fragranceFamilies.length ? state.fragranceFamilies : undefined,
-    occasions: state.occasions.length ? state.occasions : undefined,
     priceMin: bucket?.min,
     priceMax: bucket?.max,
     inStockOnly: state.inStockOnly || undefined,
@@ -47,8 +41,6 @@ export function countActiveFilters(state: ShopFilterState): number {
     (state.categorySlug ? 1 : 0) +
     (state.priceBucketId ? 1 : 0) +
     state.genders.length +
-    state.fragranceFamilies.length +
-    state.occasions.length +
     (state.inStockOnly ? 1 : 0)
   );
 }

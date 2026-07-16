@@ -17,12 +17,6 @@ export const BUSINESS = {
   emailHref: "mailto:akramperfumes@gmail.com",
 } as const;
 
-export const WORKING_HOURS: readonly { day: string; hours: string }[] = [
-  { day: "Monday – Friday", hours: "10:00 AM – 8:00 PM" },
-  { day: "Saturday", hours: "10:00 AM – 9:00 PM" },
-  { day: "Sunday", hours: "11:00 AM – 6:00 PM" },
-];
-
 export const SOCIAL_LINKS: readonly { label: string; href: string }[] = [
   { label: "Instagram", href: "https://instagram.com/akramperfumes" },
   { label: "Facebook", href: "https://facebook.com/akramperfumes" },

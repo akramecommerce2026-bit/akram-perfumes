@@ -42,8 +42,7 @@ const createOrderSchema = z.object({
   address: addressSchema,
   billingAddress: addressSchema.nullish(),
   billingSameAsShipping: z.boolean().default(true),
-  deliveryMethod: z.enum(["standard", "express"]),
-  paymentMethod: z.enum(["razorpay", "cod"]),
+  paymentMethod: z.enum(["razorpay"]),
   lines: z
     .array(z.object({ variantId: z.string().min(1), quantity: z.number().int().min(1).max(99) }))
     .min(1, "Your cart is empty."),
@@ -58,16 +57,14 @@ export type CreateOrderActionResult =
       ok: true;
       orderId: string;
       orderNumber: string;
-      payment:
-        | { provider: "cod" }
-        | {
-            provider: "razorpay";
-            razorpayOrderId: string;
-            amount: number;
-            currency: string;
-            keyId: string;
-            prefill: { name: string; email: string; contact: string };
-          };
+      payment: {
+        provider: "razorpay";
+        razorpayOrderId: string;
+        amount: number;
+        currency: string;
+        keyId: string;
+        prefill: { name: string; email: string; contact: string };
+      };
     };
 
 interface VariantRow {
@@ -151,8 +148,8 @@ function toMessage(error: unknown): string {
 
 /**
  * Create an order (transactional persist + atomic inventory) and start payment.
- * COD orders are created pending; Razorpay orders return the gateway parameters
- * for the browser Checkout widget.
+ * The order is created pending and settles once Razorpay Checkout returns a
+ * verified payment; the gateway parameters for the browser widget come back here.
  */
 export async function createOrderAction(
   raw: CreateOrderActionInput,
@@ -163,15 +160,15 @@ export async function createOrderAction(
   }
   const input = parsed.data;
 
-  if (input.paymentMethod === "razorpay" && !isRazorpayConfigured()) {
-    return { ok: false, error: "Online payment is currently unavailable. Please choose Cash on Delivery." };
+  if (!isRazorpayConfigured()) {
+    return { ok: false, error: "Online payment is currently unavailable. Please try again shortly." };
   }
 
   try {
     const resolved = await resolveLines(input.lines);
     if ("error" in resolved) return { ok: false, error: resolved.error };
 
-    const totals = computeCheckoutTotals(resolved.items, input.deliveryMethod);
+    const totals = computeCheckoutTotals(resolved.items);
 
     // Link the order to the signed-in customer when present.
     const supabase = await createSupabaseServerClient();
@@ -183,7 +180,8 @@ export async function createOrderAction(
       shippingAddress: toShippingAddress(input.address),
       billingAddress: input.billingAddress ? toShippingAddress(input.billingAddress) : null,
       billingSameAsShipping: input.billingSameAsShipping,
-      deliveryMethod: input.deliveryMethod,
+      // Single free delivery tier — kept on the order for the shipment pipeline.
+      deliveryMethod: "standard",
       paymentMethod: input.paymentMethod,
       items: resolved.items,
       totals,
@@ -193,31 +191,25 @@ export async function createOrderAction(
 
     const order = await orderService.createOrder(createInput);
 
-    if (input.paymentMethod === "razorpay") {
-      const rzpOrder = await createRazorpayOrder(order.total.amount, order.orderNumber);
-      await orderService.attachRazorpayOrder(order.id, rzpOrder.id);
-      return {
-        ok: true,
-        orderId: order.id,
-        orderNumber: order.orderNumber,
-        payment: {
-          provider: "razorpay",
-          razorpayOrderId: rzpOrder.id,
-          amount: rzpOrder.amount,
-          currency: rzpOrder.currency,
-          keyId: razorpayPublicKeyId,
-          prefill: {
-            name: input.contact.fullName,
-            email: input.contact.email,
-            contact: input.contact.mobile,
-          },
+    const rzpOrder = await createRazorpayOrder(order.total.amount, order.orderNumber);
+    await orderService.attachRazorpayOrder(order.id, rzpOrder.id);
+    return {
+      ok: true,
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      payment: {
+        provider: "razorpay",
+        razorpayOrderId: rzpOrder.id,
+        amount: rzpOrder.amount,
+        currency: rzpOrder.currency,
+        keyId: razorpayPublicKeyId,
+        prefill: {
+          name: input.contact.fullName,
+          email: input.contact.email,
+          contact: input.contact.mobile,
         },
-      };
-    }
-
-    // COD — confirm the order immediately.
-    await sendEmail(orderConfirmationEmail(toOrderEmailData(order)));
-    return { ok: true, orderId: order.id, orderNumber: order.orderNumber, payment: { provider: "cod" } };
+      },
+    };
   } catch (error) {
     return { ok: false, error: toMessage(error) };
   }

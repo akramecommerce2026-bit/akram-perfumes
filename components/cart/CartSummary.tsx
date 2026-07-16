@@ -5,8 +5,6 @@ import { ArrowRight, Lock } from "lucide-react";
 
 import { CartTotals } from "@/components/cart/CartTotals";
 import { CouponInput } from "@/components/cart/CouponInput";
-import { FREE_SHIPPING_THRESHOLD, STANDARD_SHIPPING } from "@/lib/cart";
-import { createMoney, formatMoney } from "@/lib/money";
 import type { CartTotals as CartTotalsData } from "@/types/cart";
 
 interface CartSummaryProps {
@@ -14,21 +12,11 @@ interface CartSummaryProps {
 }
 
 export function CartSummary({ totals }: CartSummaryProps) {
-  const remaining = FREE_SHIPPING_THRESHOLD - totals.subtotal.amount;
-  const shortfall =
-    remaining > 0 ? createMoney(remaining, totals.subtotal.currency) : null;
-
   return (
     <div className="flex flex-col gap-6 rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-7">
       <h2 className="font-heading text-xl font-semibold text-foreground">Order Summary</h2>
 
       <CartTotals totals={totals} />
-
-      {shortfall && STANDARD_SHIPPING > 0 && (
-        <p className="rounded-xl bg-[color-mix(in_oklab,var(--accent)_10%,transparent)] px-4 py-3 text-xs text-foreground">
-          Add {formatMoney(shortfall)} more to unlock free shipping.
-        </p>
-      )}
 
       <CouponInput />
 

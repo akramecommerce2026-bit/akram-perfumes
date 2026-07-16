@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Clock, Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
 
 import { Container } from "@/components/common/container";
 import { ContactForm } from "@/components/contact/ContactForm";
-import { BUSINESS, CONTACT_FAQS, SOCIAL_LINKS, WORKING_HOURS } from "@/lib/site";
+import { BUSINESS, CONTACT_FAQS, SOCIAL_LINKS } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Contact — Akram Perfumes",
@@ -52,20 +52,6 @@ export default function ContactPage() {
                     {BUSINESS.email}
                   </a>
                 </li>
-              </ul>
-            </section>
-
-            <section className="flex flex-col gap-3">
-              <h2 className="flex items-center gap-2 font-heading text-xl font-semibold text-foreground">
-                <Clock className="size-5 text-accent" aria-hidden="true" /> Working Hours
-              </h2>
-              <ul className="flex flex-col gap-2 text-sm">
-                {WORKING_HOURS.map((entry) => (
-                  <li key={entry.day} className="flex justify-between gap-4 border-b border-border/60 pb-2 last:border-0">
-                    <span className="text-muted-foreground">{entry.day}</span>
-                    <span className="font-medium text-foreground">{entry.hours}</span>
-                  </li>
-                ))}
               </ul>
             </section>
 

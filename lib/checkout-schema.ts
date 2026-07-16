@@ -1,15 +1,10 @@
 import { z } from "zod";
 
-import { DELIVERY_OPTIONS, PAYMENT_OPTIONS } from "@/lib/checkout";
-import type { DeliveryMethodId, PaymentMethodId } from "@/types/checkout";
+import { PAYMENT_OPTIONS, type OfferedPaymentMethodId } from "@/lib/checkout";
 
-const deliveryIds = DELIVERY_OPTIONS.map((option) => option.id) as [
-  DeliveryMethodId,
-  ...DeliveryMethodId[],
-];
 const paymentIds = PAYMENT_OPTIONS.map((option) => option.id) as [
-  PaymentMethodId,
-  ...PaymentMethodId[],
+  OfferedPaymentMethodId,
+  ...OfferedPaymentMethodId[],
 ];
 
 /**
@@ -38,7 +33,6 @@ export const checkoutSchema = z.object({
     .trim()
     .regex(/^\d{6}$/, "Enter a valid 6-digit pincode"),
   country: z.string().trim().min(2, "Please enter your country"),
-  deliveryMethod: z.enum(deliveryIds),
   paymentMethod: z.enum(paymentIds),
 });
 

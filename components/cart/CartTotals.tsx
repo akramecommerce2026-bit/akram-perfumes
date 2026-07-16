@@ -10,16 +10,9 @@ interface CartTotalsProps {
 }
 
 export function CartTotals({ totals, className }: CartTotalsProps) {
-  const freeShipping = totals.shipping.amount === 0;
-
   return (
     <dl className={cn("flex flex-col gap-3 text-sm", className)}>
       <Row label="Subtotal" value={formatMoney(totals.subtotal)} />
-      <Row
-        label="Estimated shipping"
-        value={freeShipping ? "Free" : formatMoney(totals.shipping)}
-        muted={freeShipping}
-      />
       <Row label="Taxes" value="Calculated at checkout" muted />
       {totals.discount.amount > 0 && (
         <Row label="Discount" value={`− ${formatMoney(totals.discount)}`} />

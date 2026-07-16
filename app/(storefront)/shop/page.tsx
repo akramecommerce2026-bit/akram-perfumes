@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 
 import { Container } from "@/components/common/container";
@@ -35,7 +36,11 @@ export default async function ShopPage() {
           </p>
         </header>
 
-        <ShopView products={listing.items} categories={categories} />
+        {/* ShopView reads ?collection= via useSearchParams, which needs a
+            Suspense boundary for this page to stay statically rendered. */}
+        <Suspense fallback={<div className="min-h-[60vh]" aria-hidden="true" />}>
+          <ShopView products={listing.items} categories={categories} />
+        </Suspense>
       </Container>
     </div>
   );

@@ -497,6 +497,40 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["store_settings"]["Insert"]>;
         Relationships: [];
       };
+      signature_collections: {
+        Row: {
+          id: string;
+          title: string;
+          subtitle: string | null;
+          description: string | null;
+          background_image: string | null;
+          collection_image: string | null;
+          button_text: string | null;
+          button_url: string | null;
+          display_order: number;
+          active: boolean;
+          deleted_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id: string;
+          title: string;
+          subtitle?: string | null;
+          description?: string | null;
+          background_image?: string | null;
+          collection_image?: string | null;
+          button_text?: string | null;
+          button_url?: string | null;
+          display_order?: number;
+          active?: boolean;
+          deleted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["signature_collections"]["Insert"]>;
+        Relationships: [];
+      };
       order_tracking_events: {
         Row: {
           id: string;

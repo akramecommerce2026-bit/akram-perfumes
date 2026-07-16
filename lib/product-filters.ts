@@ -52,18 +52,6 @@ export function filterSummaries(
     }
     if (query.categorySlug && product.category.slug !== query.categorySlug) return false;
     if (query.genders?.length && !query.genders.includes(product.gender)) return false;
-    if (
-      query.fragranceFamilies?.length &&
-      !query.fragranceFamilies.includes(product.fragranceFamily)
-    ) {
-      return false;
-    }
-    if (
-      query.occasions?.length &&
-      !product.occasions.some((occasion) => query.occasions?.includes(occasion))
-    ) {
-      return false;
-    }
     if (query.inStockOnly && !product.inStock) return false;
     if (query.priceMin != null || query.priceMax != null) {
       const price = product.priceFrom?.amount ?? null;

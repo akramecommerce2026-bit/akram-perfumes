@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { SlidersHorizontal } from "lucide-react";
 
 import { FilterDrawer } from "@/components/shop/FilterDrawer";
@@ -29,12 +30,36 @@ interface ShopViewProps {
  * server and applies search / filter / sort / pagination in-memory using the
  * shared pure helpers — the same helpers the service uses server-side, so the
  * rules stay identical when this moves to Supabase-backed queries.
+ *
+ * `?collection=<category-slug>` preselects that category, so links from the
+ * homepage land on a filtered Shop. It is read here rather than on the server so
+ * the page keeps its static/ISR rendering. An unknown slug is ignored and the
+ * full catalogue shows — a stale link never becomes an error page.
  */
 export function ShopView({ products, categories }: ShopViewProps) {
-  const [filters, setFilters] = useState<ShopFilterState>(EMPTY_FILTERS);
+  const collectionParam = useSearchParams().get("collection");
+  const presetCategory = useMemo(
+    () => categories.find((category) => category.slug === collectionParam)?.slug ?? null,
+    [categories, collectionParam],
+  );
+
+  const [filters, setFilters] = useState<ShopFilterState>(() => ({
+    ...EMPTY_FILTERS,
+    categorySlug: presetCategory,
+  }));
   const [sort, setSort] = useState<ProductSort>("featured");
   const [page, setPage] = useState(1);
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Re-apply when the URL changes under a mounted ShopView (e.g. a second
+  // collection link). Adjusting state during render is React's supported reset
+  // pattern and avoids an effect + extra commit.
+  const [appliedCollection, setAppliedCollection] = useState(collectionParam);
+  if (collectionParam !== appliedCollection) {
+    setAppliedCollection(collectionParam);
+    setFilters((previous) => ({ ...previous, categorySlug: presetCategory }));
+    setPage(1);
+  }
 
   const query = useMemo(() => filtersToQuery(filters), [filters]);
   const filtered = useMemo(() => filterSummaries(products, query), [products, query]);

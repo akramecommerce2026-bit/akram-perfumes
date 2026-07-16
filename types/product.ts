@@ -127,8 +127,6 @@ export interface ProductQuery {
   readonly search?: string;
   readonly categorySlug?: string;
   readonly genders?: readonly Gender[];
-  readonly fragranceFamilies?: readonly FragranceFamily[];
-  readonly occasions?: readonly Occasion[];
   /** Inclusive price bounds in minor currency units (paise). */
   readonly priceMin?: number;
   readonly priceMax?: number;

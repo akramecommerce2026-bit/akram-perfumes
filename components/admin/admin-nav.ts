@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   Package,
   ShoppingCart,
+  Sparkles,
   Tags,
   Users,
   Settings,
@@ -17,14 +18,14 @@ export interface AdminNavItem {
 
 /**
  * Admin sidebar navigation. Single source of truth so the sidebar and any
- * future breadcrumb/command-palette stay in sync. Routes beyond the dashboard
- * are added in later milestones (Products, Categories, …).
+ * future breadcrumb/command-palette stay in sync.
  */
 export const ADMIN_NAV: readonly AdminNavItem[] = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
   { label: "Products", href: "/admin/products", icon: Package },
   { label: "Categories", href: "/admin/categories", icon: Tags },
+  { label: "Signature", href: "/admin/signature", icon: Sparkles },
   { label: "Orders", href: "/admin/orders", icon: ShoppingCart },
   { label: "Customers", href: "/admin/customers", icon: Users },
   { label: "Settings", href: "/admin/settings", icon: Settings },

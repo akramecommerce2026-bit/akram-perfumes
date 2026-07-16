@@ -15,10 +15,6 @@ import type { ProductVariant } from "@/types/variant";
 /** The minimal product shape a cart line needs (snapshotted at add time). */
 export type CartProductInput = Pick<Product, "id" | "name" | "slug" | "featuredImage">;
 
-/** Free shipping at/over this subtotal (paise); flat fee below it. */
-export const FREE_SHIPPING_THRESHOLD = 99900;
-export const STANDARD_SHIPPING = 7900;
-
 export function createCartItem(
   product: CartProductInput,
   variant: ProductVariant,
@@ -83,11 +79,8 @@ export function computeCartTotals(items: readonly CartItem[]): CartTotals {
   const subtotal = calculateCartTotal(items);
   const { currency } = subtotal;
 
-  const shipping = createMoney(
-    subtotal.amount === 0 || subtotal.amount >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING,
-    currency,
-  );
-  // Placeholders for V1 — real tax/discount arrive with the checkout module.
+  // Delivery is free on every order; tax/discount remain V1 placeholders.
+  const shipping = createMoney(0, currency);
   const tax = createMoney(0, currency);
   const discount = createMoney(0, currency);
 

@@ -4,7 +4,13 @@ import { useRef } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 
-export function SignatureBottle() {
+interface SignatureBottleProps {
+  image: string;
+  /** The section title — describes the bottle for assistive tech. */
+  alt: string;
+}
+
+export function SignatureBottle({ image, alt }: SignatureBottleProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const shouldReduceMotion = useReducedMotion();
 
@@ -36,8 +42,8 @@ export function SignatureBottle() {
         <motion.div style={shouldReduceMotion ? undefined : { scale, rotate }}>
           <div className="overflow-hidden rounded-3xl border border-border/60 shadow-xl">
             <Image
-              src="/signature/bin-sheikh.webp"
-              alt="Akram Bin Sheikh extrait de parfum surrounded by oud, cardamom and star anise"
+              src={image}
+              alt={alt}
               width={1100}
               height={1100}
               sizes="(min-width: 1024px) 520px, 90vw"

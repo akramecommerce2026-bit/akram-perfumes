@@ -8,15 +8,8 @@ import {
 } from "@/components/shop/filter-state";
 import { PRICE_BUCKETS } from "@/lib/product-filters";
 import type { Category } from "@/types/category";
-import {
-  FRAGRANCE_FAMILIES,
-  FRAGRANCE_FAMILY_LABELS,
-  GENDER_LABELS,
-  GENDERS,
-  OCCASION_LABELS,
-  OCCASIONS,
-} from "@/types/product-attributes";
-import type { FragranceFamily, Gender, Occasion } from "@/types/product-attributes";
+import { GENDER_LABELS, GENDERS } from "@/types/product-attributes";
+import type { Gender } from "@/types/product-attributes";
 
 interface ProductFiltersProps {
   state: ShopFilterState;
@@ -38,19 +31,9 @@ export function ProductFilters({ state, categories, onChange, onClear }: Product
     ...PRICE_BUCKETS.map((bucket) => ({ value: bucket.id, label: bucket.label })),
   ];
 
-  const familyOptions: FilterOption[] = FRAGRANCE_FAMILIES.map((family) => ({
-    value: family,
-    label: FRAGRANCE_FAMILY_LABELS[family],
-  }));
-
   const genderOptions: FilterOption[] = GENDERS.map((gender) => ({
     value: gender,
     label: GENDER_LABELS[gender],
-  }));
-
-  const occasionOptions: FilterOption[] = OCCASIONS.map((occasion) => ({
-    value: occasion,
-    label: OCCASION_LABELS[occasion],
   }));
 
   return (
@@ -88,36 +71,12 @@ export function ProductFilters({ state, categories, onChange, onClear }: Product
 
       <div className="border-t border-border pt-6">
         <FilterGroup
-          title="Fragrance Family"
-          name="filter-family"
-          multiple
-          options={familyOptions}
-          selected={state.fragranceFamilies}
-          onToggle={(value) =>
-            onChange({ fragranceFamilies: toggleValue(state.fragranceFamilies, value as FragranceFamily) })
-          }
-        />
-      </div>
-
-      <div className="border-t border-border pt-6">
-        <FilterGroup
           title="Gender"
           name="filter-gender"
           multiple
           options={genderOptions}
           selected={state.genders}
           onToggle={(value) => onChange({ genders: toggleValue(state.genders, value as Gender) })}
-        />
-      </div>
-
-      <div className="border-t border-border pt-6">
-        <FilterGroup
-          title="Occasion"
-          name="filter-occasion"
-          multiple
-          options={occasionOptions}
-          selected={state.occasions}
-          onToggle={(value) => onChange({ occasions: toggleValue(state.occasions, value as Occasion) })}
         />
       </div>
 

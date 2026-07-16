@@ -1,10 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import { MotionConfig, motion, useReducedMotion } from "framer-motion";
 
 import { Container } from "@/components/common/container";
 import { SignatureBottle } from "@/components/home/SignatureBottle";
 import { SignatureContent } from "@/components/home/SignatureContent";
+import type { SignatureCollection } from "@/types/signature-collection";
 
 // Deterministic particle field (no Math.random) for SSR-safe markup.
 const particles = [
@@ -16,7 +18,11 @@ const particles = [
   { left: "90%", top: "60%", size: 4, delay: 0.4, duration: 11.5, drift: 15 },
 ] as const;
 
-export function SignatureSection() {
+interface SignatureSectionProps {
+  collection: SignatureCollection;
+}
+
+export function SignatureSection({ collection }: SignatureSectionProps) {
   const shouldReduceMotion = useReducedMotion();
 
   return (
@@ -24,6 +30,16 @@ export function SignatureSection() {
       <section id="signature" className="relative overflow-hidden py-section-lg">
         {/* Luxury ivory + soft gold background */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+          {/* Optional admin-set backdrop, sitting beneath the gold gradients. */}
+          {collection.backgroundImage && (
+            <Image
+              src={collection.backgroundImage}
+              alt=""
+              fill
+              sizes="100vw"
+              className="object-cover opacity-25"
+            />
+          )}
           <div className="absolute inset-0 bg-[radial-gradient(60%_45%_at_50%_0%,color-mix(in_oklab,var(--accent)_16%,transparent),transparent_70%)]" />
           <motion.div
             className="absolute inset-0 bg-[radial-gradient(45%_45%_at_22%_62%,color-mix(in_oklab,var(--accent)_12%,transparent),transparent_66%)]"
@@ -47,10 +63,12 @@ export function SignatureSection() {
 
         <Container>
           <div className="grid items-start gap-12 lg:grid-cols-2 lg:gap-16">
-            <div className="lg:sticky lg:top-28">
-              <SignatureBottle />
-            </div>
-            <SignatureContent />
+            {collection.collectionImage && (
+              <div className="lg:sticky lg:top-28">
+                <SignatureBottle image={collection.collectionImage} alt={collection.title} />
+              </div>
+            )}
+            <SignatureContent collection={collection} />
           </div>
         </Container>
       </section>

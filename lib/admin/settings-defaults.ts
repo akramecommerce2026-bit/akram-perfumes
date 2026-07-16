@@ -1,14 +1,13 @@
-import { FREE_SHIPPING_THRESHOLD } from "@/lib/cart";
-import { DELIVERY_OPTIONS } from "@/lib/checkout";
 import { BUSINESS, SOCIAL_LINKS } from "@/lib/site";
 import type { StoreSettings } from "@/types/admin-settings";
 
 const socialByLabel = new Map(SOCIAL_LINKS.map((s) => [s.label.toLowerCase(), s.href]));
 
 /**
- * Sensible defaults, derived from the existing single sources of truth
- * (lib/site business details, lib/checkout shipping rules). Used when the
- * store_settings row is empty (or the table isn't provisioned yet).
+ * Sensible defaults, derived from the existing single source of truth
+ * (lib/site business details). Used when the store_settings row is empty (or the
+ * table isn't provisioned yet). Delivery is free and Razorpay is the only
+ * payment method, so the shipping/COD defaults are zeroed out.
  */
 export const DEFAULT_SETTINGS: StoreSettings = {
   storeName: "Akram Perfumes",
@@ -24,10 +23,10 @@ export const DEFAULT_SETTINGS: StoreSettings = {
     email: BUSINESS.email,
   },
   gstNumber: "",
-  shippingCharge: Math.round(DELIVERY_OPTIONS[0].fee / 100),
-  freeShippingThreshold: Math.round(FREE_SHIPPING_THRESHOLD / 100),
+  shippingCharge: 0,
+  freeShippingThreshold: 0,
   defaultTaxPercent: 0,
-  codEnabled: true,
+  codEnabled: false,
   social: {
     instagram: socialByLabel.get("instagram") ?? "https://instagram.com/akramperfumes",
     facebook: socialByLabel.get("facebook") ?? "https://facebook.com/akramperfumes",

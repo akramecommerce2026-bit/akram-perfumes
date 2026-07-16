@@ -4,17 +4,16 @@ import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormProvider, useForm, useWatch } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Loader2, Lock, ShoppingBag } from "lucide-react";
 
 import { AddressForm } from "@/components/checkout/AddressForm";
-import { DeliveryOptions } from "@/components/checkout/DeliveryOptions";
 import { OrderReview } from "@/components/checkout/OrderReview";
 import { OrderSummary } from "@/components/checkout/OrderSummary";
 import { PaymentOptions } from "@/components/checkout/PaymentOptions";
 import { useCart } from "@/components/cart/cart-context";
-import { computeCheckoutTotals, DEFAULT_DELIVERY_METHOD, getDefaultPaymentMethod } from "@/lib/checkout";
+import { computeCheckoutTotals, DEFAULT_PAYMENT_METHOD } from "@/lib/checkout";
 import {
   createOrderAction,
   verifyPaymentAction,
@@ -92,13 +91,11 @@ export function CheckoutForm() {
       state: "",
       pincode: "",
       country: "India",
-      deliveryMethod: DEFAULT_DELIVERY_METHOD,
-      paymentMethod: getDefaultPaymentMethod(),
+      paymentMethod: DEFAULT_PAYMENT_METHOD,
     },
   });
 
-  const deliveryMethod = useWatch({ control: form.control, name: "deliveryMethod" });
-  const totals = useMemo(() => computeCheckoutTotals(items, deliveryMethod), [items, deliveryMethod]);
+  const totals = useMemo(() => computeCheckoutTotals(items), [items]);
 
   function scrollToTop() {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -125,7 +122,6 @@ export function CheckoutForm() {
     orderNumber: string,
     payment: Extract<CreateOrderActionResult, { ok: true }>["payment"],
   ) {
-    if (payment.provider !== "razorpay") return;
     const loaded = await loadRazorpayScript();
     if (!loaded || !window.Razorpay) {
       setSubmitError("Couldn't load the payment gateway. Please try again.");
@@ -184,7 +180,6 @@ export function CheckoutForm() {
           country: values.country,
         },
         billingSameAsShipping: true,
-        deliveryMethod: values.deliveryMethod,
         paymentMethod: values.paymentMethod,
         lines: items.map((item) => ({ variantId: item.variantId, quantity: item.quantity })),
         idempotencyKey: idempotencyKey.current,
@@ -193,11 +188,6 @@ export function CheckoutForm() {
       if (!result.ok) {
         setSubmitError(result.error);
         setIsPlacing(false);
-        return;
-      }
-
-      if (result.payment.provider === "cod") {
-        finishSuccess(result.orderNumber);
         return;
       }
 
@@ -256,7 +246,6 @@ export function CheckoutForm() {
                 className="flex flex-col gap-6"
               >
                 <AddressForm />
-                <DeliveryOptions subtotalAmount={totals.subtotal.amount} />
                 <PaymentOptions />
               </motion.div>
             ) : (

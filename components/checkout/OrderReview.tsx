@@ -1,9 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MapPin, Pencil, Truck, Wallet } from "lucide-react";
+import { MapPin, Pencil, Wallet } from "lucide-react";
 
-import { getDeliveryOption, PAYMENT_OPTIONS } from "@/lib/checkout";
+import { PAYMENT_OPTIONS } from "@/lib/checkout";
 import type { CheckoutFormValues } from "@/lib/checkout-schema";
 
 interface OrderReviewProps {
@@ -16,7 +16,6 @@ interface OrderReviewProps {
  * placed. Purely presentational — edits go back to the form via `onEdit`.
  */
 export function OrderReview({ values, onEdit }: OrderReviewProps) {
-  const delivery = getDeliveryOption(values.deliveryMethod);
   const payment = PAYMENT_OPTIONS.find((option) => option.id === values.paymentMethod);
 
   return (
@@ -47,11 +46,6 @@ export function OrderReview({ values, onEdit }: OrderReviewProps) {
         <p>
           {values.city}, {values.state} {values.pincode}, {values.country}
         </p>
-      </ReviewCard>
-
-      <ReviewCard icon={<Truck className="size-4" aria-hidden="true" />} title="Delivery">
-        <p className="font-medium text-foreground">{delivery.name}</p>
-        <p>{delivery.estimate}</p>
       </ReviewCard>
 
       <ReviewCard icon={<Wallet className="size-4" aria-hidden="true" />} title="Payment">
