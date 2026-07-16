@@ -34,8 +34,14 @@ export function ProductCard({ product }: { product: ProductSummary }) {
       : 0;
 
   return (
-    <article className="group relative flex flex-col">
-      <div className="relative overflow-hidden rounded-lg bg-muted">
+    /*
+     * A single hairline of muted gold holds the card together. It is deliberately
+     * near the threshold of visibility — enough to give the card an edge against
+     * the ivory page, not enough to read as a box. Hover warms the same line and
+     * lifts the card a hair; no glow, no shadow bloom.
+     */
+    <article className="group relative flex flex-col rounded-lg border border-accent/20 bg-card p-2.5 transition-all duration-500 ease-out hover:-translate-y-0.5 hover:border-accent/45 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+      <div className="relative overflow-hidden rounded-md bg-muted">
         <Link href={href} aria-label={`View ${product.name}`} className="block">
           {/* Fixed 1:1 box: the ratio is reserved before the image loads, so the
               grid never reflows as pictures arrive. */}
@@ -58,7 +64,7 @@ export function ProductCard({ product }: { product: ProductSummary }) {
         <WishlistButton product={product} className="absolute top-2.5 right-2.5 z-10" />
       </div>
 
-      <div className="flex flex-1 flex-col px-1 pt-3">
+      <div className="flex flex-1 flex-col px-0.5 pt-3">
         {product.reviewCount > 0 && (
           <div className="flex items-center gap-1 text-[13px] leading-none">
             <Star className="size-3.5 fill-accent text-accent" aria-hidden="true" />

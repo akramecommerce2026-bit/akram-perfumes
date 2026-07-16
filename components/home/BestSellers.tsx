@@ -22,7 +22,9 @@ export async function BestSellers() {
   if (items.length === 0) return null;
 
   return (
-    <Section spacing="lg" className="bg-card">
+    /* A hair warmer than the page so the rail reads as its own band without a
+       hard edge — the section is separated by tone, not by a rule. */
+    <Section spacing="lg" className="bg-[color-mix(in_oklab,var(--accent)_5%,var(--card))]">
       <SectionHeading
         eyebrow="Customer Favourites"
         title="Explore Our Best Sellers"
