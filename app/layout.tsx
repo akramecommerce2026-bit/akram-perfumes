@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Inter, Playfair_Display, Urbanist } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -10,6 +10,17 @@ const inter = Inter({
 
 const playfairDisplay = Playfair_Display({
   variable: "--font-playfair",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+/**
+ * The storefront's typeface. Loaded here (fonts must be module-scope) but only
+ * bound to `--font-sans`/`--font-heading` inside `.storefront-theme`, so the
+ * admin keeps Inter + Playfair exactly as it is.
+ */
+const urbanist = Urbanist({
+  variable: "--font-urbanist",
   subsets: ["latin"],
   display: "swap",
 });
@@ -48,7 +59,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${playfairDisplay.variable} h-full antialiased`}
+      className={`${inter.variable} ${playfairDisplay.variable} ${urbanist.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         {children}

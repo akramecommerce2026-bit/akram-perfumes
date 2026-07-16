@@ -2,113 +2,112 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion, type Variants } from "framer-motion";
 import { Star } from "lucide-react";
 
-import { buttonVariants } from "@/components/ui/button";
 import { ProductBadge } from "@/components/shop/ProductBadge";
-import { ProductPrice } from "@/components/shop/ProductPrice";
-import { ProductVariant } from "@/components/shop/ProductVariant";
 import { WishlistButton } from "@/components/wishlist/WishlistButton";
+import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import type { ProductSummary } from "@/types/product";
 
-const MAX_VISIBLE_VARIANTS = 5;
-
-const card: Variants = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } },
-};
-
+/**
+ * Product card.
+ *
+ * Anatomy follows the agreed reference: square (1:1) image with an 8px radius,
+ * then rating · review count, title, then the price row (sale, struck original,
+ * percent off), then a full-width uppercase Add to Cart. No card border or
+ * shadow — the cards sit directly on the page and are separated by whitespace.
+ *
+ * Every value is derived from our own catalogue: `priceFrom`/`comparePriceFrom`
+ * carry the existing pricing logic, and the discount is computed from them
+ * rather than stored, so nothing here can drift from the backend.
+ */
 export function ProductCard({ product }: { product: ProductSummary }) {
   const href = `/shop/${product.slug}`;
-  const isOnSale = Boolean(
-    product.comparePriceFrom &&
-      product.priceFrom &&
-      product.comparePriceFrom.amount > product.priceFrom.amount,
-  );
-  const visibleVariants = product.variantNames.slice(0, MAX_VISIBLE_VARIANTS);
-  const hiddenVariantCount = product.variantNames.length - visibleVariants.length;
+
+  const price = product.priceFrom;
+  const comparePrice = product.comparePriceFrom;
+  const isOnSale = Boolean(price && comparePrice && comparePrice.amount > price.amount);
+  const percentOff =
+    isOnSale && price && comparePrice
+      ? Math.round(((comparePrice.amount - price.amount) / comparePrice.amount) * 100)
+      : 0;
 
   return (
-    <motion.article
-      variants={card}
-      whileHover={{ y: -6 }}
-      transition={{ type: "spring", stiffness: 300, damping: 26 }}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm transition-shadow duration-500 hover:border-accent/60 hover:shadow-lg"
-    >
-      <div className="relative aspect-[4/5] overflow-hidden bg-muted">
-        <Link href={href} aria-label={`View ${product.name}`} className="block h-full w-full">
-          <Image
-            src={product.featuredImage}
-            alt={product.name}
-            fill
-            sizes="(min-width: 1024px) 24vw, (min-width: 640px) 45vw, 90vw"
-            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-          />
+    <article className="group relative flex flex-col">
+      <div className="relative overflow-hidden rounded-lg bg-muted">
+        <Link href={href} aria-label={`View ${product.name}`} className="block">
+          {/* Fixed 1:1 box: the ratio is reserved before the image loads, so the
+              grid never reflows as pictures arrive. */}
+          <div className="relative aspect-square">
+            <Image
+              src={product.featuredImage}
+              alt={product.name}
+              fill
+              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 45vw, 90vw"
+              className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+            />
+          </div>
         </Link>
 
-        <div className="pointer-events-none absolute left-3 top-3 flex flex-col gap-1.5">
-          {product.isFeatured && <ProductBadge label="Featured" tone="featured" />}
-          {isOnSale && <ProductBadge label="Sale" tone="sale" />}
+        <div className="pointer-events-none absolute top-2.5 left-2.5 flex flex-col items-start gap-1.5">
+          {product.isFeatured && <ProductBadge label="Best Seller" tone="featured" />}
           {!product.inStock && <ProductBadge label="Sold Out" tone="sold-out" />}
         </div>
 
-        <WishlistButton product={product} className="absolute right-3 top-3 z-10" />
-
-        {/* Slide-up action panel on hover */}
-        <div className="absolute inset-x-0 bottom-0 translate-y-full bg-card/95 p-3 backdrop-blur-sm transition-transform duration-500 ease-out group-hover:translate-y-0 motion-reduce:transition-none">
-          <div className="flex gap-2">
-            <Link
-              href={href}
-              className={cn(buttonVariants({ variant: "outline", size: "sm" }), "flex-1 rounded-full")}
-            >
-              View Product
-            </Link>
-            <Link
-              href={href}
-              className={cn(buttonVariants({ size: "sm" }), "flex-1 rounded-full hover:shadow-gold")}
-            >
-              Add to Cart
-            </Link>
-          </div>
-        </div>
+        <WishlistButton product={product} className="absolute top-2.5 right-2.5 z-10" />
       </div>
 
-      <div className="flex flex-1 flex-col gap-2.5 p-5">
-        <span className="text-[0.65rem] font-medium tracking-[0.15em] text-muted-foreground uppercase">
-          {product.category.name}
-        </span>
+      <div className="flex flex-1 flex-col px-1 pt-3">
+        {product.reviewCount > 0 && (
+          <div className="flex items-center gap-1 text-[13px] leading-none">
+            <Star className="size-3.5 fill-accent text-accent" aria-hidden="true" />
+            <span className="font-semibold text-foreground">{product.rating.toFixed(1)}</span>
+            <span className="text-muted-foreground/70" aria-hidden="true">
+              |
+            </span>
+            <span className="text-muted-foreground">
+              {product.reviewCount.toLocaleString("en-IN")}
+            </span>
+            <span className="sr-only">reviews</span>
+          </div>
+        )}
 
-        <Link href={href}>
-          <h3 className="font-heading text-lg font-semibold text-foreground transition-colors group-hover:text-accent motion-reduce:transition-none">
+        <Link href={href} className="mt-1.5">
+          <h3 className="line-clamp-2 text-[15px] leading-snug font-medium text-foreground transition-colors group-hover:text-accent-foreground motion-reduce:transition-none">
             {product.name}
           </h3>
         </Link>
 
-        <p className="line-clamp-2 text-sm text-muted-foreground">{product.shortDescription}</p>
-
-        <div className="flex items-center gap-1.5 text-sm">
-          <Star className="size-4 fill-accent text-accent" aria-hidden="true" />
-          <span className="font-medium text-foreground">{product.rating.toFixed(1)}</span>
-          <span className="text-muted-foreground">({product.reviewCount})</span>
-        </div>
-
-        <ProductPrice price={product.priceFrom} comparePrice={product.comparePriceFrom} className="mt-1" />
-
-        {visibleVariants.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {visibleVariants.map((name) => (
-              <ProductVariant key={name} name={name} />
-            ))}
-            {hiddenVariantCount > 0 && (
-              <span className="inline-flex items-center text-xs text-muted-foreground">
-                +{hiddenVariantCount}
-              </span>
+        {price ? (
+          <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <span className="text-base font-bold text-foreground">{formatMoney(price)}</span>
+            {isOnSale && comparePrice && (
+              <>
+                <span className="text-[13px] text-muted-foreground line-through">
+                  {formatMoney(comparePrice)}
+                </span>
+                <span className="text-[13px] font-semibold text-destructive">{percentOff}% off</span>
+              </>
             )}
           </div>
+        ) : (
+          <p className="mt-2 text-sm text-muted-foreground">Unavailable</p>
         )}
+
+        <Link
+          href={href}
+          className={cn(
+            "mt-3 inline-flex h-10 w-full items-center justify-center rounded-md border border-foreground/85 px-6",
+            "text-[13px] font-bold tracking-wide text-foreground uppercase transition-colors duration-300",
+            "hover:bg-foreground hover:text-background",
+            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+            !product.inStock && "pointer-events-none opacity-40",
+          )}
+        >
+          {product.inStock ? "Add to Cart" : "Sold Out"}
+        </Link>
       </div>
-    </motion.article>
+    </article>
   );
 }

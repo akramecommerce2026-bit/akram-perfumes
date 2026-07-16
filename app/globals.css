@@ -153,6 +153,50 @@
   --accent-tint-35: oklch(0.75 0.12 85 / 25%);
 }
 
+/**
+ * Storefront theme.
+ *
+ * Scoped to the (storefront) route group rather than :root because the admin
+ * shares this stylesheet and must keep its existing type and palette exactly.
+ * Overriding the variables here means every Tailwind utility that resolves
+ * `var(--…)` picks these values up inside the storefront and nowhere else.
+ *
+ * `font-family` is re-declared (not just the variable) because inheritance
+ * passes the already-resolved family down from <html>; without this, changing
+ * --font-sans below would have no effect on inherited text.
+ */
+.storefront-theme {
+  /*
+   * Retarget the faces themselves, not --font-sans/--font-heading. Those are
+   * declared with `@theme inline`, which substitutes the value into the utility
+   * at build time: `font-heading` compiles to `var(--font-playfair)`, so
+   * redefining --font-heading here would never be read. Overriding the source
+   * variables makes every existing font-sans/font-heading utility resolve to
+   * Urbanist inside the storefront, and leaves the admin on the real faces.
+   */
+  --font-inter: var(--font-urbanist);
+  --font-playfair: var(--font-urbanist);
+  /* Chantilly Bold binds here once the licensed file is added; until then the
+     brand wordmark falls back rather than rendering a wrong font. */
+  --font-brand: var(--font-urbanist);
+
+  --background: oklch(0.966 0.006 84);
+  --card: oklch(1 0 0);
+  --foreground: oklch(0.279 0 0);
+  --card-foreground: oklch(0.279 0 0);
+  --muted-foreground: oklch(0.52 0.008 75);
+  --border: oklch(0.9 0.006 84);
+
+  /* Drives the whole radius scale: rounded-lg -> 8px (product imagery) and
+     rounded-md -> 6px (buttons), matching the reference. The admin keeps the
+     tighter 0.25rem it was built against. */
+  --radius: 0.5rem;
+
+  font-family: var(--font-urbanist);
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
