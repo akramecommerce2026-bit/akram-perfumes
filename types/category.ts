@@ -9,5 +9,11 @@ export interface Category {
   readonly name: string;
   readonly slug: string;
   readonly description?: string;
+  /**
+   * Category artwork, authored in the admin (`/admin/categories`). Empty when no
+   * image has been uploaded — the storefront degrades to a plain tile rather
+   * than assuming one exists.
+   */
+  readonly imageUrl?: string;
   readonly displayOrder: number;
 }

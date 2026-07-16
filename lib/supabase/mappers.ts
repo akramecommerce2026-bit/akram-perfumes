@@ -20,6 +20,7 @@ export function mapCategory(row: Tables<"categories">): Category {
     name: row.name,
     slug: row.slug,
     description: row.description ?? undefined,
+    imageUrl: row.image_url ?? undefined,
     displayOrder: row.display_order,
   };
 }

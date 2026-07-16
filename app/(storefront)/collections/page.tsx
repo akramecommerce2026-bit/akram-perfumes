@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 
 import { CollectionsGrid } from "@/components/collections/CollectionsGrid";
 import { Container } from "@/components/common/container";
-import type { Collection } from "@/components/home/CollectionCard";
 import { productService } from "@/services/product-service";
 
 export const revalidate = 300;
@@ -13,34 +12,9 @@ export const metadata: Metadata = {
     "Browse Akram Perfumes collections — attars, perfumes, incense and solid perfumes, each crafted for a distinct mood and occasion.",
 };
 
-/** Curated hero images for the seed categories; falls back to a product image. */
-const CURATED_IMAGE: Record<string, string> = {
-  attars: "/collections/attars.webp",
-  perfumes: "/collections/perfumes.webp",
-  incense: "/collections/incense.webp",
-  "solid-perfumes": "/collections/solid-perfumes.webp",
-};
-
 export default async function CollectionsPage() {
-  const [categories, listing] = await Promise.all([
-    productService.getCategories(),
-    productService.listProducts(),
-  ]);
-
-  const collections: Collection[] = categories.map((category) => {
-    const inCategory = listing.items.filter((product) => product.category.slug === category.slug);
-    const count = inCategory.length;
-    const image =
-      CURATED_IMAGE[category.slug] ?? inCategory[0]?.featuredImage ?? "/collections/perfumes.webp";
-    return {
-      title: category.name,
-      description:
-        category.description ??
-        `${count} ${count === 1 ? "fragrance" : "fragrances"} in this collection.`,
-      href: `/collections/${category.slug}`,
-      image,
-    };
-  });
+  // Category artwork is authored in the admin, so nothing is curated here.
+  const categories = await productService.getCategories();
 
   return (
     <div className="py-section-sm lg:py-section">
@@ -56,12 +30,12 @@ export default async function CollectionsPage() {
           </p>
         </header>
 
-        {collections.length === 0 ? (
+        {categories.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-border bg-card/50 px-6 py-20 text-center text-muted-foreground">
             No collections available yet. Please check back soon.
           </p>
         ) : (
-          <CollectionsGrid collections={collections} />
+          <CollectionsGrid categories={categories} />
         )}
       </Container>
     </div>
