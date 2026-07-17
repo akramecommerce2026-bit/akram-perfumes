@@ -32,13 +32,14 @@ export function SignatureBottle({ image, alt }: SignatureBottleProps) {
         transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      <motion.div
-        className="relative w-full max-w-[520px]"
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.3 }}
-        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-      >
+      {/*
+        The entrance is CSS. It was a whileInView variant, which shipped the
+        product photograph at opacity 0 — the image is the section, so it must
+        not depend on JS. The scroll-linked drift below stays in motion: that one
+        genuinely needs to read scroll position, and it only ever adds to an
+        already-visible image.
+      */}
+      <div className="relative w-full max-w-[520px] motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-3 motion-safe:duration-700 motion-safe:fill-mode-both ease-lux">
         <motion.div style={shouldReduceMotion ? undefined : { scale, rotate }}>
           <div className="overflow-hidden rounded-lg border border-border/60">
             <Image
@@ -57,7 +58,7 @@ export function SignatureBottle({ image, alt }: SignatureBottleProps) {
           aria-hidden="true"
           className="mx-auto mt-4 h-8 w-[72%] rounded-[50%] bg-[radial-gradient(circle,color-mix(in_oklab,var(--foreground)_28%,transparent),transparent_72%)] blur-lg"
         />
-      </motion.div>
+      </div>
     </div>
   );
 }

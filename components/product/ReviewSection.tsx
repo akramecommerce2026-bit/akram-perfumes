@@ -1,9 +1,7 @@
-"use client";
-
 import { BadgeCheck } from "lucide-react";
-import { MotionConfig, motion, type Variants } from "framer-motion";
 
 import { StarRating } from "@/components/common/star-rating";
+import { Surface } from "@/components/common/surface";
 import type { Review } from "@/types/review";
 
 interface ReviewSectionProps {
@@ -14,23 +12,19 @@ interface ReviewSectionProps {
 
 const dateFormatter = new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" });
 
-const list: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.08 } },
-};
-
-const item: Variants = {
-  hidden: { opacity: 0, y: 18 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
-};
-
+/**
+ * Reviews.
+ *
+ * A Server Component: the list was staggered in with motion variants, so every
+ * review shipped at opacity 0 and needed JS to be read. Reviews are the social
+ * proof the page is arguing with — they must not be able to fail to render.
+ */
 export function ReviewSection({ reviews, rating, reviewCount }: ReviewSectionProps) {
   return (
-    <MotionConfig reducedMotion="user">
-      <section id="reviews" aria-labelledby="reviews-heading" className="flex flex-col gap-8">
+    <section id="reviews" aria-labelledby="reviews-heading" className="flex flex-col gap-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex flex-col gap-2">
-            <h2 id="reviews-heading" className="text-2xl font-semibold text-foreground sm:text-3xl">
+            <h2 id="reviews-heading" className="text-2xl font-bold text-foreground sm:text-3xl">
               Customer Reviews
             </h2>
             <div className="flex items-center gap-3">
@@ -48,19 +42,9 @@ export function ReviewSection({ reviews, rating, reviewCount }: ReviewSectionPro
             No written reviews yet — be the first to share your experience.
           </p>
         ) : (
-          <motion.ul
-            variants={list}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.15 }}
-            className="grid gap-5 md:grid-cols-2"
-          >
+        <ul className="grid gap-5 md:grid-cols-2">
             {reviews.map((review) => (
-              <motion.li
-                key={review.id}
-                variants={item}
-                className="flex flex-col gap-3 rounded-lg border border-border/60 bg-card p-6"
-              >
+          <Surface as="li" key={review.id} className="flex flex-col gap-3 p-6">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex flex-col gap-1">
                     <span className="flex items-center gap-2 font-medium text-foreground">
@@ -83,11 +67,10 @@ export function ReviewSection({ reviews, rating, reviewCount }: ReviewSectionPro
                 </div>
                 {review.title && <p className="font-medium text-foreground">{review.title}</p>}
                 <p className="text-sm leading-relaxed text-muted-foreground">{review.body}</p>
-              </motion.li>
+          </Surface>
             ))}
-          </motion.ul>
+        </ul>
         )}
-      </section>
-    </MotionConfig>
+    </section>
   );
 }

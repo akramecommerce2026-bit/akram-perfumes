@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { Section } from "@/components/common/section";
 import { SectionHeading } from "@/components/common/section-heading";
-import { ProductSlider } from "@/components/home/ProductSlider";
+import { ProductSlider } from "@/components/shop/ProductSlider";
 import { productService } from "@/services/product-service";
 
 const RAIL_LIMIT = 10;

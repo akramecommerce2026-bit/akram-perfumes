@@ -3,15 +3,20 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 
+import { Accordion } from "@/components/common/accordion";
 import { Container } from "@/components/common/container";
+import { Surface } from "@/components/common/surface";
 import { FragranceNotes } from "@/components/product/FragranceNotes";
 import { ProductDescription } from "@/components/product/ProductDescription";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductInfo } from "@/components/product/ProductInfo";
+import { RecentlyViewed } from "@/components/product/RecentlyViewed";
+import { RecordView } from "@/components/product/RecordView";
 import { PurchasePanel } from "@/components/product/PurchasePanel";
 import { RelatedProducts } from "@/components/product/RelatedProducts";
 import { ReviewSection } from "@/components/product/ReviewSection";
 import { getProductReviews } from "@/services/review-service";
+import { toProductSummary } from "@/lib/product-summary";
 import { productService } from "@/services/product-service";
 import type { Product, ProductSummary } from "@/types/product";
 
@@ -124,13 +129,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
   );
 
   return (
-    <div className="py-section-sm lg:py-section">
+    <div className="py-8 lg:py-12">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: productJsonLd(product, galleryImages) }}
       />
+      <RecordView product={toProductSummary(product)} />
       <Container>
-        <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground lg:mb-10">
+        <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1.5 text-[13px] text-muted-foreground lg:mb-8">
           <Link href="/" className="transition-colors hover:text-foreground">
             Home
           </Link>
@@ -142,11 +148,40 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <span className="text-foreground">{product.name}</span>
         </nav>
 
-        <div className="grid gap-8 md:grid-cols-2 lg:gap-12">
-          <ProductGallery images={galleryImages} name={product.name} />
-          <div className="flex flex-col gap-8">
+        {/*
+          The gallery sticks; the right column scrolls past it.
+          
+          Only the shorter column can stick: the taller one defines the row, so it
+          has no travel inside its grid area and `position: sticky` is inert on it.
+          The right column carries the copy, the panel and the disclosures, so it
+          is always the taller — which makes the gallery the one that can hold.
+          `items-start` is what gives it room to move within its area.
+        */}
+        <div className="grid gap-8 lg:grid-cols-2 lg:items-start lg:gap-12">
+          <div className="lg:sticky lg:top-24">
+            <ProductGallery images={galleryImages} name={product.name} />
+          </div>
+
+          <div className="flex flex-col gap-7">
             <ProductInfo product={product} />
             <PurchasePanel product={product} />
+
+            {/* Detail lives behind disclosures beside the buy button rather than
+                a scroll away, which is what keeps the panel shippable on mobile. */}
+            <Surface className="px-5">
+              <Accordion title="Description" defaultOpen>
+                {product.description}
+              </Accordion>
+              <Accordion title="Delivery & Returns">
+                Free delivery on every order, dispatched in 1–2 business days and typically
+                arriving in 3–7 days across India. Unopened items can be returned within 7 days
+                of delivery.
+              </Accordion>
+              <Accordion title="Authenticity">
+                Every bottle is filled and sealed in-house in Madurai, and quality-checked
+                before dispatch.
+              </Accordion>
+            </Surface>
           </div>
         </div>
 
@@ -160,6 +195,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
         <div className="mt-16 lg:mt-24">
           <RelatedProducts products={related} />
+        </div>
+
+        <div className="mt-16 lg:mt-24">
+          <RecentlyViewed currentId={product.id} />
         </div>
 
         <div className="mt-16 lg:mt-24">

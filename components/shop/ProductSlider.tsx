@@ -7,14 +7,21 @@ import { ProductCard } from "@/components/shop/ProductCard";
 import type { ProductSummary } from "@/types/product";
 
 /**
- * Horizontal product rail.
+ * Horizontal product rail — shared by Best Sellers and the PDP's recommendations.
  *
  * Native scroll-snap rather than a carousel library: it gives real momentum and
  * swipe on touch for free, keeps the keyboard and scrollbar semantics browsers
  * already provide, and ships no JS for the scrolling itself. The arrows simply
  * page it by one viewport, and are hidden where swipe is the natural gesture.
  */
-export function ProductSlider({ products }: { products: readonly ProductSummary[] }) {
+export function ProductSlider({
+  products,
+  itemClassName = "w-[68%] shrink-0 snap-start sm:w-[44%] lg:w-[30%] xl:w-[23%]",
+}: {
+  products: readonly ProductSummary[];
+  /** Per-item width. Defaults to the four-up rhythm the homepage uses. */
+  itemClassName?: string;
+}) {
   const railRef = useRef<HTMLDivElement | null>(null);
 
   const page = useCallback((direction: 1 | -1) => {
@@ -25,14 +32,21 @@ export function ProductSlider({ products }: { products: readonly ProductSummary[
 
   return (
     <div className="relative">
-      {/* Bleeds to the gutter so a card is always half-visible at the edge —
-          the rail reads as continuing rather than ending. */}
+      {/*
+        Bleeds to the gutter so a card is always half-visible at the edge and the
+        rail reads as continuing rather than ending.
+
+        The bleed must mirror Container's padding at every breakpoint
+        (px-4 / sm:px-6 / lg:px-gutter). A flat -mx-gutter overshot the 16px
+        mobile padding by 8px a side and pushed the page 383px wide in a 375
+        viewport — a horizontal scrollbar on every page carrying a rail.
+      */}
       <div
         ref={railRef}
-        className="-mx-gutter flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-gutter pb-1 sm:gap-5 xl:gap-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-1 sm:-mx-6 sm:gap-5 sm:px-6 lg:-mx-gutter lg:px-gutter xl:gap-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {products.map((product) => (
-          <div key={product.id} className="w-[68%] shrink-0 snap-start sm:w-[44%] lg:w-[30%] xl:w-[23%]">
+          <div key={product.id} className={itemClassName}>
             <ProductCard product={product} />
           </div>
         ))}

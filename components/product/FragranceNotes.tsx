@@ -1,8 +1,6 @@
-"use client";
-
 import type { ReactNode } from "react";
-import { MotionConfig, motion, type Variants } from "framer-motion";
 
+import { Surface } from "@/components/common/surface";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types/product";
 import { GENDER_LABELS, OCCASION_LABELS, SEASON_LABELS } from "@/types/product-attributes";
@@ -10,27 +8,14 @@ import { GENDER_LABELS, OCCASION_LABELS, SEASON_LABELS } from "@/types/product-a
 const LONGEVITY_LABELS = ["", "Poor", "Weak", "Moderate", "Long Lasting", "Very Long"];
 const PROJECTION_LABELS = ["", "Intimate", "Soft", "Moderate", "Strong", "Enormous"];
 
-const grid: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.08 } },
-};
-
-const item: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
-};
-
 function InfoCard({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <motion.div
-      variants={item}
-      className="flex flex-col gap-3 rounded-lg border border-border/60 bg-card p-5"
-    >
-      <span className="text-xs font-semibold tracking-[0.12em] text-muted-foreground uppercase">
+    <Surface className="flex flex-col gap-3 p-5">
+      <span className="text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
         {title}
       </span>
       {children}
-    </motion.div>
+    </Surface>
   );
 }
 
@@ -72,57 +57,43 @@ export function FragranceNotes({ product }: { product: Product }) {
   const { notes, profile, gender, occasions } = product;
 
   return (
-    <MotionConfig reducedMotion="user">
-      <section aria-labelledby="fragrance-notes-heading" className="flex flex-col gap-8">
-        <h2 id="fragrance-notes-heading" className="text-2xl font-semibold text-foreground sm:text-3xl">
-          Fragrance Notes
-        </h2>
+    <section aria-labelledby="fragrance-notes-heading" className="flex flex-col gap-8">
+      <h2 id="fragrance-notes-heading" className="text-2xl font-bold text-foreground sm:text-3xl">
+        Fragrance Notes
+      </h2>
 
-        <motion.div
-          variants={grid}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.2 }}
-          className="grid gap-4 sm:grid-cols-3"
-        >
-          <InfoCard title="Top Notes">
+      <div className="grid gap-4 sm:grid-cols-3">
+        <InfoCard title="Top Notes">
             <Chips values={notes.top} />
-          </InfoCard>
-          <InfoCard title="Heart Notes">
+        </InfoCard>
+        <InfoCard title="Heart Notes">
             <Chips values={notes.heart} />
-          </InfoCard>
-          <InfoCard title="Base Notes">
+        </InfoCard>
+        <InfoCard title="Base Notes">
             <Chips values={notes.base} />
-          </InfoCard>
-        </motion.div>
+        </InfoCard>
+      </div>
 
-        <motion.div
-          variants={grid}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.2 }}
-          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-        >
-          <InfoCard title="Longevity">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <InfoCard title="Longevity">
             <ScaleBar score={profile.longevity} label={LONGEVITY_LABELS[profile.longevity]} />
-          </InfoCard>
-          <InfoCard title="Projection">
+        </InfoCard>
+        <InfoCard title="Projection">
             <ScaleBar score={profile.projection} label={PROJECTION_LABELS[profile.projection]} />
-          </InfoCard>
-          <InfoCard title="Concentration">
+        </InfoCard>
+        <InfoCard title="Concentration">
             <p className="text-sm font-medium text-foreground">{profile.concentration}</p>
-          </InfoCard>
-          <InfoCard title="Gender">
+        </InfoCard>
+        <InfoCard title="Gender">
             <p className="text-sm font-medium text-foreground">{GENDER_LABELS[gender]}</p>
-          </InfoCard>
-          <InfoCard title="Season">
+        </InfoCard>
+        <InfoCard title="Season">
             <Chips values={profile.seasons.map((season) => SEASON_LABELS[season])} />
-          </InfoCard>
-          <InfoCard title="Occasion">
+        </InfoCard>
+        <InfoCard title="Occasion">
             <Chips values={occasions.map((occasion) => OCCASION_LABELS[occasion])} />
-          </InfoCard>
-        </motion.div>
-      </section>
-    </MotionConfig>
+        </InfoCard>
+      </div>
+    </section>
   );
 }

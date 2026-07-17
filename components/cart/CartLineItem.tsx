@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { Trash2 } from "lucide-react";
 
 import { useCart } from "@/components/cart/cart-context";
@@ -20,14 +19,7 @@ export function CartLineItem({ item, onNavigate }: CartLineItemProps) {
   const { updateQuantity, removeItem } = useCart();
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, x: -16 }}
-      transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-      className="flex gap-4"
-    >
+    <div className="flex gap-4 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-(--animate-duration-base) ease-lux">
       <Link
         href={`/shop/${item.productSlug}`}
         onClick={onNavigate}
@@ -66,6 +58,6 @@ export function CartLineItem({ item, onNavigate }: CartLineItemProps) {
           <span className="font-medium text-foreground">{formatMoney(item.subtotal)}</span>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
