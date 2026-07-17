@@ -208,6 +208,20 @@
   --hairline-hover: color-mix(in oklab, var(--accent) 45%, transparent);
   --surface-inset: inset 0 1px 0 oklch(1 0 0 / 0.9), inset 0 0 0 1px oklch(1 0 0 / 0.35);
 
+  /*
+   * The gold ramp — one metal, four stops, all derived from --accent (#C8A85A).
+   *
+   * Metal reads as metal because lightness turns over across the face: it lifts
+   * to a champagne highlight just above the middle, then falls to a darker edge.
+   * A single flat fill (or a two-stop gradient) reads as paint, which is what
+   * separates a luxury control from a yellow button.
+   */
+  --gold-highlight: oklch(0.88 0.062 89);
+  --gold-light: oklch(0.815 0.088 88);
+  --gold: oklch(0.7439 0.1043 87.47);
+  --gold-deep: oklch(0.63 0.098 84);
+  --gold-edge: oklch(0.52 0.082 80);
+
   font-family: var(--font-urbanist);
   background-color: var(--background);
   color: var(--foreground);
@@ -226,6 +240,75 @@
   --animate-duration-hover: 200ms;
   --animate-duration-base: 300ms;
   --animate-duration-enter: 500ms;
+}
+
+/*
+ * The gold control.
+ *
+ * Built from the --gold-* ramp rather than a fill, because metal is a lightness
+ * curve, not a colour. Four things do the work, and each is doing one job:
+ *
+ *   1. The face gradient turns over — it rises to a champagne highlight at 45%
+ *      and falls away below it. A straight light-to-dark ramp reads as plastic;
+ *      the turn is what reads as a curved metal surface catching a light source.
+ *   2. A 1px inset highlight along the top edge, and a darker inset along the
+ *      bottom, so the control has a lit edge and a shaded one — the same trick a
+ *      stamped foil label uses.
+ *   3. A border in --gold-edge, darker than any part of the face, so the shape
+ *      stays crisp against ivory instead of dissolving into it.
+ *   4. A close, low-opacity drop shadow. It seats the control on the card; it is
+ *      not a glow, and it does not bloom on hover.
+ *
+ * Hover lifts the whole ramp by a few points of lightness rather than swapping
+ * the colour — the metal catches more light, it does not become a new object.
+ * Press flattens the highlight and drops it 1px: the surface is being pushed in.
+ *
+ * No white sheen overlay, no diagonal gloss band, no animated shimmer. Those are
+ * what make a gold button read as a cartoon rather than as packaging.
+ */
+.btn-gold {
+  background-image: linear-gradient(
+    180deg,
+    var(--gold-light) 0%,
+    var(--gold-highlight) 45%,
+    var(--gold) 56%,
+    var(--gold-deep) 100%
+  );
+  border: 1px solid var(--gold-edge);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.55),
+    inset 0 -1px 0 oklch(0.45 0.07 78 / 0.35),
+    0 1px 2px oklch(0.3 0.03 70 / 0.18);
+  color: oklch(0.26 0.03 70);
+  text-shadow: 0 1px 0 oklch(1 0 0 / 0.25);
+}
+
+.btn-gold:hover {
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--gold-light) 82%, white) 0%,
+    color-mix(in oklab, var(--gold-highlight) 84%, white) 45%,
+    color-mix(in oklab, var(--gold) 88%, white) 56%,
+    var(--gold-deep) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.7),
+    inset 0 -1px 0 oklch(0.45 0.07 78 / 0.35),
+    0 2px 5px oklch(0.3 0.03 70 / 0.2);
+}
+
+.btn-gold:active {
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 1px 2px oklch(0.4 0.06 78 / 0.3),
+    inset 0 -1px 0 oklch(1 0 0 / 0.2),
+    0 0 0 oklch(0 0 0 / 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-gold:active {
+    transform: none;
+  }
 }
 
 @layer base {

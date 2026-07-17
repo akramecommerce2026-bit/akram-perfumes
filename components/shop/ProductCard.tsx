@@ -86,7 +86,7 @@ export function ProductCard({ product }: { product: ProductSummary }) {
             one button baseline however their titles wrap. */}
         <Button
           href={href}
-          variant="outline"
+          variant={product.inStock ? "gold" : "outline"}
           size="md"
           block
           aria-disabled={!product.inStock}

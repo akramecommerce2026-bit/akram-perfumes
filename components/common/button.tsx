@@ -19,7 +19,7 @@ export const storefrontButton = cva(
   cn(
     "inline-flex shrink-0 items-center justify-center gap-2 rounded-md",
     "text-[13px] font-bold tracking-wide uppercase whitespace-nowrap",
-    "transition-colors duration-(--animate-duration-base) ease-lux",
+    "transition-[background-image,box-shadow,transform,color] duration-(--animate-duration-base) ease-lux",
     "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
     "disabled:pointer-events-none disabled:opacity-40 aria-disabled:pointer-events-none aria-disabled:opacity-40",
     "motion-reduce:transition-none",
@@ -32,7 +32,14 @@ export const storefrontButton = cva(
         primary: "bg-foreground text-background hover:bg-foreground/88",
         /** The alternative: equal weight, less finality. */
         outline: "border border-foreground/85 text-foreground hover:bg-foreground hover:text-background",
-        /** Gold. Reserved — one per view at most, or it stops meaning anything. */
+        /**
+         * The metallic gold control (see .btn-gold in globals.css). The strongest
+         * thing on the surface it sits on — a product card, a Buy Now. Because it
+         * outranks everything around it, one per view is the ceiling; two golds
+         * competing is two golds ignored.
+         */
+        gold: "btn-gold",
+        /** Flat gold. For quiet accents that must not outrank a nearby .btn-gold. */
         accent: "bg-accent text-accent-foreground hover:bg-accent/85",
         /** Quiet: filters, drawers, tertiary actions. */
         ghost: "text-foreground hover:bg-muted",

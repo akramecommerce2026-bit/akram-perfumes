@@ -123,7 +123,7 @@ export function PurchasePanel({ product }: { product: Product }) {
             "Add to Cart"
           )}
         </Button>
-        <Button variant="accent" size="lg" block onClick={handleBuyNow} disabled={isSoldOut}>
+        <Button variant="gold" size="lg" block onClick={handleBuyNow} disabled={isSoldOut}>
           Buy Now
         </Button>
       </div>

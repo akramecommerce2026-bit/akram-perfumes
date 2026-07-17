@@ -76,16 +76,26 @@ export function OrnamentFrame({ className }: { className?: string }) {
       aria-hidden="true"
       className={cn("pointer-events-none absolute inset-0 rounded-lg", className)}
     >
-      {/* The run the corners resolve into. Kept lighter than the brackets so the
-          corners carry the eye and the long edges stay quiet. */}
-      <div className="absolute inset-0 rounded-lg border border-accent/20" />
+      {/*
+        Two rules, not one. A single line around a picture is a border; two
+        concentric lines with a measured gap between them is a mount — the gap is
+        the whole difference, and it is why a framed print reads as framed.
 
+        The outer run is the fainter of the two: it defines the edge. The inner
+        one sits tight against the artwork and carries more weight, so the eye
+        reads inward toward the product rather than outward to the boundary.
+      */}
+      <div className="absolute inset-0 rounded-lg border border-accent/20" />
+      <div className="absolute inset-[7px] rounded-[3px] border border-accent/30 sm:inset-[9px]" />
+
+      {/* The brackets ride the outer run and resolve its corners. */}
       <Corner className="top-0 left-0" />
       <Corner className="top-0 right-0 -scale-x-100" />
       <Corner className="bottom-0 left-0 -scale-y-100" />
       <Corner className="right-0 bottom-0 -scale-100" />
 
-      {/* Seated on the rule, centred on each run. */}
+      {/* Lozenges centred on each run — they break the long edges, which is what
+          stops a straight line reading as a box. */}
       <EdgeMark className="top-0 left-1/2 -translate-x-1/2 -translate-y-1/2" />
       <EdgeMark className="bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2" />
       <EdgeMark className="top-1/2 left-0 -translate-x-1/2 -translate-y-1/2" />

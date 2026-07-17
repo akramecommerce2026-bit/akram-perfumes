@@ -4,12 +4,16 @@ import { ProductCard } from "@/components/shop/ProductCard";
 import type { ProductSummary } from "@/types/product";
 
 /**
- * Product grid: one card on mobile, two on tablet, four once there is room.
+ * Product grid: 1 / 2 / 3 / 4 cards as the viewport grows.
  *
- * The four-up step waits for `xl` because the Shop page spends 260px of its
- * width on the filter rail — going four-up any earlier would squeeze the cards
- * below a comfortable reading size. Gutters grow with the breakpoint so the
- * rhythm stays even as the cards get wider.
+ * Four-up waits for `xl` because the Shop page spends 240px on the filter rail:
+ * at 1024px that leaves 704px, so four cards would be 158px each — smaller than
+ * a thumbnail. Three-up fills 1024–1279px at 221px a card, which is the same
+ * card size four-up gets at 1280px. Without that step the tablet's two-up
+ * stretched all the way to 1280 and rendered 342px cards — the "only two per
+ * row, oversized" the shop was showing on a laptop.
+ *
+ * Gutters grow with the breakpoint so the rhythm stays even as cards widen.
  *
  * The staggered mount this had is gone: the card is no longer a motion component,
  * so the wrapper animated nothing and only cost the page a client bundle.
@@ -28,7 +32,7 @@ export function ProductGrid({ products }: { products: readonly ProductSummary[] 
   }
 
   return (
-    <div className="grid grid-cols-1 gap-x-4 gap-y-12 sm:grid-cols-2 sm:gap-x-5 lg:gap-y-14 xl:grid-cols-4 xl:gap-x-6">
+    <div className="grid grid-cols-1 gap-x-4 gap-y-12 sm:grid-cols-2 sm:gap-x-5 lg:grid-cols-3 lg:gap-y-14 xl:grid-cols-4 xl:gap-x-6">
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}

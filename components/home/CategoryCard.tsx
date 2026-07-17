@@ -22,13 +22,12 @@ export function CategoryCard({ category }: { category: Category }) {
       aria-label={`Shop ${category.name}`}
       className="group flex h-full flex-col focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
     >
-      {/* The mount. Padding is what sells the frame as a mount rather than a
-          border, so it is generous and grows with the card. Left unfilled so the
-          ivory page shows through and the gold reads as inlaid into the page
-          rather than as a white card floating on it; hover warms the well
-          instead of switching a background on. */}
-      <div className="relative rounded-lg p-3 transition-colors duration-500 group-hover:bg-accent/[0.05] sm:p-4">
-        <div className="relative aspect-square overflow-hidden rounded-md bg-muted">
+      {/* The mount: a warm ivory board, a shade off the page rather than white,
+          so the frame reads as sitting on paper instead of as a card floating on
+          it. Padding is what sells it as a mount rather than a border — it is
+          generous, and grows with the card. Hover warms the board a touch. */}
+      <div className="relative rounded-lg bg-[color-mix(in_oklab,var(--accent)_4%,var(--card))] p-4 transition-colors duration-(--animate-duration-enter) ease-lux group-hover:bg-[color-mix(in_oklab,var(--accent)_8%,var(--card))] sm:p-5">
+        <div className="relative aspect-square overflow-hidden rounded-[3px] bg-muted">
           {category.imageUrl && (
             <Image
               src={category.imageUrl}
@@ -46,7 +45,7 @@ export function CategoryCard({ category }: { category: Category }) {
 
       {/* One line reserved: "Solid Perfumes" wraps where "Attars" does not, and a
           wrapped label would make its tile taller than its neighbours. */}
-      <h3 className="mt-4 line-clamp-1 text-center text-[13px] font-semibold tracking-[0.14em] text-foreground uppercase transition-colors duration-300 group-hover:text-accent-foreground motion-reduce:transition-none">
+      <h3 className="mt-5 line-clamp-1 text-center text-[12px] font-semibold tracking-[0.2em] text-foreground uppercase transition-colors duration-(--animate-duration-base) ease-lux group-hover:text-accent-foreground motion-reduce:transition-none">
         {category.name}
       </h3>
     </Link>
