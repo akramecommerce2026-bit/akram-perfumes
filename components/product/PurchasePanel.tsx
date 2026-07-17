@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Check, Heart, RotateCcw, ShieldCheck, Truck } from "lucide-react";
 
 import { useCart } from "@/components/cart/cart-context";
-import { PriceDisplay } from "@/components/product/PriceDisplay";
+import { Price } from "@/components/common/price";
 import { QuantitySelector } from "@/components/product/QuantitySelector";
 import { VariantSelector } from "@/components/product/VariantSelector";
 import { cn } from "@/lib/utils";
@@ -63,7 +63,12 @@ export function PurchasePanel({ product }: { product: Product }) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <PriceDisplay price={selectedVariant.price} comparePrice={selectedVariant.comparePrice} />
+        <Price
+          price={selectedVariant.price}
+          comparePrice={selectedVariant.comparePrice}
+          size="lg"
+          showSavings
+        />
         <p className="flex items-center gap-2 text-sm">
           {isSoldOut ? (
             <span className="font-medium text-muted-foreground">Currently sold out</span>

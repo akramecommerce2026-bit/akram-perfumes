@@ -4,10 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
 
-import { ProductBadge } from "@/components/shop/ProductBadge";
+import { Badge } from "@/components/common/badge";
+import { Button } from "@/components/common/button";
+import { Price } from "@/components/common/price";
+import { Surface } from "@/components/common/surface";
 import { WishlistButton } from "@/components/wishlist/WishlistButton";
-import { formatMoney } from "@/lib/money";
-import { cn } from "@/lib/utils";
 import type { ProductSummary } from "@/types/product";
 
 /**
@@ -26,22 +27,8 @@ import type { ProductSummary } from "@/types/product";
 export function ProductCard({ product }: { product: ProductSummary }) {
   const href = `/shop/${product.slug}`;
 
-  const price = product.priceFrom;
-  const comparePrice = product.comparePriceFrom;
-  const isOnSale = Boolean(price && comparePrice && comparePrice.amount > price.amount);
-  const percentOff =
-    isOnSale && price && comparePrice
-      ? Math.round(((comparePrice.amount - price.amount) / comparePrice.amount) * 100)
-      : 0;
-
   return (
-    /*
-     * A single hairline of muted gold holds the card together. It is deliberately
-     * near the threshold of visibility — enough to give the card an edge against
-     * the ivory page, not enough to read as a box. Hover warms the same line and
-     * lifts the card a hair; no glow, no shadow bloom.
-     */
-    <article className="group relative flex h-full flex-col rounded-lg border border-accent/20 bg-card p-2.5 shadow-[inset_0_1px_0_oklch(1_0_0/0.9),inset_0_0_0_1px_oklch(1_0_0/0.35)] transition-all duration-500 ease-out hover:-translate-y-0.5 hover:border-accent/45 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+    <Surface as="article" interactive className="group relative flex h-full flex-col p-2.5">
       <div className="relative overflow-hidden rounded-md bg-muted">
         <Link href={href} aria-label={`View ${product.name}`} className="block">
           {/* Fixed 1:1 box: the ratio is reserved before the image loads, so the
@@ -58,8 +45,8 @@ export function ProductCard({ product }: { product: ProductSummary }) {
         </Link>
 
         <div className="pointer-events-none absolute top-2.5 left-2.5 flex flex-col items-start gap-1.5">
-          {product.isFeatured && <ProductBadge label="Best Seller" tone="featured" />}
-          {!product.inStock && <ProductBadge label="Sold Out" tone="sold-out" />}
+          {product.isFeatured && <Badge tone="accent">Best Seller</Badge>}
+          {!product.inStock && <Badge tone="muted">Sold Out</Badge>}
         </div>
 
         <WishlistButton product={product} className="absolute top-2.5 right-2.5 z-10" />
@@ -88,37 +75,26 @@ export function ProductCard({ product }: { product: ProductSummary }) {
           </h3>
         </Link>
 
-        {price ? (
-          <div className="mt-2 mb-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-            <span className="text-base font-bold text-foreground">{formatMoney(price)}</span>
-            {isOnSale && comparePrice && (
-              <>
-                <span className="text-[13px] text-muted-foreground line-through">
-                  {formatMoney(comparePrice)}
-                </span>
-                <span className="text-[13px] font-semibold text-destructive">{percentOff}% off</span>
-              </>
-            )}
-          </div>
-        ) : (
-          <p className="mt-2 mb-3 text-sm text-muted-foreground">Unavailable</p>
-        )}
+        <Price
+          price={product.priceFrom}
+          comparePrice={product.comparePriceFrom}
+          size="sm"
+          className="mt-2 mb-3"
+        />
 
         {/* mt-auto: the button sits on the card's floor, so a row of cards shares
             one button baseline however their titles wrap. */}
-        <Link
+        <Button
           href={href}
-          className={cn(
-            "mt-auto inline-flex h-10 w-full items-center justify-center rounded-md border border-foreground/85 px-6",
-            "text-[13px] font-bold tracking-wide text-foreground uppercase transition-colors duration-300",
-            "hover:bg-foreground hover:text-background",
-            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-            !product.inStock && "pointer-events-none opacity-40",
-          )}
+          variant="outline"
+          size="md"
+          block
+          aria-disabled={!product.inStock}
+          className="mt-auto"
         >
           {product.inStock ? "Add to Cart" : "Sold Out"}
-        </Link>
+        </Button>
       </div>
-    </article>
+    </Surface>
   );
 }

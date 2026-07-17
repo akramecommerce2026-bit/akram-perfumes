@@ -193,14 +193,39 @@
   --accent: oklch(0.7439 0.1043 87.47);
   --ring: oklch(0.7439 0.1043 87.47);
 
-  /* Drives the whole radius scale: rounded-lg -> 8px (product imagery) and
-     rounded-md -> 6px (buttons), matching the reference. The admin keeps the
-     tighter 0.25rem it was built against. */
+  /* Drives the whole radius scale: rounded-lg -> 8px (surfaces, imagery) and
+     rounded-md -> 6px (controls). The admin keeps the tighter 0.25rem it was
+     built against. */
   --radius: 0.5rem;
+
+  /*
+   * Surface language. Every card, panel and well in the storefront is a gold
+   * hairline over white with a bright top edge — the "premium packaging" read.
+   * These are the only place those values are written down; the Surface
+   * primitive consumes them and everything else consumes Surface.
+   */
+  --hairline: color-mix(in oklab, var(--accent) 20%, transparent);
+  --hairline-hover: color-mix(in oklab, var(--accent) 45%, transparent);
+  --surface-inset: inset 0 1px 0 oklch(1 0 0 / 0.9), inset 0 0 0 1px oklch(1 0 0 / 0.35);
 
   font-family: var(--font-urbanist);
   background-color: var(--background);
   color: var(--foreground);
+}
+
+@theme {
+  /*
+   * The storefront's one easing curve and its three durations. Declared here (not
+   * in .storefront-theme) because Tailwind generates the utilities at build time
+   * from @theme; they are simply unused outside the storefront.
+   *
+   * Slow ease-out: motion decelerates into place rather than arriving abruptly,
+   * which is most of what makes an interaction read as expensive.
+   */
+  --ease-lux: cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-duration-hover: 200ms;
+  --animate-duration-base: 300ms;
+  --animate-duration-enter: 500ms;
 }
 
 @layer base {
