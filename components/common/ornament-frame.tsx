@@ -1,46 +1,71 @@
 import { cn } from "@/lib/utils";
 
 /**
- * Decorative gold frame — an original ornament drawn here in SVG, in the spirit
- * of Mughal cusped arch work: a double keyline with a cusped bracket and a
- * lozenge at each corner.
+ * Decorative gold frame — an original ornament drawn for this project, in the
+ * spirit of Mughal cusped-arch and jali work.
  *
- * Built as four fixed-size corner pieces over a plain bordered box rather than
- * one stretched SVG, so the flourishes keep their proportions at any card size
- * while the straight runs simply grow. Purely presentational, so it is hidden
- * from assistive tech and never intercepts a click.
+ * Three ideas do the work of making it read as crafted rather than as a border:
+ * an ogee (S-curved) bracket instead of a plain radius, a hairline that shadows
+ * it at a constant inset the way an inlaid keyline would, and a lotus bud seated
+ * in each corner where the two curves meet. Small lozenges mark the midpoint of
+ * each run, which is what stops the long edges reading as bare rule.
+ *
+ * The pieces are fixed-size and positioned against the box rather than one SVG
+ * stretched to fit: the flourishes hold their proportions at every card size
+ * while only the straight runs grow. Purely presentational — hidden from
+ * assistive tech, and never in the way of a click.
  */
 
+/** Corner bracket: ogee curve, shadowing keyline, and a seated lotus bud. */
 function Corner({ className }: { className?: string }) {
   return (
     <svg
-      viewBox="0 0 28 28"
+      viewBox="0 0 34 34"
       fill="none"
       aria-hidden="true"
-      className={cn("absolute size-6 text-accent sm:size-7", className)}
+      className={cn("absolute size-7 text-accent sm:size-8", className)}
     >
-      {/* outer bracket */}
+      {/* Outer bracket. The two cubics form an ogee: the line eases out of the
+          straight, tightens through the turn, then eases back out. */}
       <path
-        d="M1 28 V10 C1 5 5 1 10 1 H28"
+        d="M0.6 34 V15 C0.6 9.2 2.4 5 5.4 2.9 C7.6 1.3 10.9 0.6 15 0.6 H34"
         stroke="currentColor"
         strokeWidth="1"
         strokeLinecap="round"
-        opacity="0.85"
+        opacity="0.9"
       />
-      {/* inner keyline, echoing the outer at a fixed inset */}
+      {/* Keyline, shadowing the bracket at a constant inset. */}
       <path
-        d="M6 28 V12 C6 8.7 8.7 6 12 6 H28"
+        d="M5.6 34 V16.4 C5.6 11.8 7 8.5 9.3 6.8 C11.1 5.5 13.6 5 16.4 5 H34"
         stroke="currentColor"
-        strokeWidth="0.75"
+        strokeWidth="0.6"
         strokeLinecap="round"
         opacity="0.5"
       />
-      {/* corner lozenge */}
+      {/* Lotus bud seated in the turn, on the diagonal. */}
       <path
-        d="M11 7.5 L12.5 9 L11 10.5 L9.5 9 Z"
+        d="M11.6 8.2 C13.1 9.2 13.9 10.4 13.5 11.6 C12.3 12 11.1 11.2 10.1 9.7 C9.7 8.5 10.4 7.8 11.6 8.2 Z"
         fill="currentColor"
-        opacity="0.75"
+        opacity="0.7"
       />
+      {/* Two pinpoints flanking the bud — the detail that reads as handwork. */}
+      <circle cx="17.5" cy="4.6" r="0.55" fill="currentColor" opacity="0.55" />
+      <circle cx="4.6" cy="17.5" r="0.55" fill="currentColor" opacity="0.55" />
+    </svg>
+  );
+}
+
+/** Lozenge marking the midpoint of a run. */
+function EdgeMark({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 10 10"
+      fill="none"
+      aria-hidden="true"
+      className={cn("absolute size-2.5 text-accent", className)}
+    >
+      <path d="M5 0.8 L7.4 5 L5 9.2 L2.6 5 Z" fill="currentColor" opacity="0.5" />
+      <path d="M5 2.6 L6.3 5 L5 7.4 L3.7 5 Z" fill="var(--background)" opacity="0.95" />
     </svg>
   );
 }
@@ -51,12 +76,20 @@ export function OrnamentFrame({ className }: { className?: string }) {
       aria-hidden="true"
       className={cn("pointer-events-none absolute inset-0 rounded-lg", className)}
     >
-      {/* The continuous keyline the corners resolve into. */}
-      <div className="absolute inset-0 rounded-lg border border-accent/30" />
+      {/* The run the corners resolve into. Kept lighter than the brackets so the
+          corners carry the eye and the long edges stay quiet. */}
+      <div className="absolute inset-0 rounded-lg border border-accent/25" />
+
       <Corner className="top-0 left-0" />
       <Corner className="top-0 right-0 -scale-x-100" />
       <Corner className="bottom-0 left-0 -scale-y-100" />
       <Corner className="right-0 bottom-0 -scale-100" />
+
+      {/* Seated on the rule, centred on each run. */}
+      <EdgeMark className="top-0 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+      <EdgeMark className="bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2" />
+      <EdgeMark className="top-1/2 left-0 -translate-x-1/2 -translate-y-1/2" />
+      <EdgeMark className="top-1/2 right-0 translate-x-1/2 -translate-y-1/2" />
     </div>
   );
 }

@@ -113,9 +113,18 @@ export function ShopView({ products, categories }: ShopViewProps) {
         <SortDropdown value={sort} onChange={changeSort} className="flex-1" />
       </div>
 
-      <div className="lg:grid lg:grid-cols-[260px_1fr] lg:gap-10">
+      {/* Search spans both columns: it filters the whole page, so scoping it to
+          the grid column would misrepresent it — and it lets the filter heading
+          and the sort row share one baseline underneath. */}
+      <SearchBar
+        value={filters.search}
+        onChange={(value) => updateFilters({ search: value })}
+        className="mb-6"
+      />
+
+      <div className="lg:grid lg:grid-cols-[240px_1fr] lg:gap-8 xl:gap-10">
         <aside className="hidden lg:block">
-          <div className="sticky top-28">
+          <div className="sticky top-24">
             <ProductFilters
               state={filters}
               categories={categories}
@@ -125,24 +134,26 @@ export function ShopView({ products, categories }: ShopViewProps) {
           </div>
         </aside>
 
-        <div className="flex flex-col gap-6">
-          <SearchBar value={filters.search} onChange={(value) => updateFilters({ search: value })} />
-
-          <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col">
+          {/* Same height and rule as the filter panel's heading, so the two
+              columns start on the same line. */}
+          <div className="flex h-9 items-center justify-between gap-4 border-b border-border pb-2 lg:mb-6">
             <p className="text-sm text-muted-foreground">
               {total} {total === 1 ? "product" : "products"}
             </p>
-            <SortDropdown value={sort} onChange={changeSort} className="hidden w-56 lg:block" />
+            <SortDropdown value={sort} onChange={changeSort} className="hidden w-52 lg:block" />
           </div>
 
-          <ProductGrid products={pageItems} />
+          <div className="mt-6 lg:mt-0">
+            <ProductGrid products={pageItems} />
+          </div>
 
           {total > 0 && (
             <Pagination
               page={currentPage}
               pageCount={pageCount}
               onPageChange={setPage}
-              className="pt-4"
+              className="pt-10"
             />
           )}
         </div>

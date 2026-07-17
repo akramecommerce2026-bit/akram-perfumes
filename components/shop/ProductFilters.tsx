@@ -38,8 +38,8 @@ export function ProductFilters({ state, categories, onChange, onClear }: Product
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <h2 className="font-heading text-lg font-semibold text-foreground">Filters</h2>
+      <div className="flex h-9 items-center justify-between border-b border-border pb-2">
+        <h2 className="text-sm font-semibold tracking-[0.12em] text-foreground uppercase">Filters</h2>
         {activeCount > 0 && (
           <button
             type="button"

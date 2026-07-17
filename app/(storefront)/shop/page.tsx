@@ -23,14 +23,14 @@ export default async function ShopPage() {
   ]);
 
   return (
-    <div className="py-section-sm lg:py-section">
+    <div className="py-10 lg:py-14">
       <Container>
-        <header className="mb-8 lg:mb-12">
+        <header className="mb-8">
           <p className="text-xs font-medium tracking-[0.2em] text-accent uppercase">The Collection</p>
-          <h1 className="mt-3 font-heading text-4xl font-semibold text-foreground sm:text-5xl">
+          <h1 className="mt-2 text-3xl font-bold text-foreground sm:text-4xl">
             Shop All Fragrances
           </h1>
-          <p className="mt-3 max-w-xl text-muted-foreground">
+          <p className="mt-2 max-w-xl text-[15px] text-muted-foreground">
             Explore attars, perfumes, incense and solid perfumes — crafted for every personality and
             every occasion.
           </p>

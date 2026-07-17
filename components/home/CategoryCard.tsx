@@ -22,7 +22,12 @@ export function CategoryCard({ category }: { category: Category }) {
       aria-label={`Shop ${category.name}`}
       className="group flex flex-col focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
     >
-      <div className="relative rounded-lg bg-card p-2 transition-colors duration-500 group-hover:bg-accent/5 sm:p-2.5">
+      {/* The mount. Padding is what sells the frame as a mount rather than a
+          border, so it is generous and grows with the card. Left unfilled so the
+          ivory page shows through and the gold reads as inlaid into the page
+          rather than as a white card floating on it; hover warms the well
+          instead of switching a background on. */}
+      <div className="relative rounded-lg p-3 transition-colors duration-500 group-hover:bg-accent/[0.05] sm:p-4">
         <div className="relative aspect-square overflow-hidden rounded-md bg-muted">
           {category.imageUrl && (
             <Image
@@ -38,7 +43,7 @@ export function CategoryCard({ category }: { category: Category }) {
         <OrnamentFrame className="opacity-70 transition-opacity duration-500 group-hover:opacity-100 motion-reduce:transition-none" />
       </div>
 
-      <h3 className="mt-3.5 text-center text-[15px] font-semibold text-foreground transition-colors duration-300 group-hover:text-accent-foreground motion-reduce:transition-none">
+      <h3 className="mt-4 text-center text-[13px] font-semibold tracking-[0.14em] text-foreground uppercase transition-colors duration-300 group-hover:text-accent-foreground motion-reduce:transition-none">
         {category.name}
       </h3>
     </Link>
