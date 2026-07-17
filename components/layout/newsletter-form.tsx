@@ -3,9 +3,15 @@
 import { useState } from "react";
 import { Check } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-/** Footer newsletter signup. No provider yet — confirms locally without reloading. */
+/**
+ * Footer newsletter signup. No provider yet — confirms locally without reloading.
+ *
+ * Styled for the dark footer: a rounded translucent input over the burgundy and
+ * a rounded gold Subscribe (the existing .btn-gold control), matched in height.
+ * Used only in the footer, so it carries the footer's dark palette directly.
+ */
 export function NewsletterForm() {
   const [done, setDone] = useState(false);
 
@@ -24,7 +30,7 @@ export function NewsletterForm() {
         e.preventDefault();
         setDone(true);
       }}
-      className="flex gap-2"
+      className="flex flex-col gap-2.5 sm:flex-row"
     >
       <label htmlFor="footer-newsletter-email" className="sr-only">
         Email address
@@ -34,11 +40,19 @@ export function NewsletterForm() {
         type="email"
         required
         placeholder="Email address"
-        className="h-10 w-full min-w-0 rounded-full border border-border bg-background px-4 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-ring"
+        className="h-11 w-full min-w-0 rounded-full border border-[oklch(1_0_0/0.25)] bg-[oklch(1_0_0/0.06)] px-5 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       />
-      <Button type="submit" size="sm" className="shrink-0 rounded-full">
+      <button
+        type="submit"
+        className={cn(
+          "btn-gold inline-flex h-11 shrink-0 items-center justify-center rounded-full px-7",
+          "text-[13px] font-bold tracking-wide uppercase",
+          "transition-[background-image,box-shadow,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+        )}
+      >
         Subscribe
-      </Button>
+      </button>
     </form>
   );
 }

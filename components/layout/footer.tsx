@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Mail, MapPin, Phone, ShieldCheck } from "lucide-react";
+import type { CSSProperties } from "react";
+import { CreditCard, Mail, MapPin, Phone, ShieldCheck, Smartphone, Wallet } from "lucide-react";
 
 import { Container } from "@/components/common/container";
 import { Logo } from "@/components/layout/logo";
@@ -17,13 +18,33 @@ const companyLinks = [
 ];
 
 /**
- * The methods Razorpay Checkout actually presents, named in text.
+ * Payment methods checkout presents, as icon chips.
  *
- * Deliberately not card-brand logos: those are third-party trademarks, and we
- * hold no licence to redraw or ship them. Naming the methods is honest about
- * what checkout accepts without borrowing anyone's mark.
+ * Deliberately generic lucide glyphs and text, not card-brand logos: Visa,
+ * Mastercard, UPI and Razorpay marks are third-party trademarks we hold no
+ * licence to redraw or ship. This says what checkout accepts without borrowing
+ * anyone's mark.
  */
-const paymentMethods = ["UPI", "Cards", "Net Banking", "Wallets"];
+const paymentMethods = [
+  { label: "Razorpay", icon: ShieldCheck },
+  { label: "UPI", icon: Smartphone },
+  { label: "Cards", icon: CreditCard },
+  { label: "Wallets", icon: Wallet },
+];
+
+/*
+ * The footer runs a dark colour context. Rather than rewrite every child to a
+ * light palette, the theme variables are overridden on the <footer> element
+ * itself — local inline style, so no global CSS and no token definitions change.
+ * Every inherited `text-foreground` / `text-muted-foreground` / `border-border`
+ * (including the Logo's own default) resolves light here and nowhere else. The
+ * gold `--accent` is left as-is: it was chosen to read on both grounds.
+ */
+const footerTheme = {
+  "--foreground": "oklch(0.97 0.012 85)",
+  "--muted-foreground": "oklch(0.82 0.022 82)",
+  "--border": "oklch(1 0 0 / 0.16)",
+} as CSSProperties;
 
 function ColumnHeading({ children }: { children: React.ReactNode }) {
   return (
@@ -37,10 +58,46 @@ function FooterLink({ href, children }: { href: string; children: React.ReactNod
   return (
     <Link
       href={href}
-      className="text-[14px] text-muted-foreground transition-colors duration-200 hover:text-accent-foreground"
+      className="text-[14px] text-muted-foreground transition-colors duration-200 hover:text-accent"
     >
       {children}
     </Link>
+  );
+}
+
+/**
+ * An original geometric watermark — two overlapping squares forming an
+ * eight-point star inside concentric rings, in the spirit of girih tilework.
+ * Drawn here in SVG, oversized in the lower-right corner at a whisper of opacity:
+ * decorative only, clipped by the footer's overflow, invisible to assistive tech
+ * and never in front of a link.
+ */
+function CornerOrnament() {
+  return (
+    <svg
+      viewBox="0 0 200 200"
+      fill="none"
+      aria-hidden="true"
+      className="pointer-events-none absolute -right-16 -bottom-20 size-[360px] text-accent opacity-[0.07] sm:size-[440px]"
+    >
+      <g stroke="currentColor" strokeWidth="1.25">
+        <circle cx="100" cy="100" r="94" />
+        <circle cx="100" cy="100" r="72" />
+        <circle cx="100" cy="100" r="34" />
+        <rect x="34" y="34" width="132" height="132" />
+        <rect x="34" y="34" width="132" height="132" transform="rotate(45 100 100)" />
+        {Array.from({ length: 8 }).map((_, i) => (
+          <line
+            key={i}
+            x1="100"
+            y1="100"
+            x2="100"
+            y2="6"
+            transform={`rotate(${i * 45} 100 100)`}
+          />
+        ))}
+      </g>
+    </svg>
   );
 }
 
@@ -55,9 +112,14 @@ export async function Footer() {
   const categories = await productService.getCategories();
 
   return (
-    <footer className="mt-auto border-t border-border bg-card text-card-foreground">
-      <Container>
-        <div className="grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1.4fr] lg:gap-12 lg:py-16">
+    <footer
+      style={footerTheme}
+      className="relative mt-auto overflow-hidden bg-[oklch(0.25_0.072_18)] text-foreground"
+    >
+      <CornerOrnament />
+
+      <Container className="relative">
+        <div className="grid gap-10 py-16 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1.4fr] lg:gap-12 lg:py-20">
           {/* Brand */}
           <div className="flex flex-col gap-5">
             <Logo />
@@ -72,22 +134,31 @@ export async function Footer() {
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone className="size-4 shrink-0 text-accent" aria-hidden="true" />
-                <a
-                  href={BUSINESS.phoneHref}
-                  className="transition-colors duration-200 hover:text-accent-foreground"
-                >
+                <a href={BUSINESS.phoneHref} className="transition-colors duration-200 hover:text-accent">
                   {BUSINESS.phone}
                 </a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail className="size-4 shrink-0 text-accent" aria-hidden="true" />
-                <a
-                  href={BUSINESS.emailHref}
-                  className="transition-colors duration-200 hover:text-accent-foreground"
-                >
+                <a href={BUSINESS.emailHref} className="transition-colors duration-200 hover:text-accent">
                   {BUSINESS.email}
                 </a>
               </li>
+            </ul>
+
+            <ul className="flex flex-wrap gap-x-5 gap-y-2 pt-1">
+              {SOCIAL_LINKS.map((social) => (
+                <li key={social.label}>
+                  <a
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[13px] tracking-wide text-muted-foreground transition-colors duration-200 hover:text-accent"
+                  >
+                    {social.label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -115,56 +186,33 @@ export async function Footer() {
             </ul>
           </div>
 
-          {/* Newsletter + socials */}
+          {/* Newsletter */}
           <div className="flex flex-col gap-4">
             <ColumnHeading>The Akram Letter</ColumnHeading>
             <p className="text-[14px] leading-relaxed text-muted-foreground">
               New arrivals and collections, once in a while. No noise.
             </p>
             <NewsletterForm />
-            <ul className="flex flex-wrap gap-x-5 gap-y-2 pt-1">
-              {SOCIAL_LINKS.map((social) => (
-                <li key={social.label}>
-                  <a
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[13px] tracking-wide text-muted-foreground transition-colors duration-200 hover:text-accent-foreground"
-                  >
-                    {social.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
           </div>
         </div>
 
-        {/* A hairline of gold rather than grey — the one place the brand colour
-            spans the full width. */}
-        <div className="h-px bg-[linear-gradient(90deg,transparent,color-mix(in_oklab,var(--accent)_45%,transparent),transparent)]" />
+        {/* Thin gold divider — the one place the brand colour spans full width. */}
+        <div className="h-px bg-[linear-gradient(90deg,transparent,color-mix(in_oklab,var(--accent)_55%,transparent),transparent)]" />
 
         <div className="flex flex-col items-center justify-between gap-5 py-7 text-[13px] text-muted-foreground md:flex-row">
-          <p>&copy; {new Date().getFullYear()} Akram Perfumes. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Akram Perfumes. All Rights Reserved.</p>
 
-          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
-            <span className="inline-flex items-center gap-1.5 text-[12px] tracking-wide">
-              <ShieldCheck className="size-3.5 text-accent" aria-hidden="true" />
-              Secured by Razorpay
-            </span>
-            <span aria-hidden="true" className="text-border">
-              |
-            </span>
-            <ul className="flex flex-wrap items-center gap-2">
-              {paymentMethods.map((method) => (
-                <li
-                  key={method}
-                  className="rounded border border-border px-2 py-1 text-[11px] font-medium tracking-wide text-muted-foreground"
-                >
-                  {method}
-                </li>
-              ))}
-            </ul>
-          </div>
+          <ul className="flex flex-wrap items-center justify-center gap-2.5">
+            {paymentMethods.map(({ label, icon: Icon }) => (
+              <li
+                key={label}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-[11px] font-medium tracking-wide text-muted-foreground"
+              >
+                <Icon className="size-3.5 text-accent" aria-hidden="true" />
+                {label}
+              </li>
+            ))}
+          </ul>
         </div>
       </Container>
     </footer>
