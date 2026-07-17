@@ -48,7 +48,7 @@ export function SignatureContent({ collection }: SignatureContentProps) {
             href={collection.buttonUrl}
             className={cn(
               buttonVariants({ size: "lg" }),
-              "h-12 rounded-full px-8 text-sm tracking-wide shadow-md transition-shadow duration-300 hover:shadow-gold",
+              "h-12 rounded-full px-8 text-sm tracking-wide transition-shadow duration-300",
             )}
           >
             {collection.buttonText}

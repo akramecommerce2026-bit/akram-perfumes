@@ -9,6 +9,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Loader2, Lock, ShoppingBag } from "lucide-react";
 
 import { AddressForm } from "@/components/checkout/AddressForm";
+import { storefrontButton } from "@/components/common/button";
+import { cn } from "@/lib/utils";
 import { OrderReview } from "@/components/checkout/OrderReview";
 import { OrderSummary } from "@/components/checkout/OrderSummary";
 import { PaymentOptions } from "@/components/checkout/PaymentOptions";
@@ -214,14 +216,14 @@ export function CheckoutForm() {
           <ShoppingBag className="size-9" strokeWidth={1.5} aria-hidden="true" />
         </span>
         <div className="flex flex-col gap-2">
-          <h2 className="font-heading text-2xl font-semibold text-foreground">Your cart is empty</h2>
+          <h2 className="text-2xl font-semibold text-foreground">Your cart is empty</h2>
           <p className="max-w-xs text-sm text-muted-foreground">
             Add a fragrance to your cart before proceeding to checkout.
           </p>
         </div>
         <Link
           href="/shop"
-          className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-8 text-sm font-medium text-primary-foreground transition-all duration-300 hover:shadow-gold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          className={cn(storefrontButton({ variant: "primary", size: "lg", block: false }))}
         >
           Continue Shopping
         </Link>
@@ -272,7 +274,7 @@ export function CheckoutForm() {
             <button
               type="submit"
               disabled={isPlacing}
-              className="group inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground transition-all duration-300 hover:shadow-gold disabled:pointer-events-none disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className={cn(storefrontButton({ variant: "primary", size: "lg", block: true }), "group")}
             >
               {isPlacing ? (
                 <>
@@ -316,14 +318,14 @@ export function CheckoutForm() {
           <div className="mx-auto flex max-w-page items-center gap-4">
             <div className="flex flex-col">
               <span className="text-xs text-muted-foreground">Total</span>
-              <span className="font-heading text-lg font-semibold text-foreground">
+              <span className="text-lg font-semibold text-foreground">
                 {formatMoney(totals.total)}
               </span>
             </div>
             <button
               type="submit"
               disabled={isPlacing}
-              className="ml-auto inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground transition-all duration-300 hover:shadow-gold disabled:pointer-events-none disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className={cn(storefrontButton({ variant: "primary", size: "lg", block: false }), "ml-auto flex-1")}
             >
               {isPlacing ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : ctaLabel}
             </button>

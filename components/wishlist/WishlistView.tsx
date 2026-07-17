@@ -13,12 +13,12 @@ export function WishlistView() {
 
   if (count === 0) {
     return (
-      <div className="mx-auto flex max-w-md flex-col items-center gap-5 rounded-2xl border border-dashed border-border bg-card/50 px-6 py-16 text-center">
+      <div className="mx-auto flex max-w-md flex-col items-center gap-5 rounded-lg border border-dashed border-border bg-card/50 px-6 py-16 text-center">
         <span className="flex size-14 items-center justify-center rounded-full bg-muted text-muted-foreground">
           <Heart className="size-7" aria-hidden="true" />
         </span>
         <div className="flex flex-col gap-1.5">
-          <h2 className="font-heading text-xl font-semibold text-foreground">Your wishlist is empty</h2>
+          <h2 className="text-xl font-semibold text-foreground">Your wishlist is empty</h2>
           <p className="text-sm text-muted-foreground">
             Tap the heart on any fragrance to save it here for later.
           </p>

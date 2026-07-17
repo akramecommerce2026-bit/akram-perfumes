@@ -24,7 +24,7 @@ function InfoCard({ title, children }: { title: string; children: ReactNode }) {
   return (
     <motion.div
       variants={item}
-      className="flex flex-col gap-3 rounded-2xl border border-border/60 bg-card p-5 shadow-sm"
+      className="flex flex-col gap-3 rounded-lg border border-border/60 bg-card p-5"
     >
       <span className="text-xs font-semibold tracking-[0.12em] text-muted-foreground uppercase">
         {title}
@@ -74,7 +74,7 @@ export function FragranceNotes({ product }: { product: Product }) {
   return (
     <MotionConfig reducedMotion="user">
       <section aria-labelledby="fragrance-notes-heading" className="flex flex-col gap-8">
-        <h2 id="fragrance-notes-heading" className="font-heading text-2xl font-semibold text-foreground sm:text-3xl">
+        <h2 id="fragrance-notes-heading" className="text-2xl font-semibold text-foreground sm:text-3xl">
           Fragrance Notes
         </h2>
 

@@ -21,7 +21,7 @@ export function ProductInfo({ product }: { product: Product }) {
         <p className="text-xs font-medium tracking-[0.15em] text-muted-foreground uppercase">
           {product.category.name} &middot; {product.profile.concentration}
         </p>
-        <h1 className="font-heading text-3xl font-semibold text-foreground sm:text-4xl lg:text-5xl">
+        <h1 className="text-3xl font-semibold text-foreground sm:text-4xl lg:text-5xl">
           {product.name}
         </h1>
       </div>

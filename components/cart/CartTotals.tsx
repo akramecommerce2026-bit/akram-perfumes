@@ -18,8 +18,8 @@ export function CartTotals({ totals, className }: CartTotalsProps) {
         <Row label="Discount" value={`− ${formatMoney(totals.discount)}`} />
       )}
       <div className="mt-1 flex items-baseline justify-between border-t border-border pt-4">
-        <dt className="font-heading text-base font-semibold text-foreground">Grand Total</dt>
-        <dd className="font-heading text-lg font-semibold text-foreground">
+        <dt className="text-base font-semibold text-foreground">Grand Total</dt>
+        <dd className="text-lg font-semibold text-foreground">
           {formatMoney(totals.total)}
         </dd>
       </div>

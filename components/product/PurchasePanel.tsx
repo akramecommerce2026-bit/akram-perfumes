@@ -8,6 +8,7 @@ import { useCart } from "@/components/cart/cart-context";
 import { Price } from "@/components/common/price";
 import { QuantitySelector } from "@/components/product/QuantitySelector";
 import { VariantSelector } from "@/components/product/VariantSelector";
+import { storefrontButton } from "@/components/common/button";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types/product";
 
@@ -115,11 +116,7 @@ export function PurchasePanel({ product }: { product: Product }) {
           type="button"
           onClick={handleAddToCart}
           disabled={isSoldOut}
-          className={cn(
-            "inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground transition-all duration-300",
-            "hover:shadow-gold disabled:pointer-events-none disabled:opacity-50",
-            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-          )}
+          className={storefrontButton({ variant: "primary", size: "lg", block: true })}
         >
           {added ? (
             <>

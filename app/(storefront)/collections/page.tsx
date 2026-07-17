@@ -27,7 +27,7 @@ export default async function CollectionsPage() {
         />
 
         {categories.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-border bg-card/50 px-6 py-20 text-center text-muted-foreground">
+          <p className="rounded-lg border border-dashed border-border bg-card/50 px-6 py-20 text-center text-muted-foreground">
             No collections available yet. Please check back soon.
           </p>
         ) : (

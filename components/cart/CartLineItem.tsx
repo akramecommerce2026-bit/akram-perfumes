@@ -40,7 +40,7 @@ export function CartLineItem({ item, onNavigate }: CartLineItemProps) {
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-col gap-0.5">
             <Link href={`/shop/${item.productSlug}`} onClick={onNavigate}>
-              <h3 className="font-heading text-base font-semibold text-foreground transition-colors hover:text-accent">
+              <h3 className="text-base font-semibold text-foreground transition-colors hover:text-accent">
                 {item.productName}
               </h3>
             </Link>

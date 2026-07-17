@@ -15,7 +15,7 @@ function pad(value: number) {
 export function HeroPagination({ count, index, onSelect }: HeroPaginationProps) {
   return (
     <div className="flex items-center gap-5">
-      <p className="font-heading text-sm tabular-nums text-background">
+      <p className="text-sm tabular-nums text-background">
         <span className="font-semibold">{pad(index + 1)}</span>
         <span className="text-background/60"> / {pad(count)}</span>
       </p>

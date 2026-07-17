@@ -40,7 +40,7 @@ export function SignatureBottle({ image, alt }: SignatureBottleProps) {
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
       >
         <motion.div style={shouldReduceMotion ? undefined : { scale, rotate }}>
-          <div className="overflow-hidden rounded-3xl border border-border/60 shadow-xl">
+          <div className="overflow-hidden rounded-lg border border-border/60">
             <Image
               src={image}
               alt={alt}

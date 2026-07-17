@@ -26,7 +26,7 @@ export function OrderReview({ values, onEdit }: OrderReviewProps) {
       className="flex flex-col gap-4"
     >
       <div className="flex items-center justify-between">
-        <h2 className="font-heading text-xl font-semibold text-foreground">Review your order</h2>
+        <h2 className="text-xl font-semibold text-foreground">Review your order</h2>
         <button
           type="button"
           onClick={onEdit}
@@ -66,7 +66,7 @@ function ReviewCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+    <div className="rounded-lg border border-border bg-card p-6">
       <div className="mb-2 flex items-center gap-2 text-xs font-medium tracking-wide text-accent-foreground uppercase">
         <span className="text-accent">{icon}</span>
         {title}

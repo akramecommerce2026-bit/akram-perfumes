@@ -21,8 +21,8 @@ import { cn } from "@/lib/utils";
 const enter = "motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-3 motion-safe:duration-700 motion-safe:fill-mode-both ease-[cubic-bezier(0.22,1,0.36,1)]";
 
 const primaryCta = cn(
-  "inline-flex h-12 items-center justify-center rounded-full bg-background px-8 text-sm font-medium tracking-wide text-foreground shadow-md transition-all duration-300",
-  "hover:bg-accent hover:text-accent-foreground hover:shadow-gold hover:-translate-y-0.5",
+  "inline-flex h-12 items-center justify-center rounded-full bg-background px-8 text-sm font-medium tracking-wide text-foreground transition-all duration-300",
+  "hover:bg-accent hover:text-accent-foreground hover:-translate-y-0.5",
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-background",
 );
 
@@ -49,7 +49,7 @@ export function HeroContent() {
         id="hero-heading"
         className={cn(
           enter,
-          "mt-6 font-heading text-4xl leading-[1.06] font-semibold sm:text-5xl lg:text-6xl motion-safe:delay-100",
+          "mt-6 text-4xl leading-[1.06] font-semibold sm:text-5xl lg:text-6xl motion-safe:delay-100",
         )}
       >
         Discover Your

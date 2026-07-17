@@ -30,11 +30,11 @@ export function ReviewSection({ reviews, rating, reviewCount }: ReviewSectionPro
       <section id="reviews" aria-labelledby="reviews-heading" className="flex flex-col gap-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex flex-col gap-2">
-            <h2 id="reviews-heading" className="font-heading text-2xl font-semibold text-foreground sm:text-3xl">
+            <h2 id="reviews-heading" className="text-2xl font-semibold text-foreground sm:text-3xl">
               Customer Reviews
             </h2>
             <div className="flex items-center gap-3">
-              <span className="font-heading text-3xl font-semibold text-foreground">{rating.toFixed(1)}</span>
+              <span className="text-3xl font-semibold text-foreground">{rating.toFixed(1)}</span>
               <div className="flex flex-col">
                 <StarRating rating={rating} />
                 <span className="text-sm text-muted-foreground">Based on {reviewCount} reviews</span>
@@ -44,7 +44,7 @@ export function ReviewSection({ reviews, rating, reviewCount }: ReviewSectionPro
         </div>
 
         {reviews.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-border bg-card/50 px-6 py-12 text-center text-sm text-muted-foreground">
+          <p className="rounded-lg border border-dashed border-border bg-card/50 px-6 py-12 text-center text-sm text-muted-foreground">
             No written reviews yet — be the first to share your experience.
           </p>
         ) : (
@@ -59,7 +59,7 @@ export function ReviewSection({ reviews, rating, reviewCount }: ReviewSectionPro
               <motion.li
                 key={review.id}
                 variants={item}
-                className="flex flex-col gap-3 rounded-2xl border border-border/60 bg-card p-6 shadow-sm"
+                className="flex flex-col gap-3 rounded-lg border border-border/60 bg-card p-6"
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex flex-col gap-1">

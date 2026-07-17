@@ -31,7 +31,7 @@ export function RelatedProducts({ products }: { products: readonly ProductSummar
     <MotionConfig reducedMotion="user">
       <section aria-labelledby="related-heading" className="flex flex-col gap-6">
         <div className="flex items-center justify-between gap-4">
-          <h2 id="related-heading" className="font-heading text-2xl font-semibold text-foreground sm:text-3xl">
+          <h2 id="related-heading" className="text-2xl font-semibold text-foreground sm:text-3xl">
             You May Also Like
           </h2>
           <div className="hidden gap-2 md:flex">

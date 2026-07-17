@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ArrowRight, Lock } from "lucide-react";
 
 import { CartTotals } from "@/components/cart/CartTotals";
+import { storefrontButton } from "@/components/common/button";
+import { cn } from "@/lib/utils";
 import { CouponInput } from "@/components/cart/CouponInput";
 import type { CartTotals as CartTotalsData } from "@/types/cart";
 
@@ -13,8 +15,8 @@ interface CartSummaryProps {
 
 export function CartSummary({ totals }: CartSummaryProps) {
   return (
-    <div className="flex flex-col gap-6 rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-7">
-      <h2 className="font-heading text-xl font-semibold text-foreground">Order Summary</h2>
+    <div className="flex flex-col gap-6 rounded-lg border border-border bg-card p-6 sm:p-7">
+      <h2 className="text-xl font-semibold text-foreground">Order Summary</h2>
 
       <CartTotals totals={totals} />
 
@@ -22,7 +24,7 @@ export function CartSummary({ totals }: CartSummaryProps) {
 
       <Link
         href="/checkout"
-        className="group inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground transition-all duration-300 hover:shadow-gold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        className={cn(storefrontButton({ variant: "primary", size: "lg", block: true }), "group")}
       >
         Proceed to Checkout
         <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden="true" />

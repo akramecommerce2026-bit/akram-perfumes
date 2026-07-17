@@ -40,12 +40,12 @@ export function ContactForm() {
 
   if (sent) {
     return (
-      <div className="flex flex-col items-center gap-4 rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
+      <div className="flex flex-col items-center gap-4 rounded-lg border border-border bg-card p-8 text-center">
         <span className="flex size-14 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--accent)_16%,transparent)] text-accent">
           <CheckCircle2 className="size-7" aria-hidden="true" />
         </span>
         <div className="flex flex-col gap-1">
-          <h3 className="font-heading text-xl font-semibold text-foreground">Message sent</h3>
+          <h3 className="text-xl font-semibold text-foreground">Message sent</h3>
           <p className="text-sm text-muted-foreground">
             Thank you for reaching out. Our team will get back to you within one business day.
           </p>
@@ -58,7 +58,7 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
+    <form onSubmit={onSubmit} className="flex flex-col gap-4 rounded-lg border border-border bg-card p-6 sm:p-8">
       {error && (
         <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm text-destructive">
           {error}

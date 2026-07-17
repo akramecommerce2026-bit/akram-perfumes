@@ -3,6 +3,8 @@ import Link from "next/link";
 import { AlertCircle } from "lucide-react";
 
 import { AuthShell } from "@/components/account/AuthShell";
+import { storefrontButton } from "@/components/common/button";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Link Problem — Akram Perfumes",
@@ -30,7 +32,7 @@ export default async function AuthErrorPage({ searchParams }: AuthErrorPageProps
         </span>
         <Link
           href={action.href}
-          className="inline-flex h-11 w-full items-center justify-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground transition-all duration-300 hover:shadow-gold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          className={cn(storefrontButton({ variant: "primary", size: "lg", block: true }), "group")}
         >
           {action.label}
         </Link>

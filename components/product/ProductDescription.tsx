@@ -15,7 +15,7 @@ export function ProductDescription({ product }: { product: Product }) {
         className="mx-auto flex max-w-2xl flex-col items-center gap-5 text-center"
       >
         <span className="text-xs font-medium tracking-[0.2em] text-accent uppercase">The Experience</span>
-        <h2 className="font-heading text-3xl font-semibold text-foreground sm:text-4xl">
+        <h2 className="text-3xl font-semibold text-foreground sm:text-4xl">
           The Art of {product.name}
         </h2>
         <span aria-hidden="true" className="h-px w-16 bg-accent/50" />

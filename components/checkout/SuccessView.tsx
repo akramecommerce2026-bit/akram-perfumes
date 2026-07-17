@@ -4,6 +4,9 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Check, Mail, Package } from "lucide-react";
 
+import { storefrontButton } from "@/components/common/button";
+import { cn } from "@/lib/utils";
+
 interface SuccessViewProps {
   orderNumber: string;
 }
@@ -28,7 +31,7 @@ export function SuccessView({ orderNumber }: SuccessViewProps) {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.25, duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
-          className="relative flex size-16 items-center justify-center rounded-full bg-accent text-accent-foreground shadow-gold"
+          className="relative flex size-16 items-center justify-center rounded-full bg-accent text-accent-foreground"
         >
           <Check className="size-8" strokeWidth={2.5} aria-hidden="true" />
         </motion.span>
@@ -36,7 +39,7 @@ export function SuccessView({ orderNumber }: SuccessViewProps) {
 
       <div className="flex flex-col gap-3">
         <p className="text-xs font-medium tracking-[0.2em] text-accent uppercase">Order Confirmed</p>
-        <h1 className="font-heading text-3xl font-semibold text-foreground sm:text-4xl">
+        <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">
           Thank you for your order
         </h1>
         <p className="text-muted-foreground">
@@ -45,12 +48,12 @@ export function SuccessView({ orderNumber }: SuccessViewProps) {
         </p>
       </div>
 
-      <div className="flex w-full flex-col gap-3 rounded-2xl border border-border bg-card p-6 shadow-sm">
+      <div className="flex w-full flex-col gap-3 rounded-lg border border-border bg-card p-6">
         <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
           <Package className="size-4 text-accent" aria-hidden="true" />
           Order Number
         </div>
-        <p className="font-heading text-2xl font-semibold tracking-wide text-foreground">
+        <p className="text-2xl font-semibold tracking-wide text-foreground">
           {orderNumber}
         </p>
         <p className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
@@ -62,7 +65,7 @@ export function SuccessView({ orderNumber }: SuccessViewProps) {
       <div className="flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
         <Link
           href="/shop"
-          className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-8 text-sm font-medium text-primary-foreground transition-all duration-300 hover:shadow-gold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          className={cn(storefrontButton({ variant: "primary", size: "lg", block: false }))}
         >
           Continue Shopping
         </Link>

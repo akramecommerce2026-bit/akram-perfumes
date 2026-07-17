@@ -21,8 +21,8 @@ interface OrderSummaryProps {
  */
 export function OrderSummary({ items, totals, children }: OrderSummaryProps) {
   return (
-    <div className="flex flex-col gap-6 rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-7">
-      <h2 className="font-heading text-xl font-semibold text-foreground">Order Summary</h2>
+    <div className="flex flex-col gap-6 rounded-lg border border-border bg-card p-6 sm:p-7">
+      <h2 className="text-xl font-semibold text-foreground">Order Summary</h2>
 
       <ul className="flex flex-col gap-4">
         {items.map((item) => (

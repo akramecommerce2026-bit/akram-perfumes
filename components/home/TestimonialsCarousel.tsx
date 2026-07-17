@@ -11,10 +11,12 @@ import type { Testimonial } from "@/types/testimonial";
 const AUTOPLAY_MS = 5000;
 const SWIPE_THRESHOLD = 50;
 
+// Matches the rail arrows in ProductSlider: gold hairline, fills on hover.
 const arrowClass = cn(
   "absolute top-1/2 z-10 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full",
-  "border border-border bg-card text-foreground shadow-sm transition-colors duration-300",
-  "hover:border-accent hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring md:flex",
+  "border border-accent/40 text-foreground transition-colors duration-(--animate-duration-base) ease-lux",
+  "hover:border-accent hover:bg-accent hover:text-accent-foreground",
+  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring md:flex",
 );
 
 interface TestimonialsCarouselProps {

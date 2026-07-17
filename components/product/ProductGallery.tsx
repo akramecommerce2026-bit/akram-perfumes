@@ -53,7 +53,7 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
       )}
 
       <div
-        className="group relative aspect-square flex-1 overflow-hidden rounded-2xl border border-border/60 bg-muted"
+        className="group relative aspect-square flex-1 overflow-hidden rounded-lg border border-border/60 bg-muted"
         onMouseMove={handleMove}
         onMouseLeave={() => setOrigin("center")}
       >

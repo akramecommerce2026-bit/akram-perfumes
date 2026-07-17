@@ -28,7 +28,7 @@ export default function ContactPage() {
           {/* Details column */}
           <div className="flex flex-col gap-8">
             <section className="flex flex-col gap-5">
-              <h2 className="font-heading text-xl font-semibold text-foreground">Visit or reach us</h2>
+              <h2 className="text-xl font-semibold text-foreground">Visit or reach us</h2>
               <ul className="flex flex-col gap-4 text-sm">
                 <li className="flex items-start gap-3">
                   <MapPin className="mt-0.5 size-5 shrink-0 text-accent" aria-hidden="true" />
@@ -54,7 +54,7 @@ export default function ContactPage() {
             </section>
 
             <section className="flex flex-col gap-3">
-              <h2 className="font-heading text-xl font-semibold text-foreground">Follow us</h2>
+              <h2 className="text-xl font-semibold text-foreground">Follow us</h2>
               <ul className="flex flex-wrap gap-3">
                 {SOCIAL_LINKS.map((social) => (
                   <li key={social.label}>
@@ -80,8 +80,8 @@ export default function ContactPage() {
 
         {/* Map */}
         <section className="mt-12 lg:mt-16">
-          <h2 className="mb-4 font-heading text-xl font-semibold text-foreground">Find us on the map</h2>
-          <div className="overflow-hidden rounded-2xl border border-border shadow-sm">
+          <h2 className="mb-4 text-xl font-semibold text-foreground">Find us on the map</h2>
+          <div className="overflow-hidden rounded-lg border border-border">
             <iframe
               title="Akram Perfumes location map"
               src={mapSrc}
@@ -94,12 +94,12 @@ export default function ContactPage() {
 
         {/* FAQ */}
         <section className="mt-12 lg:mt-16">
-          <h2 className="mb-6 font-heading text-2xl font-semibold text-foreground">Frequently asked questions</h2>
+          <h2 className="mb-6 text-2xl font-semibold text-foreground">Frequently asked questions</h2>
           <div className="mx-auto flex max-w-3xl flex-col gap-3">
             {CONTACT_FAQS.map((faq) => (
               <details
                 key={faq.question}
-                className="group rounded-xl border border-border bg-card px-5 py-4 shadow-sm"
+                className="group rounded-xl border border-border bg-card px-5 py-4"
               >
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-foreground [&::-webkit-details-marker]:hidden">
                   {faq.question}

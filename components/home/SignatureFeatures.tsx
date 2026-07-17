@@ -42,7 +42,7 @@ export function SignatureFeatures() {
             <Icon className="size-5" aria-hidden="true" />
           </span>
           <div className="flex flex-col gap-0.5">
-            <h3 className="font-heading text-lg font-semibold text-foreground">{title}</h3>
+            <h3 className="text-lg font-semibold text-foreground">{title}</h3>
             <p className="text-sm text-muted-foreground">{description}</p>
           </div>
         </motion.li>

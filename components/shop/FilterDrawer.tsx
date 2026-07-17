@@ -48,7 +48,7 @@ export function FilterDrawer({
             />
             <Drawer.Viewport className="fixed inset-0 z-50 flex justify-start">
               <Drawer.Popup
-                className="flex h-full w-full max-w-sm flex-col border-r border-border bg-popover text-popover-foreground shadow-xl outline-none"
+                className="flex h-full w-full max-w-sm flex-col border-r border-border bg-popover text-popover-foreground outline-none"
                 render={
                   <motion.div
                     initial={shouldReduceMotion ? { opacity: 0 } : { x: "-100%", opacity: 0.9999 }}
@@ -59,7 +59,7 @@ export function FilterDrawer({
                 }
               >
                 <div className="flex items-center justify-between border-b border-border px-gutter py-4">
-                  <Drawer.Title className="font-heading text-lg font-semibold">Filters</Drawer.Title>
+                  <Drawer.Title className="text-sm font-semibold tracking-[0.12em] uppercase">Filters</Drawer.Title>
                   <Drawer.Close aria-label="Close filters" render={<Button variant="ghost" size="icon" />}>
                     <X className="size-5" aria-hidden="true" />
                   </Drawer.Close>
@@ -76,7 +76,7 @@ export function FilterDrawer({
 
                 <div className="border-t border-border px-gutter py-4">
                   <Button
-                    className="h-11 w-full rounded-full"
+                    className="h-11 w-full rounded-md"
                     onClick={() => onOpenChange(false)}
                   >
                     Show {resultCount} {resultCount === 1 ? "result" : "results"}

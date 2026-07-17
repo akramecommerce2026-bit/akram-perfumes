@@ -36,7 +36,7 @@ export function SelectableCard({
         "flex cursor-pointer items-center gap-4 rounded-xl border p-4 transition-all",
         "has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring",
         checked
-          ? "border-accent bg-[color-mix(in_oklab,var(--accent)_8%,transparent)] shadow-sm"
+          ? "border-accent bg-[color-mix(in_oklab,var(--accent)_8%,transparent)]"
           : "border-border hover:border-accent/60",
       )}
     >

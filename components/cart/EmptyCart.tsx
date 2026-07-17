@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ShoppingBag } from "lucide-react";
 
+import { storefrontButton } from "@/components/common/button";
 import { cn } from "@/lib/utils";
 
 interface EmptyCartProps {
@@ -28,7 +29,7 @@ export function EmptyCart({ onContinue, className }: EmptyCartProps) {
       </span>
 
       <div className="flex flex-col gap-2">
-        <h2 className="font-heading text-2xl font-semibold text-foreground">Your cart is empty</h2>
+        <h2 className="text-2xl font-semibold text-foreground">Your cart is empty</h2>
         <p className="max-w-xs text-sm text-muted-foreground">
           Discover our signature fragrances and add your favourites to begin.
         </p>
@@ -37,7 +38,7 @@ export function EmptyCart({ onContinue, className }: EmptyCartProps) {
       <Link
         href="/shop"
         onClick={onContinue}
-        className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-8 text-sm font-medium text-primary-foreground transition-all duration-300 hover:shadow-gold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        className={cn(storefrontButton({ variant: "primary", size: "lg", block: false }))}
       >
         Continue Shopping
       </Link>

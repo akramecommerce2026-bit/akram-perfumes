@@ -1,6 +1,7 @@
-import { BadgeCheck, Quote, Star } from "lucide-react";
+import { BadgeCheck, Quote } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { StarRating } from "@/components/common/star-rating";
+import { Surface } from "@/components/common/surface";
 import type { Testimonial } from "@/types/testimonial";
 
 function getInitials(name: string): string {
@@ -17,20 +18,12 @@ export function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
   const { name, rating, verified, product, review } = testimonial;
 
   return (
-    <figure className="flex flex-col items-center gap-6 rounded-3xl border border-border/60 bg-card px-6 py-10 text-center shadow-md sm:px-12 sm:py-12">
+    <Surface as="figure" className="flex flex-col items-center gap-6 px-6 py-10 text-center sm:px-12 sm:py-12">
       <Quote className="size-8 text-accent/60" aria-hidden="true" />
 
-      <div className="flex items-center gap-1 text-accent" aria-label={`Rated ${rating} out of 5`}>
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Star
-            key={i}
-            className={cn("size-4", i < rating ? "fill-current" : "fill-none text-muted-foreground/40")}
-            aria-hidden="true"
-          />
-        ))}
-      </div>
+      <StarRating rating={rating} />
 
-      <blockquote className="max-w-xl font-heading text-lg leading-relaxed text-foreground sm:text-xl">
+      <blockquote className="max-w-xl text-lg leading-relaxed text-foreground sm:text-xl">
         &ldquo;{review}&rdquo;
       </blockquote>
 
@@ -52,6 +45,6 @@ export function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
           {product && <span className="text-xs text-muted-foreground">Purchased &middot; {product}</span>}
         </div>
       </figcaption>
-    </figure>
+    </Surface>
   );
 }
