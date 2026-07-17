@@ -37,14 +37,14 @@ export function ProductFilters({ state, categories, onChange, onClear }: Product
   }));
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-7">
       <div className="flex h-9 items-center justify-between border-b border-border pb-2">
         <h2 className="text-sm font-semibold tracking-[0.12em] text-foreground uppercase">Filters</h2>
         {activeCount > 0 && (
           <button
             type="button"
             onClick={onClear}
-            className="text-xs font-medium text-accent transition-opacity hover:opacity-80"
+            className="text-[11px] font-medium tracking-wide text-accent uppercase transition-opacity hover:opacity-70"
           >
             Clear all ({activeCount})
           </button>
@@ -59,7 +59,7 @@ export function ProductFilters({ state, categories, onChange, onClear }: Product
         onToggle={(value) => onChange({ categorySlug: value || null })}
       />
 
-      <div className="border-t border-border pt-6">
+      <div className="border-t border-border/60 pt-7">
         <FilterGroup
           title="Price Range"
           name="filter-price"
@@ -69,7 +69,7 @@ export function ProductFilters({ state, categories, onChange, onClear }: Product
         />
       </div>
 
-      <div className="border-t border-border pt-6">
+      <div className="border-t border-border/60 pt-7">
         <FilterGroup
           title="Gender"
           name="filter-gender"
@@ -80,7 +80,7 @@ export function ProductFilters({ state, categories, onChange, onClear }: Product
         />
       </div>
 
-      <div className="border-t border-border pt-6">
+      <div className="border-t border-border/60 pt-7">
         <FilterGroup
           title="Availability"
           name="filter-availability"

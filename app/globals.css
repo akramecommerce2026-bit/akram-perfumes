@@ -187,6 +187,12 @@
   --muted-foreground: oklch(0.52 0.008 75);
   --border: oklch(0.9 0.006 84);
 
+  /* The brand gold, #C8A85A, as the single source every gold surface derives
+     from — ornament, hairlines, rules, focus. Stated in oklch to sit in the same
+     space as the rest of the palette; it is that hex exactly. */
+  --accent: oklch(0.7439 0.1043 87.47);
+  --ring: oklch(0.7439 0.1043 87.47);
+
   /* Drives the whole radius scale: rounded-lg -> 8px (product imagery) and
      rounded-md -> 6px (buttons), matching the reference. The admin keeps the
      tighter 0.25rem it was built against. */

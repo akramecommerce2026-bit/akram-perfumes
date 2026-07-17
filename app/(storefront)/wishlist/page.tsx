@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { Container } from "@/components/common/container";
+import { PageHeader } from "@/components/common/page-header";
 import { WishlistView } from "@/components/wishlist/WishlistView";
 
 export const metadata: Metadata = {
@@ -10,12 +11,12 @@ export const metadata: Metadata = {
 
 export default function WishlistPage() {
   return (
-    <div className="py-section-sm lg:py-section">
+    <div className="py-10 lg:py-14">
       <Container>
-        <header className="mb-8 lg:mb-10">
-          <p className="text-xs font-medium tracking-[0.2em] text-accent uppercase">Saved for later</p>
-          <h1 className="mt-3 font-heading text-4xl font-semibold text-foreground sm:text-5xl">Wishlist</h1>
-        </header>
+        <PageHeader
+          eyebrow="Saved for later"
+          title="Wishlist"
+        />
         <WishlistView />
       </Container>
     </div>

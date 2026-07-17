@@ -28,7 +28,7 @@ export function SignatureContent({ collection }: SignatureContentProps) {
         )}
 
         <h2
-          className="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-500 motion-safe:fill-mode-both font-heading text-4xl font-semibold text-foreground sm:text-5xl lg:text-6xl"
+          className="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-500 motion-safe:fill-mode-both text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl"
         >
           {collection.title}
         </h2>

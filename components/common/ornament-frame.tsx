@@ -30,27 +30,27 @@ function Corner({ className }: { className?: string }) {
       <path
         d="M0.6 34 V15 C0.6 9.2 2.4 5 5.4 2.9 C7.6 1.3 10.9 0.6 15 0.6 H34"
         stroke="currentColor"
-        strokeWidth="1"
+        strokeWidth="0.75"
         strokeLinecap="round"
-        opacity="0.9"
+        opacity="0.85"
       />
       {/* Keyline, shadowing the bracket at a constant inset. */}
       <path
         d="M5.6 34 V16.4 C5.6 11.8 7 8.5 9.3 6.8 C11.1 5.5 13.6 5 16.4 5 H34"
         stroke="currentColor"
-        strokeWidth="0.6"
+        strokeWidth="0.5"
         strokeLinecap="round"
-        opacity="0.5"
+        opacity="0.4"
       />
       {/* Lotus bud seated in the turn, on the diagonal. */}
       <path
         d="M11.6 8.2 C13.1 9.2 13.9 10.4 13.5 11.6 C12.3 12 11.1 11.2 10.1 9.7 C9.7 8.5 10.4 7.8 11.6 8.2 Z"
         fill="currentColor"
-        opacity="0.7"
+        opacity="0.6"
       />
       {/* Two pinpoints flanking the bud — the detail that reads as handwork. */}
-      <circle cx="17.5" cy="4.6" r="0.55" fill="currentColor" opacity="0.55" />
-      <circle cx="4.6" cy="17.5" r="0.55" fill="currentColor" opacity="0.55" />
+      <circle cx="17.5" cy="4.6" r="0.5" fill="currentColor" opacity="0.45" />
+      <circle cx="4.6" cy="17.5" r="0.5" fill="currentColor" opacity="0.45" />
     </svg>
   );
 }
@@ -64,7 +64,7 @@ function EdgeMark({ className }: { className?: string }) {
       aria-hidden="true"
       className={cn("absolute size-2.5 text-accent", className)}
     >
-      <path d="M5 0.8 L7.4 5 L5 9.2 L2.6 5 Z" fill="currentColor" opacity="0.5" />
+      <path d="M5 1.2 L6.9 5 L5 8.8 L3.1 5 Z" fill="currentColor" opacity="0.4" />
       <path d="M5 2.6 L6.3 5 L5 7.4 L3.7 5 Z" fill="var(--background)" opacity="0.95" />
     </svg>
   );
@@ -78,7 +78,7 @@ export function OrnamentFrame({ className }: { className?: string }) {
     >
       {/* The run the corners resolve into. Kept lighter than the brackets so the
           corners carry the eye and the long edges stay quiet. */}
-      <div className="absolute inset-0 rounded-lg border border-accent/25" />
+      <div className="absolute inset-0 rounded-lg border border-accent/20" />
 
       <Corner className="top-0 left-0" />
       <Corner className="top-0 right-0 -scale-x-100" />

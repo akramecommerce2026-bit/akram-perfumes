@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Mail, MapPin, Phone } from "lucide-react";
 
 import { Container } from "@/components/common/container";
+import { PageHeader } from "@/components/common/page-header";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { BUSINESS, CONTACT_FAQS, SOCIAL_LINKS } from "@/lib/site";
 
@@ -15,16 +16,13 @@ const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(BUSINESS.addr
 
 export default function ContactPage() {
   return (
-    <div className="py-section-sm lg:py-section">
+    <div className="py-10 lg:py-14">
       <Container>
-        <header className="mb-10 max-w-2xl lg:mb-14">
-          <p className="text-xs font-medium tracking-[0.2em] text-accent uppercase">We&rsquo;d love to hear from you</p>
-          <h1 className="mt-3 font-heading text-4xl font-semibold text-foreground sm:text-5xl">Contact Us</h1>
-          <p className="mt-3 text-muted-foreground">
-            Questions about a fragrance, an order, or a bespoke request? Reach out and our team will
-            respond within one business day.
-          </p>
-        </header>
+        <PageHeader
+          eyebrow="We'd love to hear from you"
+          title="Contact Us"
+          description="Questions about a fragrance, an order, or a bespoke request? Reach out and our team will respond within one business day."
+        />
 
         <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-14">
           {/* Details column */}

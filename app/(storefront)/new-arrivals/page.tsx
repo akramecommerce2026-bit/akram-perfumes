@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { Container } from "@/components/common/container";
+import { PageHeader } from "@/components/common/page-header";
 import { ProductGrid } from "@/components/shop/ProductGrid";
 import { productService } from "@/services/product-service";
 
@@ -15,17 +16,13 @@ export default async function NewArrivalsPage() {
   const { items } = await productService.listProducts({ sort: "newest" });
 
   return (
-    <div className="py-section-sm lg:py-section">
+    <div className="py-10 lg:py-14">
       <Container>
-        <header className="mb-8 lg:mb-12">
-          <p className="text-xs font-medium tracking-[0.2em] text-accent uppercase">Just In</p>
-          <h1 className="mt-3 font-heading text-4xl font-semibold text-foreground sm:text-5xl">
-            New Arrivals
-          </h1>
-          <p className="mt-3 max-w-xl text-muted-foreground">
-            The newest fragrances to join the Akram collection — discover them first.
-          </p>
-        </header>
+        <PageHeader
+          eyebrow="Just In"
+          title="New Arrivals"
+          description="The newest fragrances to join the Akram collection — discover them first."
+        />
 
         <ProductGrid products={items} />
       </Container>

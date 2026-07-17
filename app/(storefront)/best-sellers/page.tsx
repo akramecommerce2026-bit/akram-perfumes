@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { Container } from "@/components/common/container";
+import { PageHeader } from "@/components/common/page-header";
 import { ProductGrid } from "@/components/shop/ProductGrid";
 import { productService } from "@/services/product-service";
 
@@ -15,17 +16,13 @@ export default async function BestSellersPage() {
   const { items } = await productService.listProducts({ sort: "best-selling" });
 
   return (
-    <div className="py-section-sm lg:py-section">
+    <div className="py-10 lg:py-14">
       <Container>
-        <header className="mb-8 lg:mb-12">
-          <p className="text-xs font-medium tracking-[0.2em] text-accent uppercase">Customer Favourites</p>
-          <h1 className="mt-3 font-heading text-4xl font-semibold text-foreground sm:text-5xl">
-            Best Sellers
-          </h1>
-          <p className="mt-3 max-w-xl text-muted-foreground">
-            Our most-loved fragrances — the ones our customers return to again and again.
-          </p>
-        </header>
+        <PageHeader
+          eyebrow="Customer Favourites"
+          title="Best Sellers"
+          description="Our most-loved fragrances — the ones our customers return to again and again."
+        />
 
         <ProductGrid products={items} />
       </Container>

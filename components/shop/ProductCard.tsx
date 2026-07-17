@@ -41,7 +41,7 @@ export function ProductCard({ product }: { product: ProductSummary }) {
      * the ivory page, not enough to read as a box. Hover warms the same line and
      * lifts the card a hair; no glow, no shadow bloom.
      */
-    <article className="group relative flex h-full flex-col rounded-lg border border-accent/20 bg-card p-2.5 transition-all duration-500 ease-out hover:-translate-y-0.5 hover:border-accent/45 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+    <article className="group relative flex h-full flex-col rounded-lg border border-accent/20 bg-card p-2.5 shadow-[inset_0_1px_0_oklch(1_0_0/0.9),inset_0_0_0_1px_oklch(1_0_0/0.35)] transition-all duration-500 ease-out hover:-translate-y-0.5 hover:border-accent/45 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
       <div className="relative overflow-hidden rounded-md bg-muted">
         <Link href={href} aria-label={`View ${product.name}`} className="block">
           {/* Fixed 1:1 box: the ratio is reserved before the image loads, so the

@@ -20,7 +20,7 @@ export function CategoryCard({ category }: { category: Category }) {
     <Link
       href={`/collections/${category.slug}`}
       aria-label={`Shop ${category.name}`}
-      className="group flex flex-col focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+      className="group flex h-full flex-col focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
     >
       {/* The mount. Padding is what sells the frame as a mount rather than a
           border, so it is generous and grows with the card. Left unfilled so the
@@ -40,10 +40,13 @@ export function CategoryCard({ category }: { category: Category }) {
           )}
         </div>
 
-        <OrnamentFrame className="opacity-70 transition-opacity duration-500 group-hover:opacity-100 motion-reduce:transition-none" />
+        {/* Hover brightens the gold rather than moving anything. */}
+        <OrnamentFrame className="opacity-75 transition-opacity duration-500 ease-out group-hover:opacity-100 motion-reduce:transition-none" />
       </div>
 
-      <h3 className="mt-4 text-center text-[13px] font-semibold tracking-[0.14em] text-foreground uppercase transition-colors duration-300 group-hover:text-accent-foreground motion-reduce:transition-none">
+      {/* One line reserved: "Solid Perfumes" wraps where "Attars" does not, and a
+          wrapped label would make its tile taller than its neighbours. */}
+      <h3 className="mt-4 line-clamp-1 text-center text-[13px] font-semibold tracking-[0.14em] text-foreground uppercase transition-colors duration-300 group-hover:text-accent-foreground motion-reduce:transition-none">
         {category.name}
       </h3>
     </Link>
