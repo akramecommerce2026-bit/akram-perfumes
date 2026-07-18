@@ -33,8 +33,8 @@ export function FeatureCard({ icon: Icon, title, description }: Feature) {
       </span>
 
       <div className="flex flex-col gap-2">
-        <h3 className="text-lg font-semibold text-foreground">{title}</h3>
-        <p className="text-[14px] leading-relaxed text-muted-foreground">{description}</p>
+        <h3 className="text-xl font-semibold text-foreground">{title}</h3>
+        <p className="text-base leading-relaxed text-muted-foreground">{description}</p>
       </div>
     </Surface>
   );

@@ -35,7 +35,7 @@ export function SectionHeading({
       )}
     >
       {eyebrow && (
-        <span className={cn(enter, "text-xs font-medium tracking-[0.2em] text-accent uppercase")}>
+        <span className={cn(enter, "text-[13px] font-medium tracking-[0.2em] text-accent uppercase")}>
           {eyebrow}
         </span>
       )}
@@ -43,7 +43,7 @@ export function SectionHeading({
         {title}
       </h2>
       {subtitle && (
-        <p className={cn(enter, "max-w-2xl text-[15px] text-muted-foreground motion-safe:delay-150")}>
+        <p className={cn(enter, "max-w-2xl text-base leading-relaxed text-muted-foreground motion-safe:delay-150")}>
           {subtitle}
         </p>
       )}

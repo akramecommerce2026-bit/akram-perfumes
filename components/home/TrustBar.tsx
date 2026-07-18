@@ -35,7 +35,7 @@ export function TrustBar() {
             <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent">
               <Icon className="size-5" aria-hidden="true" />
             </span>
-            <span className="text-xs font-medium text-foreground sm:text-[13px]">{label}</span>
+            <span className="text-[13px] font-medium text-foreground sm:text-sm">{label}</span>
           </div>
         ))}
       </Surface>

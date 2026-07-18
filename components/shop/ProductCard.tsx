@@ -54,7 +54,7 @@ export function ProductCard({ product }: { product: ProductSummary }) {
 
       <div className="flex flex-1 flex-col px-0.5 pt-3">
         {product.reviewCount > 0 && (
-          <div className="flex items-center gap-1 text-[13px] leading-none">
+          <div className="flex items-center gap-1 text-[14px] leading-none">
             <Star className="size-3.5 fill-accent text-accent" aria-hidden="true" />
             <span className="font-semibold text-foreground">{product.rating.toFixed(1)}</span>
             <span className="text-muted-foreground/70" aria-hidden="true">
@@ -70,7 +70,7 @@ export function ProductCard({ product }: { product: ProductSummary }) {
         {/* Two lines are reserved whether the title needs them or not, so a short
             name and a long one still put their price on the same line. */}
         <Link href={href} className="mt-1.5">
-          <h3 className="line-clamp-2 min-h-[2.6em] text-[15px] leading-snug font-medium text-foreground transition-colors group-hover:text-accent-foreground motion-reduce:transition-none">
+          <h3 className="line-clamp-2 min-h-[2.6em] text-[17px] leading-snug font-medium text-foreground transition-colors group-hover:text-accent-foreground motion-reduce:transition-none">
             {product.name}
           </h3>
         </Link>

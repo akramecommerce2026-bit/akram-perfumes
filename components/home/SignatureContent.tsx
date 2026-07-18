@@ -20,7 +20,7 @@ export function SignatureContent({ collection }: SignatureContentProps) {
       <div className="flex flex-col items-start gap-6">
         {collection.subtitle && (
           <span
-            className="motion-safe:animate-in motion-safe:fade-in motion-safe:duration-500 motion-safe:fill-mode-both inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-1.5 text-xs font-medium tracking-[0.18em] text-foreground uppercase"
+            className="motion-safe:animate-in motion-safe:fade-in motion-safe:duration-500 motion-safe:fill-mode-both inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-1.5 text-[13px] font-medium tracking-[0.18em] text-foreground uppercase"
           >
             <Sparkles className="size-3.5 text-accent" aria-hidden="true" />
             {collection.subtitle}

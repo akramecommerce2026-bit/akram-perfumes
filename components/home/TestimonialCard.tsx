@@ -37,12 +37,12 @@ export function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
         <div className="flex flex-col items-center gap-1">
           <span className="font-medium text-foreground">{name}</span>
           {verified && (
-            <span className="inline-flex items-center gap-1 text-xs font-medium text-accent">
+            <span className="inline-flex items-center gap-1 text-[13px] font-medium text-accent">
               <BadgeCheck className="size-3.5" aria-hidden="true" />
               Verified Buyer
             </span>
           )}
-          {product && <span className="text-xs text-muted-foreground">Purchased &middot; {product}</span>}
+          {product && <span className="text-[13px] text-muted-foreground">Purchased &middot; {product}</span>}
         </div>
       </figcaption>
     </Surface>

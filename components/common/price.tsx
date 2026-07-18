@@ -17,13 +17,13 @@ import type { Money } from "@/types/money";
 type PriceSize = "sm" | "md" | "lg";
 
 const priceClasses: Record<PriceSize, string> = {
-  sm: "text-base font-bold",
+  sm: "text-lg font-bold",
   md: "text-xl font-bold",
   lg: "text-3xl font-bold tracking-tight",
 };
 
 const compareClasses: Record<PriceSize, string> = {
-  sm: "text-[13px]",
+  sm: "text-[14px]",
   md: "text-sm",
   lg: "text-lg",
 };
