@@ -1,4 +1,5 @@
 import { Section } from "@/components/common/section";
+import { SectionBackdrop } from "@/components/common/section-backdrop";
 import { SectionHeading } from "@/components/common/section-heading";
 import { CategoryCard } from "@/components/home/CategoryCard";
 import { productService } from "@/services/product-service";
@@ -17,7 +18,9 @@ export async function ShopByCategory() {
   if (categories.length === 0) return null;
 
   return (
-    <Section spacing="lg">
+    <Section spacing="lg" className="relative overflow-hidden">
+      <SectionBackdrop variant="arcade" />
+
       <SectionHeading
         eyebrow="Curated Selection"
         title="Shop by Category"

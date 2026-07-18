@@ -1,6 +1,7 @@
 import { Gem, HeartHandshake, Hourglass, ShieldCheck, Tag, Truck } from "lucide-react";
 
 import { Section } from "@/components/common/section";
+import { SectionBackdrop } from "@/components/common/section-backdrop";
 import { SectionHeading } from "@/components/common/section-heading";
 import { FeatureCard, type Feature } from "@/components/home/FeatureCard";
 
@@ -47,11 +48,7 @@ const features: Feature[] = [
 export function WhyChooseAkram() {
   return (
     <Section spacing="lg" className="relative overflow-hidden">
-        {/* Subtle gold accent glow on the ivory background */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(50%_40%_at_50%_0%,color-mix(in_oklab,var(--accent)_12%,transparent),transparent_70%)]"
-        />
+        <SectionBackdrop variant="panels" />
 
         <SectionHeading
           eyebrow="The Akram Promise"

@@ -4,6 +4,7 @@ import { ShopByCategory } from "@/components/home/ShopByCategory";
 import { BestSellers } from "@/components/home/BestSellers";
 import { SignatureSection } from "@/components/home/SignatureSection";
 import { WhyChooseAkram } from "@/components/home/WhyChooseAkram";
+import { OurStory } from "@/components/home/OurStory";
 import { Testimonials } from "@/components/home/Testimonials";
 import { signatureCollectionService } from "@/services/signature-collection-service";
 
@@ -30,6 +31,7 @@ export default async function Home() {
         <SignatureSection key={collection.id} collection={collection} />
       ))}
       <WhyChooseAkram />
+      <OurStory />
       <Testimonials />
     </>
   );

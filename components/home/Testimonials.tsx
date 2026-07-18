@@ -1,4 +1,5 @@
 import { Section } from "@/components/common/section";
+import { paperTexture } from "@/components/common/section-paper";
 import { SectionHeading } from "@/components/common/section-heading";
 import { TestimonialsCarousel } from "@/components/home/TestimonialsCarousel";
 import { getTestimonials } from "@/services/testimonial-service";
@@ -12,12 +13,11 @@ export async function Testimonials() {
   const testimonials = await getTestimonials();
 
   return (
-    <Section spacing="lg" className="relative overflow-hidden">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(45%_45%_at_50%_45%,color-mix(in_oklab,var(--accent)_10%,transparent),transparent_70%)]"
-      />
-
+    <Section
+      spacing="lg"
+      style={{ backgroundImage: paperTexture(0.02) }}
+      className="relative overflow-hidden"
+    >
       <SectionHeading
         eyebrow="Testimonials"
         title="Loved by Fragrance Enthusiasts"
