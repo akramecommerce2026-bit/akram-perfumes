@@ -1,6 +1,6 @@
 import { Section } from "@/components/common/section";
 import { SectionHeading } from "@/components/common/section-heading";
-import { CategoryArchCard } from "@/components/home/CategoryArchCard";
+import { CategoryCard } from "@/components/home/CategoryCard";
 import { productService } from "@/services/product-service";
 
 /**
@@ -24,21 +24,9 @@ export async function ShopByCategory() {
         subtitle="Explore fragrances crafted for every personality and every occasion."
       />
 
-      {/*
-        A centred row of fixed-width cards rather than a fixed column count.
-
-        The reference runs six categories across; this catalogue currently has
-        four. In a six-column grid those four would sit left-aligned against two
-        empty cells, which is the opposite of the symmetry the layout wants.
-        Centring a wrapped flex row keeps the cards identically sized and evenly
-        spaced at any count — four centre now, six fill the row if two more are
-        published, and no card ever changes proportion.
-      */}
-      <div className="mt-12 flex flex-wrap justify-center gap-x-6 gap-y-10 sm:gap-x-8 lg:mt-14">
+      <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 sm:gap-x-6 lg:grid-cols-4">
         {categories.map((category) => (
-          <div key={category.id} className="w-[42%] max-w-[184px] sm:w-[168px] lg:w-[184px]">
-            <CategoryArchCard category={category} />
-          </div>
+          <CategoryCard key={category.id} category={category} />
         ))}
       </div>
     </Section>
