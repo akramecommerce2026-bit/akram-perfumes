@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm, useWatch, type Resolver } from "react-hook-form";
-import { ArrowLeft, Loader2, Save, Trash2 } from "lucide-react";
+import { ArrowLeft, ChevronDown, Loader2, Save, Trash2 } from "lucide-react";
 
 import { ImageUploader } from "@/components/admin/products/ImageUploader";
 import { NotesEditor } from "@/components/admin/products/NotesEditor";
@@ -62,9 +62,24 @@ export function ProductForm({ mode, categories, defaultValues, productId }: Prod
   const nameField = register("name");
   const slugField = register("slug");
   const isFeatured = useWatch({ control: form.control, name: "isFeatured" });
+  const isSignature = useWatch({ control: form.control, name: "isSignature" });
   const active = useWatch({ control: form.control, name: "active" });
 
-  async function onSubmit(values: ProductFormValues) {
+  async function onSubmit(raw: ProductFormValues) {
+    // Smart automation: SEO is optional, so if the admin left it blank we fill a
+    // sensible title and description from what they already typed. The backend
+    // contract is unchanged — these are client-side defaults. (SKUs are
+    // auto-suggested live as each variant is named, in VariantsEditor.)
+    const values: ProductFormValues = {
+      ...raw,
+      metaTitle: raw.metaTitle?.trim() || `${raw.name} — Akram Perfumes`,
+      metaDescription:
+        raw.metaDescription?.trim() ||
+        raw.shortDescription?.trim() ||
+        raw.description?.trim().slice(0, 160) ||
+        `${raw.name} by Akram Perfumes.`,
+    };
+
     const result =
       mode === "create"
         ? await createProductAction(values)
@@ -123,11 +138,11 @@ export function ProductForm({ mode, categories, defaultValues, productId }: Prod
           )}
         </div>
 
-        {/* Basic info */}
+        {/* 1. Basic information — the only fields most products ever need. */}
         <section className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm">
           <h2 className="font-heading text-lg font-semibold text-foreground">Basic Information</h2>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Product Name" htmlFor="name" error={errors.name?.message}>
+            <Field label="Product Name" htmlFor="name" error={errors.name?.message} hint="This is what customers will see.">
               <TextInput
                 id="name"
                 placeholder="Bin Sheikh"
@@ -139,32 +154,7 @@ export function ProductForm({ mode, categories, defaultValues, productId }: Prod
                 aria-invalid={!!errors.name}
               />
             </Field>
-            <Field label="Slug" htmlFor="slug" error={errors.slug?.message} hint="Used in the product URL.">
-              <TextInput
-                id="slug"
-                placeholder="bin-sheikh"
-                {...slugField}
-                onChange={(e) => {
-                  setSlugEdited(true);
-                  slugField.onChange(e);
-                }}
-                aria-invalid={!!errors.slug}
-              />
-            </Field>
-          </div>
-          <Field label="Short Description" htmlFor="shortDescription" error={errors.shortDescription?.message} optional>
-            <TextInput id="shortDescription" placeholder="A one-line summary shown on cards." {...register("shortDescription")} />
-          </Field>
-          <Field label="Full Description" htmlFor="description" error={errors.description?.message} optional>
-            <Textarea id="description" rows={5} placeholder="The full product story…" {...register("description")} />
-          </Field>
-        </section>
-
-        {/* Organization */}
-        <section className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm">
-          <h2 className="font-heading text-lg font-semibold text-foreground">Organization</h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <Field label="Category" htmlFor="categoryId" error={errors.categoryId?.message}>
+            <Field label="Category" htmlFor="categoryId" error={errors.categoryId?.message} hint="Where it lives in the shop.">
               <Select id="categoryId" {...register("categoryId")} aria-invalid={!!errors.categoryId}>
                 <option value="" disabled>
                   Select a category
@@ -176,51 +166,99 @@ export function ProductForm({ mode, categories, defaultValues, productId }: Prod
                 ))}
               </Select>
             </Field>
-            <Field label="Brand" htmlFor="brand" error={errors.brand?.message}>
-              <TextInput id="brand" placeholder="Akram Perfumes" {...register("brand")} aria-invalid={!!errors.brand} />
-            </Field>
-            <Field label="Gender" htmlFor="gender" error={errors.gender?.message}>
-              <Select id="gender" {...register("gender")}>
-                {GENDERS.map((value) => (
-                  <option key={value} value={value}>
-                    {GENDER_LABELS[value]}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-            <Field label="Fragrance Family" htmlFor="fragranceFamily" error={errors.fragranceFamily?.message}>
-              <Select id="fragranceFamily" {...register("fragranceFamily")}>
-                {FRAGRANCE_FAMILIES.map((value) => (
-                  <option key={value} value={value}>
-                    {FRAGRANCE_FAMILY_LABELS[value]}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-            <Field label="Concentration" htmlFor="concentration" error={errors.concentration?.message} optional>
-              <TextInput id="concentration" placeholder="Extrait de Parfum" {...register("concentration")} />
-            </Field>
           </div>
-          <div className="grid gap-3 rounded-xl border border-border bg-background p-4 sm:grid-cols-2">
+          <Field label="Short Description" htmlFor="shortDescription" error={errors.shortDescription?.message} optional hint="One line, shown beneath the product title on cards.">
+            <TextInput id="shortDescription" placeholder="Smoky Cambodian oud wrapped in warm amber." {...register("shortDescription")} />
+          </Field>
+          <Field label="Full Description" htmlFor="description" error={errors.description?.message} optional hint="The full product story, shown on the product page.">
+            <Textarea id="description" rows={5} placeholder="The full product story…" {...register("description")} />
+          </Field>
+        </section>
+
+        {/* 2. Images. */}
+        <ImageUploader />
+
+        {/* 3. Pricing, inventory & variants. */}
+        <VariantsEditor />
+
+        {/* 4. Visibility & status — the simple toggles, always in view. */}
+        <section className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <h2 className="font-heading text-lg font-semibold text-foreground">Visibility &amp; Status</h2>
+          <div className="grid gap-3 rounded-xl border border-border bg-background p-4 sm:grid-cols-3">
+            <Toggle
+              label={active ? "Published" : "Draft"}
+              description={active ? "Live on the storefront." : "Hidden until you publish."}
+              checked={active}
+              onChange={(checked) => setValue("active", checked, { shouldDirty: true })}
+            />
             <Toggle
               label="Featured Product"
-              description="Highlight this product on the storefront."
+              description="Highlight on the storefront."
               checked={isFeatured}
               onChange={(checked) => setValue("isFeatured", checked, { shouldDirty: true })}
             />
             <Toggle
-              label={active ? "Active" : "Draft"}
-              description={active ? "Visible on the storefront." : "Hidden from the storefront."}
-              checked={active}
-              onChange={(checked) => setValue("active", checked, { shouldDirty: true })}
+              label="Signature Collection"
+              description="Show in the homepage Signature rail."
+              checked={isSignature}
+              onChange={(checked) => setValue("isSignature", checked, { shouldDirty: true })}
             />
           </div>
         </section>
 
-        <VariantsEditor />
-        <NotesEditor />
-        <ImageUploader />
-        <SeoFields />
+        {/* 5. Advanced — everything a beginner can skip, collapsed by default so
+            the form stays short. Native <details>, so it lazy-reveals with zero JS. */}
+        <details className="group rounded-2xl border border-border bg-card shadow-sm [&_summary::-webkit-details-marker]:hidden">
+          <summary className="flex cursor-pointer items-center justify-between gap-2 p-6 text-lg font-semibold text-foreground">
+            <span className="font-heading">Advanced options</span>
+            <ChevronDown className="size-5 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden="true" />
+          </summary>
+          <div className="flex flex-col gap-6 border-t border-border p-6">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <Field label="Slug" htmlFor="slug" error={errors.slug?.message} hint="Auto-made from the name. Used in the URL.">
+                <TextInput
+                  id="slug"
+                  placeholder="bin-sheikh"
+                  {...slugField}
+                  onChange={(e) => {
+                    setSlugEdited(true);
+                    slugField.onChange(e);
+                  }}
+                  aria-invalid={!!errors.slug}
+                />
+              </Field>
+              <Field label="Brand" htmlFor="brand" error={errors.brand?.message}>
+                <TextInput id="brand" placeholder="Akram Perfumes" {...register("brand")} aria-invalid={!!errors.brand} />
+              </Field>
+              <Field label="Gender" htmlFor="gender" error={errors.gender?.message}>
+                <Select id="gender" {...register("gender")}>
+                  {GENDERS.map((value) => (
+                    <option key={value} value={value}>
+                      {GENDER_LABELS[value]}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+              <Field label="Fragrance Family" htmlFor="fragranceFamily" error={errors.fragranceFamily?.message}>
+                <Select id="fragranceFamily" {...register("fragranceFamily")}>
+                  {FRAGRANCE_FAMILIES.map((value) => (
+                    <option key={value} value={value}>
+                      {FRAGRANCE_FAMILY_LABELS[value]}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+              <Field label="Concentration" htmlFor="concentration" error={errors.concentration?.message} optional>
+                <TextInput id="concentration" placeholder="Extrait de Parfum" {...register("concentration")} />
+              </Field>
+            </div>
+            <NotesEditor />
+            <SeoFields />
+            <p className="text-xs text-muted-foreground">
+              Leave SEO blank and we&apos;ll write the title and description from the product name for you.
+            </p>
+          </div>
+        </details>
 
         {/* Sticky action bar */}
         <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-4 py-3 backdrop-blur md:pl-64">

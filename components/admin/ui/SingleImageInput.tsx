@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
+import { isRemoteImage } from "@/lib/is-remote-image";
 import { ImagePlus, Loader2, X } from "lucide-react";
 
 import { useToast } from "@/components/admin/ui/toast";
@@ -36,7 +37,7 @@ export function SingleImageInput({ value, onChange, uploadAction }: SingleImageI
       {value ? (
         <div className="relative w-fit overflow-hidden rounded-xl border border-border">
           <div className="relative h-40 w-64">
-            <Image src={value} alt="Category image" fill sizes="256px" className="object-cover" />
+            <Image src={value} alt="Category image" fill unoptimized={isRemoteImage(value)} sizes="256px" className="object-cover" />
           </div>
           <button
             type="button"

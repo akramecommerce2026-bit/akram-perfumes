@@ -1,12 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 
+import { useVariantSelection } from "@/components/product/variant-selection-context";
+import { isRemoteImage } from "@/lib/is-remote-image";
 import { cn } from "@/lib/utils";
 
 interface ProductGalleryProps {
-  images: readonly string[];
+  /** Product-level gallery, shown for any variant without its own images. */
+  sharedImages: readonly string[];
+  /** variantId → that variant's own images (empty array when it has none). */
+  variantImages: Readonly<Record<string, readonly string[]>>;
   name: string;
 }
 
@@ -15,12 +20,34 @@ interface ProductGalleryProps {
  * switch, cursor-following hover zoom, and vertical (desktop) / horizontal
  * (mobile) thumbnails. All images use next/image; the primary loads eagerly to
  * keep the LCP crisp, the rest lazily. Aspect ratio is fixed to avoid CLS.
+ *
+ * Variant-aware: it reads the selected variant from context and shows that
+ * variant's own images when it has any, otherwise the shared product gallery.
+ * Switching variants swaps the whole set instantly — no navigation — and resets
+ * the active thumbnail so the customer always lands on the new set's first shot.
+ * Zoom, thumbnails and the cross-fade are identical across every set.
  */
-export function ProductGallery({ images, name }: ProductGalleryProps) {
+export function ProductGallery({ sharedImages, variantImages, name }: ProductGalleryProps) {
+  const { selectedVariantId } = useVariantSelection();
   const [active, setActive] = useState(0);
   const [origin, setOrigin] = useState("center");
 
-  const gallery = images.length > 0 ? images : ["/signature/bin-sheikh.webp"];
+  const gallery = useMemo(() => {
+    const own = variantImages[selectedVariantId] ?? [];
+    const source = own.length > 0 ? own : sharedImages;
+    return source.length > 0 ? source : ["/signature/bin-sheikh.webp"];
+  }, [selectedVariantId, variantImages, sharedImages]);
+
+  // Landing on the first shot of whichever set is now showing keeps the active
+  // thumbnail from pointing past the end of a shorter variant gallery. Resetting
+  // during render (React's "adjust state on prop change" pattern) rather than in
+  // an effect avoids a second paint of the stale index.
+  const galleryKey = gallery.join("|");
+  const [lastKey, setLastKey] = useState(galleryKey);
+  if (galleryKey !== lastKey) {
+    setLastKey(galleryKey);
+    setActive(0);
+  }
 
   function handleMove(event: React.MouseEvent<HTMLDivElement>) {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -46,7 +73,7 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
                 index === active ? "border-accent" : "border-transparent hover:border-border",
               )}
             >
-              <Image src={image} alt="" fill sizes="64px" className="object-cover" />
+              <Image src={image} alt="" fill unoptimized={isRemoteImage(image)} sizes="64px" className="object-cover" />
             </button>
           ))}
         </div>
@@ -70,6 +97,7 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
               alt={`${name} — image ${index + 1}`}
               fill
               priority={index === 0}
+              unoptimized={isRemoteImage(image)}
               sizes="(min-width: 1024px) 45vw, 100vw"
               style={{ transformOrigin: origin }}
               className="object-cover transition-transform duration-300 ease-out group-hover:scale-150 motion-reduce:transition-none motion-reduce:group-hover:scale-100"

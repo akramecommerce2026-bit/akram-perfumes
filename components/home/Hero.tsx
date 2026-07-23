@@ -17,24 +17,24 @@ import type { HeroSlideData } from "@/components/home/HeroSlide";
  */
 const slides: HeroSlideData[] = [
   {
-    src: "/hero/slide-1-waterfall.webp",
-    alt: "Akram eau de parfum on a mossy rock before a sunlit jungle waterfall",
+    src: "/hero/slide-1.webp",
+    alt: "An ornate gold Akram attar bottle with a crystal stopper, wreathed in incense smoke in a candle-lit palace hall",
   },
   {
-    src: "/hero/slide-2-lagoon.webp",
-    alt: "Akram eau de parfum on a stone island in a turquoise lagoon, framed by tropical flowers",
+    src: "/hero/slide-2.webp",
+    alt: "Raw perfumery ingredients — citrus, oud, resins, rose and vanilla — laid across a rustic wooden table",
   },
   {
-    src: "/hero/slide-3-bamboo.webp",
-    alt: "Akram eau de parfum on a stream-washed rock in a sunlit bamboo grove",
+    src: "/hero/slide-3.webp",
+    alt: "A marble perfumery workbench lined with essential-oil bottles, a precision balance and a formulator's notebook",
   },
   {
-    src: "/hero/slide-4-conservatory.webp",
-    alt: "Akram eau de parfum on polished marble in a palm-filled Victorian conservatory",
+    src: "/hero/slide-4.webp",
+    alt: "A traditional stone atelier with a copper distillation still, oud wood, saffron and rose petals",
   },
   {
-    src: "/hero/slide-5-meadow.webp",
-    alt: "Akram eau de parfum on a stone in an alpine wildflower meadow below a snow-capped peak",
+    src: "/hero/slide-5.webp",
+    alt: "A luxury Arabian perfume boutique with amber bottles and oud arrayed on carved wooden shelves",
   },
 ];
 

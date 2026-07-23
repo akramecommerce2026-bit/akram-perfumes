@@ -14,6 +14,7 @@ export function emptyProductFormValues(firstCategoryId: string): ProductFormValu
     concentration: "",
     fragranceFamily: "oriental",
     isFeatured: false,
+    isSignature: false,
     active: true,
     topNotes: [],
     heartNotes: [],
@@ -24,7 +25,7 @@ export function emptyProductFormValues(firstCategoryId: string): ProductFormValu
     keywords: [],
     ogImage: "",
     variants: [
-      { variantName: "", price: 0, comparePrice: null, sku: "", stock: 0, lowStockThreshold: 5, active: true },
+      { variantName: "", price: 0, comparePrice: null, sku: "", stock: 0, lowStockThreshold: 5, active: true, images: [] },
     ],
   };
 }
@@ -42,6 +43,7 @@ export function toProductFormValues(detail: AdminProductDetail): ProductFormValu
     concentration: detail.concentration,
     fragranceFamily: detail.fragranceFamily,
     isFeatured: detail.isFeatured,
+    isSignature: detail.isSignature,
     active: detail.active,
     topNotes: [...detail.notes.top],
     heartNotes: [...detail.notes.heart],
@@ -66,6 +68,13 @@ export function toProductFormValues(detail: AdminProductDetail): ProductFormValu
       stock: variant.stock,
       lowStockThreshold: variant.lowStockThreshold,
       active: variant.status === "active",
+      images: variant.images.map((image) => ({
+        id: image.id,
+        url: image.url,
+        alt: image.alt,
+        isPrimary: image.isPrimary,
+        displayOrder: image.displayOrder,
+      })),
     })),
   };
 }

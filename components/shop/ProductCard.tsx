@@ -9,6 +9,7 @@ import { Button } from "@/components/common/button";
 import { Price } from "@/components/common/price";
 import { Surface } from "@/components/common/surface";
 import { WishlistButton } from "@/components/wishlist/WishlistButton";
+import { isRemoteImage } from "@/lib/is-remote-image";
 import type { ProductSummary } from "@/types/product";
 
 /**
@@ -27,9 +28,12 @@ import type { ProductSummary } from "@/types/product";
 export function ProductCard({ product }: { product: ProductSummary }) {
   const href = `/shop/${product.slug}`;
 
+  // The card is unpadded and clips its own corners so the artwork can run to the
+  // edge; the text block below carries the padding instead. That is what buys
+  // the image its extra width without shrinking anything around it.
   return (
-    <Surface as="article" interactive className="group relative flex h-full flex-col p-2.5">
-      <div className="relative overflow-hidden rounded-md bg-muted">
+    <Surface as="article" interactive className="group relative flex h-full flex-col overflow-hidden p-0">
+      <div className="relative overflow-hidden bg-muted">
         <Link href={href} aria-label={`View ${product.name}`} className="block">
           {/* Fixed 1:1 box: the ratio is reserved before the image loads, so the
               grid never reflows as pictures arrive. */}
@@ -38,6 +42,7 @@ export function ProductCard({ product }: { product: ProductSummary }) {
               src={product.featuredImage}
               alt={product.name}
               fill
+              unoptimized={isRemoteImage(product.featuredImage)}
               sizes="(min-width: 1024px) 25vw, (min-width: 640px) 45vw, 90vw"
               className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
             />
@@ -52,9 +57,10 @@ export function ProductCard({ product }: { product: ProductSummary }) {
         <WishlistButton product={product} className="absolute top-2.5 right-2.5 z-10" />
       </div>
 
-      <div className="flex flex-1 flex-col px-0.5 pt-3">
+      <div className="flex flex-1 flex-col px-3 pt-3 pb-3">
+        {/* Rating sits to the right of the content block, opposite the title. */}
         {product.reviewCount > 0 && (
-          <div className="flex items-center gap-1 text-[14px] leading-none">
+          <div className="flex items-center gap-1 self-end text-[14px] leading-none">
             <Star className="size-3.5 fill-accent text-accent" aria-hidden="true" />
             <span className="font-semibold text-foreground">{product.rating.toFixed(1)}</span>
             <span className="text-muted-foreground/70" aria-hidden="true">

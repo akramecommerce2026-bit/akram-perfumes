@@ -4,6 +4,7 @@ import type { Category } from "@/types/category";
 import type { FragranceNotes, ProductRecord } from "@/types/product";
 import type { ShipmentStatus, ShipmentTracking, TrackingEvent } from "@/types/shipment";
 import type { ProductVariant } from "@/types/variant";
+import { resolveProductImage } from "@/lib/product-image";
 
 /**
  * Pure functions mapping Supabase rows to the app's domain records.
@@ -25,7 +26,10 @@ export function mapCategory(row: Tables<"categories">): Category {
   };
 }
 
-export function mapVariant(row: Tables<"product_variants">): ProductVariant {
+export function mapVariant(
+  row: Tables<"product_variants">,
+  images: readonly Tables<"product_images">[] = [],
+): ProductVariant {
   return {
     id: row.id,
     productId: row.product_id,
@@ -39,6 +43,9 @@ export function mapVariant(row: Tables<"product_variants">): ProductVariant {
       : {}),
     status: row.status,
     displayOrder: row.display_order,
+    images: [...images]
+      .sort((a, b) => a.display_order - b.display_order)
+      .map((image) => image.url),
   };
 }
 
@@ -57,7 +64,11 @@ export function mapProduct(
   images: readonly Tables<"product_images">[],
   notes: readonly Tables<"fragrance_notes">[],
 ): ProductRecord {
+  // The product's shared gallery is the variant-less images only. Variant-owned
+  // images (variant_id set) are attached to their variant instead, so they never
+  // leak into the product-level gallery or the featured/card image.
   const galleryImages = [...images]
+    .filter((image) => image.variant_id == null)
     .sort((a, b) => a.display_order - b.display_order)
     .map((image) => image.url);
 
@@ -68,7 +79,7 @@ export function mapProduct(
     categoryId: row.category_id,
     shortDescription: row.short_description,
     description: row.description,
-    featuredImage: row.featured_image,
+    featuredImage: resolveProductImage(row.featured_image, galleryImages),
     galleryImages,
     rating: row.rating,
     reviewCount: row.review_count,

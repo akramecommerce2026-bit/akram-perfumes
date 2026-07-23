@@ -33,4 +33,11 @@ export interface ProductVariant {
   readonly status: VariantStatus;
   /** Controls the order variants are shown in; lower comes first. */
   readonly displayOrder: number;
+  /**
+   * This variant's own gallery, in display order. Empty when the variant has no
+   * dedicated images — in which case the storefront falls back to the product's
+   * shared gallery. Only populated for the Product page; list views never need
+   * it, so `mapVariant` defaults it to an empty array.
+   */
+  readonly images: readonly string[];
 }

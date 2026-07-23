@@ -10,6 +10,7 @@ import { FragranceNotes } from "@/components/product/FragranceNotes";
 import { ProductDescription } from "@/components/product/ProductDescription";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductInfo } from "@/components/product/ProductInfo";
+import { VariantSelectionProvider } from "@/components/product/variant-selection-context";
 import { RecentlyViewed } from "@/components/product/RecentlyViewed";
 import { RecordView } from "@/components/product/RecordView";
 import { PurchasePanel } from "@/components/product/PurchasePanel";
@@ -124,15 +125,24 @@ export default async function ProductPage({ params }: ProductPageProps) {
     getProductReviews(product.id),
   ]);
 
-  const galleryImages = [product.featuredImage, ...product.galleryImages].filter(
-    (image, index, all) => all.indexOf(image) === index,
+  const dedupe = (urls: readonly string[]) =>
+    urls.filter((url, index, all) => url && all.indexOf(url) === index);
+
+  // The product's shared gallery, used for variants that have no images of their
+  // own. JSON-LD advertises this set (the always-present one).
+  const sharedImages = dedupe([product.featuredImage, ...product.galleryImages]);
+
+  // Each variant's own gallery, keyed by id. A variant with images shows only
+  // those on the storefront; one without falls back to `sharedImages`.
+  const variantImages: Record<string, string[]> = Object.fromEntries(
+    product.variants.map((variant) => [variant.id, dedupe(variant.images)]),
   );
 
   return (
     <div className="py-8 lg:py-12">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: productJsonLd(product, galleryImages) }}
+        dangerouslySetInnerHTML={{ __html: productJsonLd(product, sharedImages) }}
       />
       <RecordView product={toProductSummary(product)} />
       <Container>
@@ -157,33 +167,39 @@ export default async function ProductPage({ params }: ProductPageProps) {
           is always the taller — which makes the gallery the one that can hold.
           `items-start` is what gives it room to move within its area.
         */}
-        <div className="grid gap-8 lg:grid-cols-2 lg:items-start lg:gap-12">
-          <div className="lg:sticky lg:top-24">
-            <ProductGallery images={galleryImages} name={product.name} />
-          </div>
+        <VariantSelectionProvider initialVariantId={product.variants[0]?.id ?? ""}>
+          <div className="grid gap-8 lg:grid-cols-2 lg:items-start lg:gap-12">
+            <div className="lg:sticky lg:top-24">
+              <ProductGallery
+                sharedImages={sharedImages}
+                variantImages={variantImages}
+                name={product.name}
+              />
+            </div>
 
-          <div className="flex flex-col gap-7">
-            <ProductInfo product={product} />
-            <PurchasePanel product={product} />
+            <div className="flex flex-col gap-7">
+              <ProductInfo product={product} />
+              <PurchasePanel product={product} />
 
-            {/* Detail lives behind disclosures beside the buy button rather than
-                a scroll away, which is what keeps the panel shippable on mobile. */}
-            <Surface className="px-5">
-              <Accordion title="Description" defaultOpen>
-                {product.description}
-              </Accordion>
-              <Accordion title="Delivery & Returns">
-                Free delivery on every order, dispatched in 1–2 business days and typically
-                arriving in 3–7 days across India. Unopened items can be returned within 7 days
-                of delivery.
-              </Accordion>
-              <Accordion title="Authenticity">
-                Every bottle is filled and sealed in-house in Madurai, and quality-checked
-                before dispatch.
-              </Accordion>
-            </Surface>
+              {/* Detail lives behind disclosures beside the buy button rather than
+                  a scroll away, which is what keeps the panel shippable on mobile. */}
+              <Surface className="px-5">
+                <Accordion title="Description" defaultOpen>
+                  {product.description}
+                </Accordion>
+                <Accordion title="Delivery & Returns">
+                  Free delivery on every order, dispatched in 1–2 business days and typically
+                  arriving in 3–7 days across India. Unopened items can be returned within 7 days
+                  of delivery.
+                </Accordion>
+                <Accordion title="Authenticity">
+                  Every bottle is filled and sealed in-house in Madurai, and quality-checked
+                  before dispatch.
+                </Accordion>
+              </Surface>
+            </div>
           </div>
-        </div>
+        </VariantSelectionProvider>
 
         <div className="mt-16 lg:mt-24">
           <ProductDescription product={product} />

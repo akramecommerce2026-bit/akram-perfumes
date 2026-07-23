@@ -263,10 +263,14 @@
  * the colour — the metal catches more light, it does not become a new object.
  * Press flattens the highlight and drops it 1px: the surface is being pushed in.
  *
- * No white sheen overlay, no diagonal gloss band, no animated shimmer. Those are
- * what make a gold button read as a cartoon rather than as packaging.
+ * The one animated flourish is a single soft light band that sweeps the metal
+ * on a slow loop (see `::after` below) — the luxury-packaging shimmer, kept
+ * narrow and low-alpha so it reads as gold catching light, never as a cartoon
+ * gloss. No white sheen overlay and no diagonal gloss band beyond that.
  */
 .btn-gold {
+  position: relative;
+  overflow: hidden;
   background-image: linear-gradient(
     180deg,
     var(--gold-light) 0%,
@@ -283,6 +287,47 @@
   text-shadow: 0 1px 0 oklch(1 0 0 / 0.25);
 }
 
+/*
+ * A slow luxury shimmer: a soft band of light sweeps left → right across the
+ * metal on an infinite loop, so the button reads as living gold rather than a
+ * flat fill. Deliberately gentle — a narrow, low-alpha highlight over ~4.5s
+ * with a long pause between passes, so it never flashes or distracts. The band
+ * is clipped by the button's own `overflow: hidden`, and it sits below the
+ * label (the text is painted by the element itself, above this ::after).
+ */
+.btn-gold::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 32%,
+    oklch(1 0 0 / 0.32) 48%,
+    oklch(1 0 0 / 0.32) 52%,
+    transparent 68%
+  );
+  transform: translateX(-120%);
+  animation: btn-gold-shimmer 4.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+@keyframes btn-gold-shimmer {
+  0% {
+    transform: translateX(-120%);
+  }
+  55%,
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-gold::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
 .btn-gold:hover {
   background-image: linear-gradient(
     180deg,
@@ -291,10 +336,17 @@
     color-mix(in oklab, var(--gold) 88%, white) 56%,
     var(--gold-deep) 100%
   );
+  /*
+   * The last layer is the hover sheen: a tight, low-alpha gold spread with no
+   * offset, so it reads as the metal catching light rather than as a glow
+   * behind the button. Kept under a 10px radius and well below half alpha —
+   * widen either and it stops looking like polish and starts looking lit.
+   */
   box-shadow:
     inset 0 1px 0 oklch(1 0 0 / 0.7),
     inset 0 -1px 0 oklch(0.45 0.07 78 / 0.35),
-    0 2px 5px oklch(0.3 0.03 70 / 0.2);
+    0 2px 5px oklch(0.3 0.03 70 / 0.2),
+    0 0 9px color-mix(in oklab, var(--gold) 34%, transparent);
 }
 
 .btn-gold:active {

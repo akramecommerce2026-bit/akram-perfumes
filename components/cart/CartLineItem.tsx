@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+
+import { isRemoteImage } from "@/lib/is-remote-image";
 import Link from "next/link";
 import { Trash2 } from "lucide-react";
 
@@ -25,7 +27,7 @@ export function CartLineItem({ item, onNavigate }: CartLineItemProps) {
         onClick={onNavigate}
         className="relative aspect-square w-20 shrink-0 overflow-hidden rounded-xl border border-border/60 bg-muted sm:w-24"
       >
-        <Image src={item.featuredImage} alt={item.productName} fill sizes="96px" className="object-cover" />
+        <Image src={item.featuredImage} alt={item.productName} fill unoptimized={isRemoteImage(item.featuredImage)} sizes="96px" className="object-cover" />
       </Link>
 
       <div className="flex flex-1 flex-col gap-2">

@@ -1,8 +1,9 @@
 import { Gem, HeartHandshake, Hourglass, ShieldCheck, Tag, Truck } from "lucide-react";
 
 import { Section } from "@/components/common/section";
-import { SectionBackdrop } from "@/components/common/section-backdrop";
+import { paperTexture } from "@/components/common/section-paper";
 import { SectionHeading } from "@/components/common/section-heading";
+import { TestimonialsBackdrop } from "@/components/home/TestimonialsBackdrop";
 import { FeatureCard, type Feature } from "@/components/home/FeatureCard";
 
 const features: Feature[] = [
@@ -47,8 +48,15 @@ const features: Feature[] = [
  */
 export function WhyChooseAkram() {
   return (
-    <Section spacing="lg" className="relative overflow-hidden">
-        <SectionBackdrop variant="panels" />
+    <Section
+      spacing="lg"
+      style={{ backgroundImage: paperTexture(0.02) }}
+      // Same ground as Testimonials: paper texture + the shared backdrop, with
+      // `isolate` so the backdrop's -z-10 layers sit behind the content rather
+      // than behind the section's own background.
+      className="relative isolate overflow-hidden"
+    >
+        <TestimonialsBackdrop />
 
         <SectionHeading
           eyebrow="The Akram Promise"

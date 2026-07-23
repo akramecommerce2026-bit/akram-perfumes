@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { isRemoteImage } from "@/lib/is-remote-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
@@ -78,7 +79,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                 <li key={item.id} className="flex items-center gap-4 px-6 py-4">
                   <div className="relative size-14 shrink-0 overflow-hidden rounded-lg border border-border/60 bg-muted">
                     {item.featuredImage ? (
-                      <Image src={item.featuredImage} alt={item.productName} fill sizes="56px" className="object-cover" />
+                      <Image src={item.featuredImage} alt={item.productName} fill unoptimized={isRemoteImage(item.featuredImage)} sizes="56px" className="object-cover" />
                     ) : null}
                   </div>
                   <div className="flex flex-1 flex-col">

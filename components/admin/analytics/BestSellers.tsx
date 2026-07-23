@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { isRemoteImage } from "@/lib/is-remote-image";
 import { Package, Trophy } from "lucide-react";
 
 import { formatMoney } from "@/lib/money";
@@ -28,7 +29,7 @@ export function BestSellers({ products, rangeLabel }: { products: readonly BestS
               </span>
               <div className="relative size-11 shrink-0 overflow-hidden rounded-lg border border-border/60 bg-muted">
                 {product.image ? (
-                  <Image src={product.image} alt={product.name} fill sizes="44px" className="object-cover" />
+                  <Image src={product.image} alt={product.name} fill unoptimized={isRemoteImage(product.image)} sizes="44px" className="object-cover" />
                 ) : (
                   <span className="flex size-full items-center justify-center text-muted-foreground">
                     <Package className="size-5" aria-hidden="true" />

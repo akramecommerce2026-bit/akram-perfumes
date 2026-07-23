@@ -25,6 +25,7 @@ export async function ShopByCategory() {
         eyebrow="Curated Selection"
         title="Shop by Category"
         subtitle="Explore fragrances crafted for every personality and every occasion."
+        className="[&_h2]:text-[2rem] [&_h2]:sm:text-[2.75rem] [&_p]:text-lg [&_p]:sm:text-xl [&_p]:max-w-3xl"
       />
 
       <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 sm:gap-x-6 lg:grid-cols-4">

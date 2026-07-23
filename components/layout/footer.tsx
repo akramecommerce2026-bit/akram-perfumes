@@ -48,7 +48,7 @@ const footerTheme = {
 
 function ColumnHeading({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="text-[11px] font-semibold tracking-[0.18em] text-foreground uppercase">
+    <h3 className="text-[12px] font-semibold tracking-[0.18em] text-foreground uppercase">
       {children}
     </h3>
   );
@@ -58,7 +58,7 @@ function FooterLink({ href, children }: { href: string; children: React.ReactNod
   return (
     <Link
       href={href}
-      className="text-[14px] text-muted-foreground transition-colors duration-200 hover:text-accent"
+      className="text-[15px] text-muted-foreground transition-colors duration-200 hover:text-accent"
     >
       {children}
     </Link>
@@ -123,11 +123,11 @@ export async function Footer() {
           {/* Brand */}
           <div className="flex flex-col gap-5">
             <Logo />
-            <p className="max-w-xs text-[14px] leading-relaxed text-muted-foreground">
+            <p className="max-w-xs text-[15px] leading-relaxed text-muted-foreground">
               Crafted fragrances for the modern connoisseur — attars, perfumes and more, made in
               Madurai.
             </p>
-            <ul className="flex flex-col gap-3 text-[14px] text-muted-foreground">
+            <ul className="flex flex-col gap-3 text-[15px] text-muted-foreground">
               <li className="flex items-start gap-2.5">
                 <MapPin className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden="true" />
                 <span className="leading-relaxed">{BUSINESS.addressOneLine}</span>
@@ -153,7 +153,7 @@ export async function Footer() {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[13px] tracking-wide text-muted-foreground transition-colors duration-200 hover:text-accent"
+                    className="text-[14px] tracking-wide text-muted-foreground transition-colors duration-200 hover:text-accent"
                   >
                     {social.label}
                   </a>
@@ -189,7 +189,7 @@ export async function Footer() {
           {/* Newsletter */}
           <div className="flex flex-col gap-4">
             <ColumnHeading>The Akram Letter</ColumnHeading>
-            <p className="text-[14px] leading-relaxed text-muted-foreground">
+            <p className="text-[15px] leading-relaxed text-muted-foreground">
               New arrivals and collections, once in a while. No noise.
             </p>
             <NewsletterForm />
@@ -199,14 +199,14 @@ export async function Footer() {
         {/* Thin gold divider — the one place the brand colour spans full width. */}
         <div className="h-px bg-[linear-gradient(90deg,transparent,color-mix(in_oklab,var(--accent)_55%,transparent),transparent)]" />
 
-        <div className="flex flex-col items-center justify-between gap-5 py-7 text-[13px] text-muted-foreground md:flex-row">
+        <div className="flex flex-col items-center justify-between gap-5 py-7 text-[14px] text-muted-foreground md:flex-row">
           <p>&copy; {new Date().getFullYear()} Akram Perfumes. All Rights Reserved.</p>
 
           <ul className="flex flex-wrap items-center justify-center gap-2.5">
             {paymentMethods.map(({ label, icon: Icon }) => (
               <li
                 key={label}
-                className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-[11px] font-medium tracking-wide text-muted-foreground"
+                className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-[12px] font-medium tracking-wide text-muted-foreground"
               >
                 <Icon className="size-3.5 text-accent" aria-hidden="true" />
                 {label}

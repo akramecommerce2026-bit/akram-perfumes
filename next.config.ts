@@ -13,7 +13,10 @@ const nextConfig: NextConfig = {
     // for any quality not listed here.
     qualities: [75, 85],
     // Product images uploaded to Supabase Storage are served from the project's
-    // public storage endpoint.
+    // public storage endpoint. They render with `unoptimized` (see
+    // `isRemoteImage` / next-image usage) so the browser loads them straight from
+    // the Supabase CDN, but this pattern is kept so any optimized use still
+    // resolves the host.
     remotePatterns: [
       {
         protocol: "https",

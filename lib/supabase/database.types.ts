@@ -191,6 +191,7 @@ export interface Database {
         Row: {
           id: string;
           product_id: string;
+          variant_id: string | null;
           url: string;
           alt: string;
           is_primary: boolean;
@@ -200,6 +201,7 @@ export interface Database {
         Insert: {
           id?: string;
           product_id: string;
+          variant_id?: string | null;
           url: string;
           alt?: string;
           is_primary?: boolean;
@@ -212,6 +214,12 @@ export interface Database {
             foreignKeyName: "product_images_product_id_fkey";
             columns: ["product_id"];
             referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "product_images_variant_id_fkey";
+            columns: ["variant_id"];
+            referencedRelation: "product_variants";
             referencedColumns: ["id"];
           },
         ];

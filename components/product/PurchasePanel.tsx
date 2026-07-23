@@ -8,6 +8,7 @@ import { useCart } from "@/components/cart/cart-context";
 import { Button } from "@/components/common/button";
 import { Price } from "@/components/common/price";
 import { QuantitySelector } from "@/components/product/QuantitySelector";
+import { useVariantSelection } from "@/components/product/variant-selection-context";
 import { VariantSelector } from "@/components/product/VariantSelector";
 import { WishlistButton } from "@/components/wishlist/WishlistButton";
 import { useWishlist } from "@/components/wishlist/wishlist-context";
@@ -26,7 +27,9 @@ const LOW_STOCK_THRESHOLD = 5;
 export function PurchasePanel({ product }: { product: Product }) {
   const router = useRouter();
   const { addItem, openDrawer } = useCart();
-  const [selectedId, setSelectedId] = useState(product.variants[0]?.id ?? "");
+  // Selection is shared with the gallery column via context, so choosing a
+  // variant here also swaps the gallery to that variant's images.
+  const { selectedVariantId: selectedId, setSelectedVariantId } = useVariantSelection();
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
 
@@ -49,7 +52,7 @@ export function PurchasePanel({ product }: { product: Product }) {
   const isLowStock = !isSoldOut && stock <= LOW_STOCK_THRESHOLD;
 
   function selectVariant(variantId: string) {
-    setSelectedId(variantId);
+    setSelectedVariantId(variantId);
     setQuantity(1);
     setAdded(false);
   }

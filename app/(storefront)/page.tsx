@@ -6,30 +6,27 @@ import { SignatureSection } from "@/components/home/SignatureSection";
 import { WhyChooseAkram } from "@/components/home/WhyChooseAkram";
 import { OurStory } from "@/components/home/OurStory";
 import { Testimonials } from "@/components/home/Testimonials";
-import { signatureCollectionService } from "@/services/signature-collection-service";
 
-// ISR, matching the rest of the storefront: admin edits to the Signature section
-// appear within 5 minutes even without an explicit revalidate.
+// ISR, matching the rest of the storefront: flagging a product into a rail from
+// the admin appears within 5 minutes even without an explicit revalidate.
 export const revalidate = 300;
 
 /**
  * Section order follows the benchmark's flow: establish the brand, reassure,
  * then route the visitor into the catalogue (category, then best sellers) before
  * any storytelling. Everything below the hero reads from the backend.
+ *
+ * Both product rails own their own fetching, so this file states the page's
+ * shape and nothing else.
  */
-export default async function Home() {
-  // Authored in the admin (Signature Collection); hidden sections never arrive here.
-  const signatureCollections = await signatureCollectionService.listActive();
-
+export default function Home() {
   return (
     <>
       <Hero />
       <TrustBar />
       <ShopByCategory />
       <BestSellers />
-      {signatureCollections.map((collection) => (
-        <SignatureSection key={collection.id} collection={collection} />
-      ))}
+      <SignatureSection />
       <WhyChooseAkram />
       <OurStory />
       <Testimonials />

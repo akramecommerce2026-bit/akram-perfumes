@@ -73,13 +73,31 @@ export class ProductService {
     const categoryById = new Map(categories.map((category) => [category.id, category]));
     const activeVariantsByProduct = groupActiveVariantsByProduct(variants);
 
-    return products.map((product) =>
-      toSummary(
-        product,
-        categoryById.get(product.categoryId) ?? unknownCategory(product.categoryId),
-        activeVariantsByProduct.get(product.id) ?? [],
-      ),
-    );
+    return products
+      .map((product) =>
+        toSummary(
+          product,
+          categoryById.get(product.categoryId) ?? unknownCategory(product.categoryId),
+          activeVariantsByProduct.get(product.id) ?? [],
+        ),
+      )
+      /*
+       * A product with no image resolves to an empty `featuredImage`, and an
+       * empty src renders as a broken image in every card on the site. Rather
+       * than substitute a placeholder — which hides the problem and ships a
+       * fake product photo — such a product is simply not merchandisable, so it
+       * is withheld from every listing.
+       *
+       * This is the one choke point all listings pass through (Best Sellers,
+       * Signature, Shop, Search, Related, Wishlist), so the guarantee holds
+       * everywhere without a check per surface. The moment an image is uploaded
+       * in the admin the product reappears on its own; nothing needs deleting
+       * or re-enabling.
+       *
+       * The admin form now requires an image (lib/admin/product-schema.ts), so
+       * this only ever applies to rows created before that rule existed.
+       */
+      .filter((summary) => summary.featuredImage !== "");
   }
 
   private async composeProduct(record: ProductRecord): Promise<Product> {
