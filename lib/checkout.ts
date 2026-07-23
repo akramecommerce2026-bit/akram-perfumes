@@ -39,11 +39,6 @@ export type OfferedPaymentMethodId = (typeof PAYMENT_OPTIONS)[number]["id"];
 
 export const DEFAULT_PAYMENT_METHOD: OfferedPaymentMethodId = "razorpay";
 
-/** True when the Razorpay public key is present (client + server safe). */
-export function isRazorpayEnabled(): boolean {
-  return Boolean((process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ?? "").trim());
-}
-
 /**
  * Order totals. Mirrors the cart's CartTotals shape (so the same CartTotals
  * component renders it). Delivery is free on every order; tax and discount stay
