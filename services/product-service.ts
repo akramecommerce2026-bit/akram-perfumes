@@ -161,7 +161,10 @@ function toSummary(
   category: Category,
   activeVariants: readonly ProductVariant[],
 ): ProductSummary {
-  const cheapest = lowestPricedVariant(activeVariants);
+  // The default variant is the first in display order — the exact variant the
+  // Product page opens on. Every card mirrors it (price, MRP, discount, stock)
+  // so a listing and the product page's initial state never disagree.
+  const defaultVariant = activeVariants[0] ?? null;
 
   return {
     id: record.id,
@@ -177,22 +180,13 @@ function toSummary(
     occasions: record.occasions,
     isFeatured: record.isFeatured,
     isSignature: record.isSignature,
-    priceFrom: cheapest?.price ?? null,
-    comparePriceFrom: cheapest?.comparePrice ?? null,
+    priceFrom: defaultVariant?.price ?? null,
+    comparePriceFrom: defaultVariant?.comparePrice ?? null,
     variantNames: activeVariants.map((variant) => variant.variantName),
     variantCount: activeVariants.length,
-    inStock: activeVariants.some((variant) => variant.stockQuantity > 0),
+    inStock: (defaultVariant?.stockQuantity ?? 0) > 0,
     createdAt: record.createdAt,
   };
-}
-
-function lowestPricedVariant(variants: readonly ProductVariant[]): ProductVariant | null {
-  return variants.reduce<ProductVariant | null>((lowest, variant) => {
-    if (!lowest || variant.price.amount < lowest.price.amount) {
-      return variant;
-    }
-    return lowest;
-  }, null);
 }
 
 function unknownCategory(id: string): Category {

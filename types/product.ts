@@ -97,13 +97,18 @@ export interface ProductSummary {
   readonly occasions: readonly Occasion[];
   readonly isFeatured: boolean;
   readonly isSignature: boolean;
-  /** Lowest active-variant price, or null when nothing is purchasable. */
+  /**
+   * The default (first, in display order) variant's selling price — the card's
+   * default presentation, matching what the product page shows on open. Null
+   * only when the product has no active variant.
+   */
   readonly priceFrom: Money | null;
-  /** Compare-at price of the lowest-priced variant, when it is on sale. */
+  /** The default variant's compare-at (MRP) price, when it is on sale. */
   readonly comparePriceFrom: Money | null;
   /** Active variant labels ("6ml", "Roll-On", ...) in display order. */
   readonly variantNames: readonly string[];
   readonly variantCount: number;
+  /** Whether the default (first) variant is in stock. */
   readonly inStock: boolean;
   readonly createdAt: string;
 }
