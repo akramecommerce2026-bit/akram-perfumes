@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Calendar, ExternalLink, Package, PackageSearch, Truck } from "lucide-react";
 
 import { Container } from "@/components/common/container";
+import { storefrontButton } from "@/components/common/button";
+import { cn } from "@/lib/utils";
 import { CopyTrackingNumber } from "@/components/shipment/CopyTrackingNumber";
 import { ShipmentProgress } from "@/components/shipment/ShipmentProgress";
 import { ShipmentStatusBadge } from "@/components/shipment/ShipmentStatusBadge";
@@ -36,12 +38,12 @@ export default async function TrackOrderPage({ params }: TrackPageProps) {
     return (
       <div className="py-section-sm lg:py-section">
         <Container>
-          <div className="mx-auto flex max-w-md flex-col items-center gap-5 rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
+          <div className="mx-auto flex max-w-md flex-col items-center gap-5 rounded-lg border border-border bg-card p-8 text-center">
             <span className="flex size-14 items-center justify-center rounded-full bg-muted text-muted-foreground">
               <PackageSearch className="size-7" aria-hidden="true" />
             </span>
             <div className="flex flex-col gap-2">
-              <h1 className="font-heading text-2xl font-semibold text-foreground">Order not found</h1>
+              <h1 className="text-2xl font-semibold text-foreground">Order not found</h1>
               <p className="text-sm text-muted-foreground">
                 We couldn&rsquo;t find an order matching{" "}
                 <span className="font-medium text-foreground">{orderNumber}</span>. Please check the
@@ -50,7 +52,7 @@ export default async function TrackOrderPage({ params }: TrackPageProps) {
             </div>
             <Link
               href="/shop"
-              className="inline-flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground transition-all hover:shadow-gold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className={cn(storefrontButton({ variant: "primary", size: "lg", block: false }))}
             >
               Continue Shopping
             </Link>
@@ -70,7 +72,7 @@ export default async function TrackOrderPage({ params }: TrackPageProps) {
           <header className="flex flex-col gap-3">
             <p className="text-xs font-medium tracking-[0.2em] text-accent uppercase">Order Tracking</p>
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h1 className="font-heading text-3xl font-semibold text-foreground sm:text-4xl">
+              <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">
                 {data.orderNumber}
               </h1>
               <ShipmentStatusBadge status={tracking.shipmentStatus} className="px-3 py-1 text-sm" />
@@ -79,7 +81,7 @@ export default async function TrackOrderPage({ params }: TrackPageProps) {
           </header>
 
           {/* Progress */}
-          <section className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
+          <section className="rounded-lg border border-border bg-card p-6 sm:p-8">
             <div className="overflow-x-auto pb-1">
               <div className="min-w-[440px]">
                 <ShipmentProgress status={tracking.shipmentStatus} />
@@ -89,8 +91,8 @@ export default async function TrackOrderPage({ params }: TrackPageProps) {
 
           <div className="grid gap-6 lg:grid-cols-[1fr_20rem] lg:items-start">
             {/* Timeline */}
-            <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-              <h2 className="mb-5 font-heading text-lg font-semibold text-foreground">Tracking history</h2>
+            <section className="rounded-lg border border-border bg-card p-6">
+              <h2 className="mb-5 text-lg font-semibold text-foreground">Tracking history</h2>
               <TrackingTimeline
                 timeline={data.timeline}
                 emptyMessage="No tracking updates yet. We'll update this as your order progresses."
@@ -99,8 +101,8 @@ export default async function TrackOrderPage({ params }: TrackPageProps) {
 
             {/* Details */}
             <div className="flex flex-col gap-6">
-              <section className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm">
-                <h2 className="flex items-center gap-2 font-heading text-base font-semibold text-foreground">
+              <section className="flex flex-col gap-4 rounded-lg border border-border bg-card p-6">
+                <h2 className="flex items-center gap-2 text-base font-semibold text-foreground">
                   <Truck className="size-4 text-accent" aria-hidden="true" /> Shipment
                 </h2>
 
@@ -125,15 +127,15 @@ export default async function TrackOrderPage({ params }: TrackPageProps) {
                     href={tracking.trackingUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-all hover:shadow-gold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                    className={cn(storefrontButton({ variant: "primary", size: "lg", block: false }))}
                   >
                     <ExternalLink className="size-4" aria-hidden="true" /> Track Shipment
                   </a>
                 )}
               </section>
 
-              <section className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-6 shadow-sm">
-                <h2 className="flex items-center gap-2 font-heading text-base font-semibold text-foreground">
+              <section className="flex flex-col gap-3 rounded-lg border border-border bg-card p-6">
+                <h2 className="flex items-center gap-2 text-base font-semibold text-foreground">
                   <Package className="size-4 text-accent" aria-hidden="true" /> Order summary
                 </h2>
                 <dl className="flex flex-col gap-2 text-sm">

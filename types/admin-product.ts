@@ -23,6 +23,7 @@ export interface AdminProductListItem {
   readonly totalStock: number;
   readonly variantCount: number;
   readonly isFeatured: boolean;
+  readonly isSignature: boolean;
   readonly createdAt: string;
 }
 
@@ -36,6 +37,8 @@ export interface AdminVariant {
   readonly lowStockThreshold: number;
   readonly status: VariantStatus;
   readonly displayOrder: number;
+  /** This variant's own gallery, in display order. Empty when it has none. */
+  readonly images: readonly AdminImage[];
 }
 
 export interface AdminImage {
@@ -65,6 +68,7 @@ export interface AdminProductDetail {
   readonly concentration: string;
   readonly fragranceFamily: FragranceFamily;
   readonly isFeatured: boolean;
+  readonly isSignature: boolean;
   readonly active: boolean;
   readonly metaTitle: string;
   readonly metaDescription: string;

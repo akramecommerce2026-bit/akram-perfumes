@@ -2,12 +2,17 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Heart, RotateCcw, ShieldCheck, Truck } from "lucide-react";
+import { Check, RotateCcw, ShieldCheck, Truck } from "lucide-react";
 
 import { useCart } from "@/components/cart/cart-context";
-import { PriceDisplay } from "@/components/product/PriceDisplay";
+import { Button } from "@/components/common/button";
+import { Price } from "@/components/common/price";
 import { QuantitySelector } from "@/components/product/QuantitySelector";
+import { useVariantSelection } from "@/components/product/variant-selection-context";
 import { VariantSelector } from "@/components/product/VariantSelector";
+import { WishlistButton } from "@/components/wishlist/WishlistButton";
+import { useWishlist } from "@/components/wishlist/wishlist-context";
+import { toProductSummary } from "@/lib/product-summary";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types/product";
 
@@ -22,10 +27,16 @@ const LOW_STOCK_THRESHOLD = 5;
 export function PurchasePanel({ product }: { product: Product }) {
   const router = useRouter();
   const { addItem, openDrawer } = useCart();
-  const [selectedId, setSelectedId] = useState(product.variants[0]?.id ?? "");
+  // Selection is shared with the gallery column via context, so choosing a
+  // variant here also swaps the gallery to that variant's images.
+  const { selectedVariantId: selectedId, setSelectedVariantId } = useVariantSelection();
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
-  const [wishlisted, setWishlisted] = useState(false);
+
+  // The wishlist speaks ProductSummary; the page holds a Product.
+  const summary = useMemo(() => toProductSummary(product), [product]);
+  const { has } = useWishlist();
+  const wishlisted = has(product.id);
 
   const selectedVariant = useMemo(
     () => product.variants.find((variant) => variant.id === selectedId) ?? product.variants[0],
@@ -41,7 +52,7 @@ export function PurchasePanel({ product }: { product: Product }) {
   const isLowStock = !isSoldOut && stock <= LOW_STOCK_THRESHOLD;
 
   function selectVariant(variantId: string) {
-    setSelectedId(variantId);
+    setSelectedVariantId(variantId);
     setQuantity(1);
     setAdded(false);
   }
@@ -63,7 +74,12 @@ export function PurchasePanel({ product }: { product: Product }) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <PriceDisplay price={selectedVariant.price} comparePrice={selectedVariant.comparePrice} />
+        <Price
+          price={selectedVariant.price}
+          comparePrice={selectedVariant.comparePrice}
+          size="lg"
+          showSavings
+        />
         <p className="flex items-center gap-2 text-sm">
           {isSoldOut ? (
             <span className="font-medium text-muted-foreground">Currently sold out</span>
@@ -91,31 +107,14 @@ export function PurchasePanel({ product }: { product: Product }) {
           max={Math.max(1, stock)}
           className={cn(isSoldOut && "pointer-events-none opacity-50")}
         />
-        <button
-          type="button"
-          onClick={() => setWishlisted((value) => !value)}
-          aria-pressed={wishlisted}
-          aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
-          className="flex size-11 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:border-accent hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-        >
-          <Heart className={cn("size-5", wishlisted && "fill-accent text-accent")} aria-hidden="true" />
-        </button>
+        <WishlistButton product={summary} size="lg" />
         <span className="text-sm text-muted-foreground">
           {isSoldOut ? "Unavailable" : wishlisted ? "In your wishlist" : "Add to wishlist"}
         </span>
       </div>
 
       <div className="flex flex-col gap-3">
-        <button
-          type="button"
-          onClick={handleAddToCart}
-          disabled={isSoldOut}
-          className={cn(
-            "inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground transition-all duration-300",
-            "hover:shadow-gold disabled:pointer-events-none disabled:opacity-50",
-            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-          )}
-        >
+        <Button variant="primary" size="lg" block onClick={handleAddToCart} disabled={isSoldOut}>
           {added ? (
             <>
               <Check className="size-4" aria-hidden="true" />
@@ -126,25 +125,16 @@ export function PurchasePanel({ product }: { product: Product }) {
           ) : (
             "Add to Cart"
           )}
-        </button>
-        <button
-          type="button"
-          onClick={handleBuyNow}
-          disabled={isSoldOut}
-          className={cn(
-            "inline-flex h-12 w-full items-center justify-center rounded-full bg-accent px-6 text-sm font-medium text-accent-foreground transition-all duration-300",
-            "hover:opacity-90 disabled:pointer-events-none disabled:opacity-50",
-            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-          )}
-        >
+        </Button>
+        <Button variant="gold" size="lg" block onClick={handleBuyNow} disabled={isSoldOut}>
           Buy Now
-        </button>
+        </Button>
       </div>
 
       <ul className="mt-1 flex flex-col gap-3 border-t border-border pt-5 text-sm text-muted-foreground">
         <li className="flex items-center gap-3">
           <Truck className="size-4 shrink-0 text-accent" aria-hidden="true" />
-          Free delivery over ₹999 &middot; estimated 3–5 business days
+          Free delivery on every order &middot; estimated 3–5 business days
         </li>
         <li className="flex items-center gap-3">
           <ShieldCheck className="size-4 shrink-0 text-accent" aria-hidden="true" />

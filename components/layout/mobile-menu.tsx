@@ -45,7 +45,7 @@ export function MobileMenu({ open, onOpenChange }: MobileMenuProps) {
             />
             <Drawer.Viewport className="fixed inset-0 z-50 flex justify-end">
               <Drawer.Popup
-                className="flex h-full w-full max-w-sm flex-col border-l border-border bg-popover text-popover-foreground shadow-xl outline-none"
+                className="flex h-full w-full max-w-sm flex-col border-l border-border bg-popover text-popover-foreground outline-none"
                 render={
                   <motion.div
                     initial={shouldReduceMotion ? { opacity: 0 } : { x: "100%", opacity: 0.9999 }}

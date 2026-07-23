@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import Image from "next/image";
+import { isRemoteImage } from "@/lib/is-remote-image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
@@ -269,7 +270,7 @@ export function ProductsManager(props: ProductsManagerProps) {
                       <div className="flex items-center gap-3">
                         <div className="relative size-10 shrink-0 overflow-hidden rounded-lg border border-border/60 bg-muted">
                           {item.featuredImage ? (
-                            <Image src={item.featuredImage} alt={item.name} fill sizes="40px" className="object-cover" />
+                            <Image src={item.featuredImage} alt={item.name} fill unoptimized={isRemoteImage(item.featuredImage)} sizes="40px" className="object-cover" />
                           ) : null}
                         </div>
                         <div className="flex flex-col">

@@ -8,15 +8,8 @@ import {
 } from "@/components/shop/filter-state";
 import { PRICE_BUCKETS } from "@/lib/product-filters";
 import type { Category } from "@/types/category";
-import {
-  FRAGRANCE_FAMILIES,
-  FRAGRANCE_FAMILY_LABELS,
-  GENDER_LABELS,
-  GENDERS,
-  OCCASION_LABELS,
-  OCCASIONS,
-} from "@/types/product-attributes";
-import type { FragranceFamily, Gender, Occasion } from "@/types/product-attributes";
+import { GENDER_LABELS, GENDERS } from "@/types/product-attributes";
+import type { Gender } from "@/types/product-attributes";
 
 interface ProductFiltersProps {
   state: ShopFilterState;
@@ -38,30 +31,20 @@ export function ProductFilters({ state, categories, onChange, onClear }: Product
     ...PRICE_BUCKETS.map((bucket) => ({ value: bucket.id, label: bucket.label })),
   ];
 
-  const familyOptions: FilterOption[] = FRAGRANCE_FAMILIES.map((family) => ({
-    value: family,
-    label: FRAGRANCE_FAMILY_LABELS[family],
-  }));
-
   const genderOptions: FilterOption[] = GENDERS.map((gender) => ({
     value: gender,
     label: GENDER_LABELS[gender],
   }));
 
-  const occasionOptions: FilterOption[] = OCCASIONS.map((occasion) => ({
-    value: occasion,
-    label: OCCASION_LABELS[occasion],
-  }));
-
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <h2 className="font-heading text-lg font-semibold text-foreground">Filters</h2>
+    <div className="flex flex-col gap-7">
+      <div className="flex h-9 items-center justify-between border-b border-border pb-2">
+        <h2 className="text-sm font-semibold tracking-[0.12em] text-foreground uppercase">Filters</h2>
         {activeCount > 0 && (
           <button
             type="button"
             onClick={onClear}
-            className="text-xs font-medium text-accent transition-opacity hover:opacity-80"
+            className="text-[11px] font-medium tracking-wide text-accent uppercase transition-opacity hover:opacity-70"
           >
             Clear all ({activeCount})
           </button>
@@ -76,7 +59,7 @@ export function ProductFilters({ state, categories, onChange, onClear }: Product
         onToggle={(value) => onChange({ categorySlug: value || null })}
       />
 
-      <div className="border-t border-border pt-6">
+      <div className="border-t border-border/60 pt-7">
         <FilterGroup
           title="Price Range"
           name="filter-price"
@@ -86,20 +69,7 @@ export function ProductFilters({ state, categories, onChange, onClear }: Product
         />
       </div>
 
-      <div className="border-t border-border pt-6">
-        <FilterGroup
-          title="Fragrance Family"
-          name="filter-family"
-          multiple
-          options={familyOptions}
-          selected={state.fragranceFamilies}
-          onToggle={(value) =>
-            onChange({ fragranceFamilies: toggleValue(state.fragranceFamilies, value as FragranceFamily) })
-          }
-        />
-      </div>
-
-      <div className="border-t border-border pt-6">
+      <div className="border-t border-border/60 pt-7">
         <FilterGroup
           title="Gender"
           name="filter-gender"
@@ -110,18 +80,7 @@ export function ProductFilters({ state, categories, onChange, onClear }: Product
         />
       </div>
 
-      <div className="border-t border-border pt-6">
-        <FilterGroup
-          title="Occasion"
-          name="filter-occasion"
-          multiple
-          options={occasionOptions}
-          selected={state.occasions}
-          onToggle={(value) => onChange({ occasions: toggleValue(state.occasions, value as Occasion) })}
-        />
-      </div>
-
-      <div className="border-t border-border pt-6">
+      <div className="border-t border-border/60 pt-7">
         <FilterGroup
           title="Availability"
           name="filter-availability"

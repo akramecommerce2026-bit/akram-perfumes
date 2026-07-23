@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { isRemoteImage } from "@/lib/is-remote-image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Loader2, Search, SearchX, Tag, X } from "lucide-react";
@@ -103,7 +104,7 @@ function SearchPanel({ onClose, reduceMotion }: { onClose: () => void; reduceMot
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -12, scale: 0.98 }}
       transition={{ duration: reduceMotion ? 0.12 : 0.28, ease: [0.22, 1, 0.36, 1] }}
-      className="flex w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-border bg-popover text-popover-foreground shadow-2xl"
+      className="flex w-full max-w-xl flex-col overflow-hidden rounded-lg border border-border bg-popover text-popover-foreground shadow-lg"
     >
       <div className="flex items-center gap-3 border-b border-border px-4">
         <Search className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -172,7 +173,7 @@ function SearchPanel({ onClose, reduceMotion }: { onClose: () => void; reduceMot
                   >
                     <span className="relative size-11 shrink-0 overflow-hidden rounded-lg border border-border/60 bg-muted">
                       {product.image && (
-                        <Image src={product.image} alt={product.name} fill sizes="44px" className="object-cover" />
+                        <Image src={product.image} alt={product.name} fill unoptimized={isRemoteImage(product.image)} sizes="44px" className="object-cover" />
                       )}
                     </span>
                     <span className="flex min-w-0 flex-1 flex-col">

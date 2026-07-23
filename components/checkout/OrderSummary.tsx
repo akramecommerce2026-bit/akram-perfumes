@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { isRemoteImage } from "@/lib/is-remote-image";
 import type { ReactNode } from "react";
 
 import { CartTotals } from "@/components/cart/CartTotals";
@@ -21,14 +22,14 @@ interface OrderSummaryProps {
  */
 export function OrderSummary({ items, totals, children }: OrderSummaryProps) {
   return (
-    <div className="flex flex-col gap-6 rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-7">
-      <h2 className="font-heading text-xl font-semibold text-foreground">Order Summary</h2>
+    <div className="flex flex-col gap-6 rounded-lg border border-border bg-card p-6 sm:p-7">
+      <h2 className="text-xl font-semibold text-foreground">Order Summary</h2>
 
       <ul className="flex flex-col gap-4">
         {items.map((item) => (
           <li key={item.variantId} className="flex gap-3">
             <div className="relative size-16 shrink-0 overflow-hidden rounded-lg border border-border/60 bg-muted">
-              <Image src={item.featuredImage} alt={item.productName} fill sizes="64px" className="object-cover" />
+              <Image src={item.featuredImage} alt={item.productName} fill unoptimized={isRemoteImage(item.featuredImage)} sizes="64px" className="object-cover" />
               <span className="absolute -top-2 -right-2 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground">
                 {item.quantity}
               </span>

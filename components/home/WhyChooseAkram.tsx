@@ -1,10 +1,9 @@
-"use client";
-
-import { MotionConfig, motion, type Variants } from "framer-motion";
 import { Gem, HeartHandshake, Hourglass, ShieldCheck, Tag, Truck } from "lucide-react";
 
 import { Section } from "@/components/common/section";
+import { paperTexture } from "@/components/common/section-paper";
 import { SectionHeading } from "@/components/common/section-heading";
+import { TestimonialsBackdrop } from "@/components/home/TestimonialsBackdrop";
 import { FeatureCard, type Feature } from "@/components/home/FeatureCard";
 
 const features: Feature[] = [
@@ -40,20 +39,24 @@ const features: Feature[] = [
   },
 ];
 
-const grid: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.1, delayChildren: 0.1 } },
-};
-
+/**
+ * Why Choose — the promises grid.
+ *
+ * A Server Component now. It was a Client Component to stagger the cards in via
+ * motion variants; those variants also meant six cards of copy sat at opacity 0
+ * until JS ran. Static content should not be able to fail to appear.
+ */
 export function WhyChooseAkram() {
   return (
-    <MotionConfig reducedMotion="user">
-      <Section spacing="lg" className="relative overflow-hidden">
-        {/* Subtle gold accent glow on the ivory background */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(50%_40%_at_50%_0%,color-mix(in_oklab,var(--accent)_12%,transparent),transparent_70%)]"
-        />
+    <Section
+      spacing="lg"
+      style={{ backgroundImage: paperTexture(0.02) }}
+      // Same ground as Testimonials: paper texture + the shared backdrop, with
+      // `isolate` so the backdrop's -z-10 layers sit behind the content rather
+      // than behind the section's own background.
+      className="relative isolate overflow-hidden"
+    >
+        <TestimonialsBackdrop />
 
         <SectionHeading
           eyebrow="The Akram Promise"
@@ -61,18 +64,11 @@ export function WhyChooseAkram() {
           subtitle="Every fragrance is crafted to deliver elegance, confidence, and a memorable experience."
         />
 
-        <motion.div
-          variants={grid}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.2 }}
-          className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:mt-16 lg:grid-cols-3 lg:gap-8"
-        >
-          {features.map((feature) => (
-            <FeatureCard key={feature.title} {...feature} />
-          ))}
-        </motion.div>
-      </Section>
-    </MotionConfig>
+      <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 lg:gap-6">
+        {features.map((feature) => (
+          <FeatureCard key={feature.title} {...feature} />
+        ))}
+      </div>
+    </Section>
   );
 }

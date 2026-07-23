@@ -25,7 +25,7 @@ import type {
 } from "@/types/admin-product";
 
 const LIST_SELECT =
-  "id,name,slug,brand,category_id,featured_image,is_featured,active,created_at," +
+  "id,name,slug,brand,category_id,featured_image,is_featured,is_signature,active,created_at," +
   "category:categories(name)," +
   "variants:product_variants(price,stock,status,sku,display_order,low_stock_threshold)";
 
@@ -90,6 +90,9 @@ export class SupabaseAdminProductRepository implements AdminProductRepository {
   async create(input: ProductFormValues): Promise<string> {
     const id = newId("prod");
     const featuredImage = primaryImageUrl(input);
+    // Resolve every variant's id up front so images can be tied to the variant
+    // they belong to, even for brand-new variants that have no id yet.
+    const variants = resolveVariantIds(input.variants);
 
     const { error } = await this.db.from("products").insert({
       id,
@@ -104,6 +107,7 @@ export class SupabaseAdminProductRepository implements AdminProductRepository {
       concentration: input.concentration ?? "",
       brand: input.brand,
       is_featured: input.isFeatured,
+      is_signature: input.isSignature,
       active: input.active,
       meta_title: input.metaTitle || null,
       meta_description: input.metaDescription || null,
@@ -112,14 +116,15 @@ export class SupabaseAdminProductRepository implements AdminProductRepository {
     });
     if (error) throw error;
 
-    await this.writeVariants(id, input.variants);
+    await this.writeVariants(id, variants);
     await this.writeNotes(id, input);
-    await this.writeImages(id, input, []);
+    await this.writeImages(id, desiredImageRows(input, variants), []);
     return id;
   }
 
   async update(id: string, input: ProductFormValues): Promise<void> {
     const featuredImage = primaryImageUrl(input);
+    const variants = resolveVariantIds(input.variants);
 
     const { error } = await this.db
       .from("products")
@@ -135,6 +140,7 @@ export class SupabaseAdminProductRepository implements AdminProductRepository {
         concentration: input.concentration ?? "",
         brand: input.brand,
         is_featured: input.isFeatured,
+        is_signature: input.isSignature,
         active: input.active,
         meta_title: input.metaTitle || null,
         meta_description: input.metaDescription || null,
@@ -144,14 +150,17 @@ export class SupabaseAdminProductRepository implements AdminProductRepository {
       .eq("id", id);
     if (error) throw error;
 
-    await this.reconcileVariants(id, input.variants);
-    await this.writeNotes(id, input, true);
-
+    // Snapshot existing images before reconciling variants. Deleting a variant
+    // cascade-deletes its image rows in the DB, so we must capture them here to
+    // still clean their storage objects in writeImages.
     const { data: existingImages } = await this.db
       .from("product_images")
       .select("id,url")
       .eq("product_id", id);
-    await this.writeImages(id, input, existingImages ?? []);
+
+    await this.reconcileVariants(id, variants);
+    await this.writeNotes(id, input, true);
+    await this.writeImages(id, desiredImageRows(input, variants), existingImages ?? []);
   }
 
   async softDelete(ids: readonly string[]): Promise<void> {
@@ -210,14 +219,22 @@ export class SupabaseAdminProductRepository implements AdminProductRepository {
     }
   }
 
+  /**
+   * Reconciles the full set of a product's images — shared (variant_id null) and
+   * variant-owned — against what is stored. `desired` is the complete target
+   * state built by `desiredImageRows`; `existing` is the pre-change snapshot,
+   * used to delete both the DB rows and the storage objects of removed images.
+   */
   private async writeImages(
     productId: string,
-    input: ProductFormValues,
+    desired: readonly DesiredImageRow[],
     existing: readonly { id: string; url: string }[],
   ) {
-    const keepIds = new Set(input.images.map((i) => i.id).filter(Boolean) as string[]);
+    const keepIds = new Set(desired.map((i) => i.id).filter(Boolean) as string[]);
     const removed = existing.filter((row) => !keepIds.has(row.id));
     if (removed.length > 0) {
+      // Row deletes are id-based; a variant delete may already have cascaded some
+      // of these away, which makes the delete a harmless no-op for those ids.
       await this.db.from("product_images").delete().in(
         "id",
         removed.map((r) => r.id),
@@ -225,32 +242,34 @@ export class SupabaseAdminProductRepository implements AdminProductRepository {
       await Promise.all(removed.map((r) => deleteProductImageByUrl(r.url)));
     }
 
-    const withId = input.images
-      .map((img, index) => ({ img, index }))
-      .filter(({ img }) => Boolean(img.id));
-    const withoutId = input.images
-      .map((img, index) => ({ img, index }))
-      .filter(({ img }) => !img.id);
+    const withId = desired.filter((row) => Boolean(row.id));
+    const withoutId = desired.filter((row) => !row.id);
 
+    // variant_id is only written when set. Omitting it for shared images (rather
+    // than sending null) means product editing never references the column
+    // unless a variant image is actually saved — so ordinary saves keep working
+    // even if the variant_id migration has not been applied yet.
     if (withId.length > 0) {
-      const rows = withId.map(({ img, index }) => ({
-        id: img.id!,
+      const rows = withId.map((row) => ({
+        id: row.id!,
         product_id: productId,
-        url: img.url,
-        alt: img.alt ?? "",
-        is_primary: img.isPrimary,
-        display_order: index,
+        ...(row.variantId ? { variant_id: row.variantId } : {}),
+        url: row.url,
+        alt: row.alt,
+        is_primary: row.isPrimary,
+        display_order: row.displayOrder,
       }));
       const { error } = await this.db.from("product_images").upsert(rows, { onConflict: "id" });
       if (error) throw error;
     }
     if (withoutId.length > 0) {
-      const rows = withoutId.map(({ img, index }) => ({
+      const rows = withoutId.map((row) => ({
         product_id: productId,
-        url: img.url,
-        alt: img.alt ?? "",
-        is_primary: img.isPrimary,
-        display_order: index,
+        ...(row.variantId ? { variant_id: row.variantId } : {}),
+        url: row.url,
+        alt: row.alt,
+        is_primary: row.isPrimary,
+        display_order: row.displayOrder,
       }));
       const { error } = await this.db.from("product_images").insert(rows);
       if (error) throw error;
@@ -268,6 +287,7 @@ interface ListRow {
   category_id: string;
   featured_image: string;
   is_featured: boolean;
+  is_signature: boolean;
   active: boolean;
   created_at: string;
   category: { name: string } | null;
@@ -309,12 +329,31 @@ function mapListItem(row: ListRow): AdminProductListItem {
     totalStock,
     variantCount: variants.length,
     isFeatured: row.is_featured,
+    isSignature: row.is_signature,
     createdAt: row.created_at,
   };
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 function mapDetail(row: any): AdminProductDetail {
+  const toAdminImage = (i: any): AdminImage => ({
+    id: i.id,
+    url: i.url,
+    alt: i.alt ?? "",
+    isPrimary: i.is_primary,
+    displayOrder: i.display_order,
+  });
+
+  // Variant-owned images (variant_id set) belong to their variant's gallery;
+  // everything else is the product's shared gallery.
+  const imagesByVariant = new Map<string, any[]>();
+  for (const image of row.images ?? []) {
+    if (!image.variant_id) continue;
+    const list = imagesByVariant.get(image.variant_id) ?? [];
+    list.push(image);
+    imagesByVariant.set(image.variant_id, list);
+  }
+
   const variants: AdminVariant[] = [...(row.variants ?? [])]
     .sort((a: any, b: any) => a.display_order - b.display_order)
     .map((v: any) => ({
@@ -327,17 +366,15 @@ function mapDetail(row: any): AdminProductDetail {
       lowStockThreshold: v.low_stock_threshold,
       status: v.status,
       displayOrder: v.display_order,
+      images: (imagesByVariant.get(v.id) ?? [])
+        .sort((a: any, b: any) => a.display_order - b.display_order)
+        .map(toAdminImage),
     }));
 
   const images: AdminImage[] = [...(row.images ?? [])]
+    .filter((i: any) => i.variant_id == null)
     .sort((a: any, b: any) => a.display_order - b.display_order)
-    .map((i: any) => ({
-      id: i.id,
-      url: i.url,
-      alt: i.alt ?? "",
-      isPrimary: i.is_primary,
-      displayOrder: i.display_order,
-    }));
+    .map(toAdminImage);
 
   const notes = [...(row.notes ?? [])].sort((a: any, b: any) => a.display_order - b.display_order);
   const byType = (type: string) =>
@@ -355,6 +392,7 @@ function mapDetail(row: any): AdminProductDetail {
     concentration: row.concentration,
     fragranceFamily: row.fragrance_family,
     isFeatured: row.is_featured,
+    isSignature: row.is_signature,
     active: row.active,
     metaTitle: row.meta_title ?? "",
     metaDescription: row.meta_description ?? "",
@@ -405,6 +443,58 @@ function noteRow(
 function primaryImageUrl(input: ProductFormValues): string {
   const primary = input.images.find((i) => i.isPrimary) ?? input.images[0];
   return primary?.url ?? "";
+}
+
+/** A variant with its id resolved (existing or freshly minted). */
+type ResolvedVariant = VariantFormValues & { id: string };
+
+/** Gives every variant a stable id so its images can reference it on insert. */
+function resolveVariantIds(variants: readonly VariantFormValues[]): ResolvedVariant[] {
+  return variants.map((variant) => ({ ...variant, id: variant.id ?? newId("var") }));
+}
+
+/** The complete target state for a product's images, flattened for reconciliation. */
+interface DesiredImageRow {
+  readonly id?: string;
+  readonly variantId: string | null;
+  readonly url: string;
+  readonly alt: string;
+  readonly isPrimary: boolean;
+  readonly displayOrder: number;
+}
+
+/**
+ * Flattens the shared gallery and every variant's gallery into one list.
+ *
+ * Shared images keep their primary flag (one drives `featured_image`); variant
+ * images are always non-primary so they can never collide with the product's
+ * single primary. Display order is per-group, which is all the storefront reads.
+ */
+function desiredImageRows(
+  input: ProductFormValues,
+  variants: readonly ResolvedVariant[],
+): DesiredImageRow[] {
+  const shared: DesiredImageRow[] = input.images.map((img, index) => ({
+    id: img.id,
+    variantId: null,
+    url: img.url,
+    alt: img.alt ?? "",
+    isPrimary: img.isPrimary,
+    displayOrder: index,
+  }));
+
+  const perVariant: DesiredImageRow[] = variants.flatMap((variant) =>
+    (variant.images ?? []).map((img, index) => ({
+      id: img.id,
+      variantId: variant.id,
+      url: img.url,
+      alt: img.alt ?? "",
+      isPrimary: false,
+      displayOrder: index,
+    })),
+  );
+
+  return [...shared, ...perVariant];
 }
 
 function newId(prefix: string): string {

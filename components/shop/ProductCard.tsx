@@ -2,113 +2,105 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion, type Variants } from "framer-motion";
 import { Star } from "lucide-react";
 
-import { buttonVariants } from "@/components/ui/button";
-import { ProductBadge } from "@/components/shop/ProductBadge";
-import { ProductPrice } from "@/components/shop/ProductPrice";
-import { ProductVariant } from "@/components/shop/ProductVariant";
+import { Badge } from "@/components/common/badge";
+import { Button } from "@/components/common/button";
+import { Price } from "@/components/common/price";
+import { Surface } from "@/components/common/surface";
 import { WishlistButton } from "@/components/wishlist/WishlistButton";
-import { cn } from "@/lib/utils";
+import { isRemoteImage } from "@/lib/is-remote-image";
 import type { ProductSummary } from "@/types/product";
 
-const MAX_VISIBLE_VARIANTS = 5;
-
-const card: Variants = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } },
-};
-
+/**
+ * Product card.
+ *
+ * Anatomy: square (1:1) image, then rating · review count, title, the price row
+ * (sale, struck original, percent off), and a full-width uppercase Add to Cart.
+ *
+ * The card stretches to its row (`h-full`) and floors the button with `mt-auto`,
+ * so a row shares one button baseline no matter how the titles wrap.
+ *
+ * Every value is derived from our own catalogue: `priceFrom`/`comparePriceFrom`
+ * carry the existing pricing logic, and the discount is computed from them
+ * rather than stored, so nothing here can drift from the backend.
+ */
 export function ProductCard({ product }: { product: ProductSummary }) {
   const href = `/shop/${product.slug}`;
-  const isOnSale = Boolean(
-    product.comparePriceFrom &&
-      product.priceFrom &&
-      product.comparePriceFrom.amount > product.priceFrom.amount,
-  );
-  const visibleVariants = product.variantNames.slice(0, MAX_VISIBLE_VARIANTS);
-  const hiddenVariantCount = product.variantNames.length - visibleVariants.length;
 
+  // The card is unpadded and clips its own corners so the artwork can run to the
+  // edge; the text block below carries the padding instead. That is what buys
+  // the image its extra width without shrinking anything around it.
   return (
-    <motion.article
-      variants={card}
-      whileHover={{ y: -6 }}
-      transition={{ type: "spring", stiffness: 300, damping: 26 }}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm transition-shadow duration-500 hover:border-accent/60 hover:shadow-lg"
-    >
-      <div className="relative aspect-[4/5] overflow-hidden bg-muted">
-        <Link href={href} aria-label={`View ${product.name}`} className="block h-full w-full">
-          <Image
-            src={product.featuredImage}
-            alt={product.name}
-            fill
-            sizes="(min-width: 1024px) 24vw, (min-width: 640px) 45vw, 90vw"
-            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-          />
+    <Surface as="article" interactive className="group relative flex h-full flex-col overflow-hidden p-0">
+      <div className="relative overflow-hidden bg-muted">
+        <Link href={href} aria-label={`View ${product.name}`} className="block">
+          {/* Fixed 1:1 box: the ratio is reserved before the image loads, so the
+              grid never reflows as pictures arrive. */}
+          <div className="relative aspect-square">
+            <Image
+              src={product.featuredImage}
+              alt={product.name}
+              fill
+              unoptimized={isRemoteImage(product.featuredImage)}
+              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 45vw, 90vw"
+              className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+            />
+          </div>
         </Link>
 
-        <div className="pointer-events-none absolute left-3 top-3 flex flex-col gap-1.5">
-          {product.isFeatured && <ProductBadge label="Featured" tone="featured" />}
-          {isOnSale && <ProductBadge label="Sale" tone="sale" />}
-          {!product.inStock && <ProductBadge label="Sold Out" tone="sold-out" />}
+        <div className="pointer-events-none absolute top-2.5 left-2.5 flex flex-col items-start gap-1.5">
+          {product.isFeatured && <Badge tone="accent">Best Seller</Badge>}
+          {!product.inStock && <Badge tone="muted">Sold Out</Badge>}
         </div>
 
-        <WishlistButton product={product} className="absolute right-3 top-3 z-10" />
-
-        {/* Slide-up action panel on hover */}
-        <div className="absolute inset-x-0 bottom-0 translate-y-full bg-card/95 p-3 backdrop-blur-sm transition-transform duration-500 ease-out group-hover:translate-y-0 motion-reduce:transition-none">
-          <div className="flex gap-2">
-            <Link
-              href={href}
-              className={cn(buttonVariants({ variant: "outline", size: "sm" }), "flex-1 rounded-full")}
-            >
-              View Product
-            </Link>
-            <Link
-              href={href}
-              className={cn(buttonVariants({ size: "sm" }), "flex-1 rounded-full hover:shadow-gold")}
-            >
-              Add to Cart
-            </Link>
-          </div>
-        </div>
+        <WishlistButton product={product} className="absolute top-2.5 right-2.5 z-10" />
       </div>
 
-      <div className="flex flex-1 flex-col gap-2.5 p-5">
-        <span className="text-[0.65rem] font-medium tracking-[0.15em] text-muted-foreground uppercase">
-          {product.category.name}
-        </span>
+      <div className="flex flex-1 flex-col px-3 pt-3 pb-3">
+        {/* Rating sits to the right of the content block, opposite the title. */}
+        {product.reviewCount > 0 && (
+          <div className="flex items-center gap-1 self-end text-[14px] leading-none">
+            <Star className="size-3.5 fill-accent text-accent" aria-hidden="true" />
+            <span className="font-semibold text-foreground">{product.rating.toFixed(1)}</span>
+            <span className="text-muted-foreground/70" aria-hidden="true">
+              |
+            </span>
+            <span className="text-muted-foreground">
+              {product.reviewCount.toLocaleString("en-IN")}
+            </span>
+            <span className="sr-only">reviews</span>
+          </div>
+        )}
 
-        <Link href={href}>
-          <h3 className="font-heading text-lg font-semibold text-foreground transition-colors group-hover:text-accent motion-reduce:transition-none">
+        {/* Two lines are reserved whether the title needs them or not, so a short
+            name and a long one still put their price on the same line. */}
+        <Link href={href} className="mt-1.5">
+          <h3 className="line-clamp-2 min-h-[2.6em] text-[17px] leading-snug font-medium text-foreground transition-colors group-hover:text-accent-foreground motion-reduce:transition-none">
             {product.name}
           </h3>
         </Link>
 
-        <p className="line-clamp-2 text-sm text-muted-foreground">{product.shortDescription}</p>
+        <Price
+          price={product.priceFrom}
+          comparePrice={product.comparePriceFrom}
+          size="sm"
+          className="mt-2 mb-3"
+        />
 
-        <div className="flex items-center gap-1.5 text-sm">
-          <Star className="size-4 fill-accent text-accent" aria-hidden="true" />
-          <span className="font-medium text-foreground">{product.rating.toFixed(1)}</span>
-          <span className="text-muted-foreground">({product.reviewCount})</span>
-        </div>
-
-        <ProductPrice price={product.priceFrom} comparePrice={product.comparePriceFrom} className="mt-1" />
-
-        {visibleVariants.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {visibleVariants.map((name) => (
-              <ProductVariant key={name} name={name} />
-            ))}
-            {hiddenVariantCount > 0 && (
-              <span className="inline-flex items-center text-xs text-muted-foreground">
-                +{hiddenVariantCount}
-              </span>
-            )}
-          </div>
-        )}
+        {/* mt-auto: the button sits on the card's floor, so a row of cards shares
+            one button baseline however their titles wrap. */}
+        <Button
+          href={href}
+          variant={product.inStock ? "gold" : "outline"}
+          size="md"
+          block
+          aria-disabled={!product.inStock}
+          className="mt-auto"
+        >
+          {product.inStock ? "Add to Cart" : "Sold Out"}
+        </Button>
       </div>
-    </motion.article>
+    </Surface>
   );
 }

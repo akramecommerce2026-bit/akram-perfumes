@@ -153,6 +153,216 @@
   --accent-tint-35: oklch(0.75 0.12 85 / 25%);
 }
 
+/**
+ * Storefront theme.
+ *
+ * Scoped to the (storefront) route group rather than :root because the admin
+ * shares this stylesheet and must keep its existing type and palette exactly.
+ * Overriding the variables here means every Tailwind utility that resolves
+ * `var(--…)` picks these values up inside the storefront and nowhere else.
+ *
+ * `font-family` is re-declared (not just the variable) because inheritance
+ * passes the already-resolved family down from <html>; without this, changing
+ * --font-sans below would have no effect on inherited text.
+ */
+.storefront-theme {
+  /*
+   * Retarget the faces themselves, not --font-sans/--font-heading. Those are
+   * declared with `@theme inline`, which substitutes the value into the utility
+   * at build time: `font-heading` compiles to `var(--font-playfair)`, so
+   * redefining --font-heading here would never be read. Overriding the source
+   * variables makes every existing font-sans/font-heading utility resolve to
+   * Urbanist inside the storefront, and leaves the admin on the real faces.
+   */
+  --font-inter: var(--font-urbanist);
+  --font-playfair: var(--font-urbanist);
+  /* Chantilly Bold binds here once the licensed file is added; until then the
+     brand wordmark falls back rather than rendering a wrong font. */
+  --font-brand: var(--font-urbanist);
+
+  --background: oklch(0.966 0.006 84);
+  --card: oklch(1 0 0);
+  --foreground: oklch(0.279 0 0);
+  --card-foreground: oklch(0.279 0 0);
+  --muted-foreground: oklch(0.52 0.008 75);
+  --border: oklch(0.9 0.006 84);
+
+  /* The brand gold, #C8A85A, as the single source every gold surface derives
+     from — ornament, hairlines, rules, focus. Stated in oklch to sit in the same
+     space as the rest of the palette; it is that hex exactly. */
+  --accent: oklch(0.7439 0.1043 87.47);
+  --ring: oklch(0.7439 0.1043 87.47);
+
+  /* Drives the whole radius scale: rounded-lg -> 8px (surfaces, imagery) and
+     rounded-md -> 6px (controls). The admin keeps the tighter 0.25rem it was
+     built against. */
+  --radius: 0.5rem;
+
+  /*
+   * Surface language. Every card, panel and well in the storefront is a gold
+   * hairline over white with a bright top edge — the "premium packaging" read.
+   * These are the only place those values are written down; the Surface
+   * primitive consumes them and everything else consumes Surface.
+   */
+  --hairline: color-mix(in oklab, var(--accent) 20%, transparent);
+  --hairline-hover: color-mix(in oklab, var(--accent) 45%, transparent);
+  --surface-inset: inset 0 1px 0 oklch(1 0 0 / 0.9), inset 0 0 0 1px oklch(1 0 0 / 0.35);
+
+  /*
+   * The gold ramp — one metal, four stops, all derived from --accent (#C8A85A).
+   *
+   * Metal reads as metal because lightness turns over across the face: it lifts
+   * to a champagne highlight just above the middle, then falls to a darker edge.
+   * A single flat fill (or a two-stop gradient) reads as paint, which is what
+   * separates a luxury control from a yellow button.
+   */
+  --gold-highlight: oklch(0.88 0.062 89);
+  --gold-light: oklch(0.815 0.088 88);
+  --gold: oklch(0.7439 0.1043 87.47);
+  --gold-deep: oklch(0.63 0.098 84);
+  --gold-edge: oklch(0.52 0.082 80);
+
+  font-family: var(--font-urbanist);
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+@theme {
+  /*
+   * The storefront's one easing curve and its three durations. Declared here (not
+   * in .storefront-theme) because Tailwind generates the utilities at build time
+   * from @theme; they are simply unused outside the storefront.
+   *
+   * Slow ease-out: motion decelerates into place rather than arriving abruptly,
+   * which is most of what makes an interaction read as expensive.
+   */
+  --ease-lux: cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-duration-hover: 200ms;
+  --animate-duration-base: 300ms;
+  --animate-duration-enter: 500ms;
+}
+
+/*
+ * The gold control.
+ *
+ * Built from the --gold-* ramp rather than a fill, because metal is a lightness
+ * curve, not a colour. Four things do the work, and each is doing one job:
+ *
+ *   1. The face gradient turns over — it rises to a champagne highlight at 45%
+ *      and falls away below it. A straight light-to-dark ramp reads as plastic;
+ *      the turn is what reads as a curved metal surface catching a light source.
+ *   2. A 1px inset highlight along the top edge, and a darker inset along the
+ *      bottom, so the control has a lit edge and a shaded one — the same trick a
+ *      stamped foil label uses.
+ *   3. A border in --gold-edge, darker than any part of the face, so the shape
+ *      stays crisp against ivory instead of dissolving into it.
+ *   4. A close, low-opacity drop shadow. It seats the control on the card; it is
+ *      not a glow, and it does not bloom on hover.
+ *
+ * Hover lifts the whole ramp by a few points of lightness rather than swapping
+ * the colour — the metal catches more light, it does not become a new object.
+ * Press flattens the highlight and drops it 1px: the surface is being pushed in.
+ *
+ * The one animated flourish is a single soft light band that sweeps the metal
+ * on a slow loop (see `::after` below) — the luxury-packaging shimmer, kept
+ * narrow and low-alpha so it reads as gold catching light, never as a cartoon
+ * gloss. No white sheen overlay and no diagonal gloss band beyond that.
+ */
+.btn-gold {
+  position: relative;
+  overflow: hidden;
+  background-image: linear-gradient(
+    180deg,
+    var(--gold-light) 0%,
+    var(--gold-highlight) 45%,
+    var(--gold) 56%,
+    var(--gold-deep) 100%
+  );
+  border: 1px solid var(--gold-edge);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.55),
+    inset 0 -1px 0 oklch(0.45 0.07 78 / 0.35),
+    0 1px 2px oklch(0.3 0.03 70 / 0.18);
+  color: oklch(0.26 0.03 70);
+  text-shadow: 0 1px 0 oklch(1 0 0 / 0.25);
+}
+
+/*
+ * A slow luxury shimmer: a soft band of light sweeps left → right across the
+ * metal on an infinite loop, so the button reads as living gold rather than a
+ * flat fill. Deliberately gentle — a narrow, low-alpha highlight over ~4.5s
+ * with a long pause between passes, so it never flashes or distracts. The band
+ * is clipped by the button's own `overflow: hidden`, and it sits below the
+ * label (the text is painted by the element itself, above this ::after).
+ */
+.btn-gold::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 32%,
+    oklch(1 0 0 / 0.32) 48%,
+    oklch(1 0 0 / 0.32) 52%,
+    transparent 68%
+  );
+  transform: translateX(-120%);
+  animation: btn-gold-shimmer 4.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+@keyframes btn-gold-shimmer {
+  0% {
+    transform: translateX(-120%);
+  }
+  55%,
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-gold::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+.btn-gold:hover {
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--gold-light) 82%, white) 0%,
+    color-mix(in oklab, var(--gold-highlight) 84%, white) 45%,
+    color-mix(in oklab, var(--gold) 88%, white) 56%,
+    var(--gold-deep) 100%
+  );
+  /*
+   * The last layer is the hover sheen: a tight, low-alpha gold spread with no
+   * offset, so it reads as the metal catching light rather than as a glow
+   * behind the button. Kept under a 10px radius and well below half alpha —
+   * widen either and it stops looking like polish and starts looking lit.
+   */
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.7),
+    inset 0 -1px 0 oklch(0.45 0.07 78 / 0.35),
+    0 2px 5px oklch(0.3 0.03 70 / 0.2),
+    0 0 9px color-mix(in oklab, var(--gold) 34%, transparent);
+}
+
+.btn-gold:active {
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 1px 2px oklch(0.4 0.06 78 / 0.3),
+    inset 0 -1px 0 oklch(1 0 0 / 0.2),
+    0 0 0 oklch(0 0 0 / 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-gold:active {
+    transform: none;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

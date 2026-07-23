@@ -7,20 +7,28 @@ import Razorpay from "razorpay";
  * Server-only Razorpay gateway wrapper.
  *
  * Reads credentials from the environment (never hardcoded):
- *   RAZORPAY_KEY_ID            (secret-side key id)
- *   RAZORPAY_KEY_SECRET        (SECRET)
- *   RAZORPAY_WEBHOOK_SECRET    (SECRET — webhook signature verification)
- *   NEXT_PUBLIC_RAZORPAY_KEY_ID (public — handed to Razorpay Checkout in the browser)
+ *   NEXT_PUBLIC_RAZORPAY_KEY_ID (public — handed to Razorpay Checkout in the
+ *                                browser, and used server-side to init the SDK)
+ *   RAZORPAY_KEY_SECRET         (SECRET — order creation, signature verification)
+ *   RAZORPAY_WEBHOOK_SECRET     (SECRET — webhook signature verification)
+ *   RAZORPAY_KEY_ID             (optional — a server-only alias for the key id;
+ *                                falls back to NEXT_PUBLIC_RAZORPAY_KEY_ID)
  *
- * Everything is gated behind `isRazorpayConfigured()`, so the store runs on COD
- * until the keys are provided — no code changes needed to go live with Razorpay.
+ * The key id is NOT a secret (Razorpay Checkout receives it in the browser), so
+ * the server accepts it from either variable. That means the only variables that
+ * must be set are NEXT_PUBLIC_RAZORPAY_KEY_ID + RAZORPAY_KEY_SECRET (plus the
+ * webhook secret for the backstop) — no separate server key id required.
+ *
+ * Everything is gated behind `isRazorpayConfigured()`, so the store cleanly
+ * reports payments unavailable until the keys are provided — no code changes
+ * needed to go live.
  */
-const keyId = (process.env.RAZORPAY_KEY_ID ?? "").trim();
+const keyId = (process.env.RAZORPAY_KEY_ID ?? process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ?? "").trim();
 const keySecret = (process.env.RAZORPAY_KEY_SECRET ?? "").trim();
 const webhookSecret = (process.env.RAZORPAY_WEBHOOK_SECRET ?? "").trim();
 
 /** Public key id for the browser Checkout widget. */
-export const razorpayPublicKeyId = (process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ?? "").trim();
+export const razorpayPublicKeyId = keyId;
 
 export function isRazorpayConfigured(): boolean {
   return keyId.length > 0 && keySecret.length > 0;

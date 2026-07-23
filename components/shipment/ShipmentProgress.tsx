@@ -79,7 +79,7 @@ export function ShipmentProgress({ status }: { status: ShipmentStatus }) {
                 className={cn(
                   "flex size-7 items-center justify-center rounded-full border-2 bg-background text-xs font-semibold transition-colors",
                   done && "border-accent bg-accent text-accent-foreground",
-                  current && "border-accent text-accent shadow-gold",
+                  current && "border-accent text-accent",
                   !done && !current && "border-border text-muted-foreground",
                 )}
               >

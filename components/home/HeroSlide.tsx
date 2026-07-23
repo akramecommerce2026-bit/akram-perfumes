@@ -1,45 +1,63 @@
 "use client";
 
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "framer-motion";
 
+/**
+ * A hero slide is imagery only. The headline and CTAs are fixed across the whole
+ * carousel (see HeroContent), so nothing here carries copy — only the picture
+ * and the alt text describing it.
+ */
 export interface HeroSlideData {
   src: string;
   alt: string;
-  badge: string;
-  headlineLead: string;
-  headlineAccent: string;
-  description: string;
   /** object-position for cover cropping, defaults to center */
   focus?: string;
 }
 
 interface HeroSlideProps {
   slide: HeroSlideData;
+  /** The slide currently on show. Inactive slides stay mounted but transparent. */
+  active: boolean;
   priority?: boolean;
 }
 
 /**
- * A single full-bleed slide: a cross-dissolving layer wrapping a slow
- * Ken Burns zoom on the image. Only the active slide is mounted (via the
- * parent AnimatePresence), so non-active images are never requested.
+ * One full-bleed slide that cross-dissolves on `active` and drifts slowly while
+ * it shows.
+ *
+ * The fade is a plain CSS transition rather than a motion component: a slide
+ * lives across many active/inactive flips, and driving opacity declaratively
+ * from a prop is something the compositor does for free and cannot get stuck
+ * half-applied. Both layers animate only opacity and transform, so no slide
+ * change ever triggers layout.
  */
-export function HeroSlide({ slide, priority }: HeroSlideProps) {
+export function HeroSlide({ slide, active, priority }: HeroSlideProps) {
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <motion.div
-      className="absolute inset-0"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 1.1, ease: [0.4, 0, 0.2, 1] }}
+    <div
+      aria-hidden={!active}
+      className="pointer-events-none absolute inset-0 transition-opacity duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)] motion-reduce:transition-none"
+      style={{ opacity: active ? 1 : 0 }}
     >
-      <motion.div
-        className="absolute inset-0"
-        initial={shouldReduceMotion ? undefined : { scale: 1.04 }}
-        animate={shouldReduceMotion ? undefined : { scale: 1.13 }}
-        transition={{ duration: 7, ease: "easeOut" }}
+      {/*
+        A restrained drift. These are wide scenic compositions (3:2) shown in a
+        wider frame, so `cover` already crops top and bottom — a large zoom on
+        top of that pushes the scenery out of shot and leaves only the bottle.
+        Small enough to read as a slow breath rather than a move.
+      */}
+      <div
+        className="absolute inset-0 ease-out will-change-transform motion-reduce:transition-none"
+        style={
+          shouldReduceMotion
+            ? undefined
+            : {
+                transform: `scale(${active ? 1.045 : 1.005})`,
+                transitionProperty: "transform",
+                transitionDuration: active ? "9s" : "1s",
+              }
+        }
       >
         <Image
           src={slide.src}
@@ -51,7 +69,7 @@ export function HeroSlide({ slide, priority }: HeroSlideProps) {
           className="object-cover"
           style={{ objectPosition: slide.focus ?? "center" }}
         />
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }

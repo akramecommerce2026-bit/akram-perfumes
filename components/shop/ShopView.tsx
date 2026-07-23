@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { SlidersHorizontal } from "lucide-react";
 
 import { FilterDrawer } from "@/components/shop/FilterDrawer";
@@ -29,12 +30,36 @@ interface ShopViewProps {
  * server and applies search / filter / sort / pagination in-memory using the
  * shared pure helpers — the same helpers the service uses server-side, so the
  * rules stay identical when this moves to Supabase-backed queries.
+ *
+ * `?collection=<category-slug>` preselects that category, so links from the
+ * homepage land on a filtered Shop. It is read here rather than on the server so
+ * the page keeps its static/ISR rendering. An unknown slug is ignored and the
+ * full catalogue shows — a stale link never becomes an error page.
  */
 export function ShopView({ products, categories }: ShopViewProps) {
-  const [filters, setFilters] = useState<ShopFilterState>(EMPTY_FILTERS);
+  const collectionParam = useSearchParams().get("collection");
+  const presetCategory = useMemo(
+    () => categories.find((category) => category.slug === collectionParam)?.slug ?? null,
+    [categories, collectionParam],
+  );
+
+  const [filters, setFilters] = useState<ShopFilterState>(() => ({
+    ...EMPTY_FILTERS,
+    categorySlug: presetCategory,
+  }));
   const [sort, setSort] = useState<ProductSort>("featured");
   const [page, setPage] = useState(1);
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Re-apply when the URL changes under a mounted ShopView (e.g. a second
+  // collection link). Adjusting state during render is React's supported reset
+  // pattern and avoids an effect + extra commit.
+  const [appliedCollection, setAppliedCollection] = useState(collectionParam);
+  if (collectionParam !== appliedCollection) {
+    setAppliedCollection(collectionParam);
+    setFilters((previous) => ({ ...previous, categorySlug: presetCategory }));
+    setPage(1);
+  }
 
   const query = useMemo(() => filtersToQuery(filters), [filters]);
   const filtered = useMemo(() => filterSummaries(products, query), [products, query]);
@@ -88,9 +113,18 @@ export function ShopView({ products, categories }: ShopViewProps) {
         <SortDropdown value={sort} onChange={changeSort} className="flex-1" />
       </div>
 
-      <div className="lg:grid lg:grid-cols-[260px_1fr] lg:gap-10">
+      {/* Search spans both columns: it filters the whole page, so scoping it to
+          the grid column would misrepresent it — and it lets the filter heading
+          and the sort row share one baseline underneath. */}
+      <SearchBar
+        value={filters.search}
+        onChange={(value) => updateFilters({ search: value })}
+        className="mb-6"
+      />
+
+      <div className="lg:grid lg:grid-cols-[240px_1fr] lg:gap-8 xl:gap-10">
         <aside className="hidden lg:block">
-          <div className="sticky top-28">
+          <div className="sticky top-24">
             <ProductFilters
               state={filters}
               categories={categories}
@@ -100,24 +134,26 @@ export function ShopView({ products, categories }: ShopViewProps) {
           </div>
         </aside>
 
-        <div className="flex flex-col gap-6">
-          <SearchBar value={filters.search} onChange={(value) => updateFilters({ search: value })} />
-
-          <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col">
+          {/* Same height and rule as the filter panel's heading, so the two
+              columns start on the same line. */}
+          <div className="flex h-9 items-center justify-between gap-4 border-b border-border pb-2 lg:mb-6">
             <p className="text-sm text-muted-foreground">
               {total} {total === 1 ? "product" : "products"}
             </p>
-            <SortDropdown value={sort} onChange={changeSort} className="hidden w-56 lg:block" />
+            <SortDropdown value={sort} onChange={changeSort} className="hidden w-52 lg:block" />
           </div>
 
-          <ProductGrid products={pageItems} />
+          <div className="mt-6 lg:mt-0">
+            <ProductGrid products={pageItems} />
+          </div>
 
           {total > 0 && (
             <Pagination
               page={currentPage}
               pageCount={pageCount}
               onPageChange={setPage}
-              className="pt-4"
+              className="pt-10"
             />
           )}
         </div>

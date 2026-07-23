@@ -1,18 +1,4 @@
-"use client";
-
-import { motion, type Variants } from "framer-motion";
-
 import { cn } from "@/lib/utils";
-
-const container: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.1 } },
-};
-
-const item: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
-};
 
 interface SectionHeadingProps {
   eyebrow?: string;
@@ -22,6 +8,14 @@ interface SectionHeadingProps {
   className?: string;
 }
 
+/**
+ * Section heading, sized to the storefront's type scale.
+ *
+ * Entrance is a CSS animation rather than a motion variant. The variant version
+ * left every heading on the site stuck at `opacity: 0` in production — headings
+ * are content, and content must not depend on JS to become visible. That also
+ * means this no longer needs to be a Client Component.
+ */
 export function SectionHeading({
   eyebrow,
   title,
@@ -29,37 +23,30 @@ export function SectionHeading({
   align = "center",
   className,
 }: SectionHeadingProps) {
+  const enter =
+    "motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-500 motion-safe:fill-mode-both";
+
   return (
-    <motion.div
-      variants={container}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, amount: 0.5 }}
+    <div
       className={cn(
-        "flex flex-col gap-4",
+        "flex flex-col gap-3",
         align === "center" ? "items-center text-center" : "items-start text-left",
         className,
       )}
     >
       {eyebrow && (
-        <motion.span
-          variants={item}
-          className="text-xs font-medium tracking-[0.2em] text-accent uppercase"
-        >
+        <span className={cn(enter, "text-[13px] font-medium tracking-[0.2em] text-accent uppercase")}>
           {eyebrow}
-        </motion.span>
+        </span>
       )}
-      <motion.h2
-        variants={item}
-        className="font-heading text-3xl font-semibold text-foreground sm:text-4xl lg:text-5xl"
-      >
+      <h2 className={cn(enter, "text-2xl font-bold text-foreground sm:text-3xl motion-safe:delay-75")}>
         {title}
-      </motion.h2>
+      </h2>
       {subtitle && (
-        <motion.p variants={item} className="max-w-2xl text-base text-muted-foreground sm:text-lg">
+        <p className={cn(enter, "max-w-2xl text-base leading-relaxed text-muted-foreground motion-safe:delay-150")}>
           {subtitle}
-        </motion.p>
+        </p>
       )}
-    </motion.div>
+    </div>
   );
 }

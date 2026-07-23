@@ -65,7 +65,7 @@ export function TrackingTimeline({ timeline, emptyMessage, className }: Tracking
                 className={cn(
                   "flex size-8 shrink-0 items-center justify-center rounded-full border",
                   isCurrent
-                    ? "border-transparent bg-accent text-accent-foreground shadow-gold"
+                    ? "border-transparent bg-accent text-accent-foreground"
                     : "border-border bg-muted text-muted-foreground",
                 )}
               >

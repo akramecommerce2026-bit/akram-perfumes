@@ -37,13 +37,15 @@ export function FilterGroup({
   }
 
   return (
-    <fieldset className="flex flex-col gap-3">
-      <legend className="text-sm font-semibold text-foreground">{title}</legend>
-      <div className="flex flex-col gap-2">
+    <fieldset className="flex flex-col gap-3.5">
+      <legend className="text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+        {title}
+      </legend>
+      <div className="flex flex-col gap-2.5">
         {options.map((option) => (
           <label
             key={option.value || "all"}
-            className="flex cursor-pointer items-center gap-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            className="flex cursor-pointer items-center gap-2.5 text-[14px] text-muted-foreground transition-colors duration-200 hover:text-foreground"
           >
             <input
               type={multiple ? "checkbox" : "radio"}

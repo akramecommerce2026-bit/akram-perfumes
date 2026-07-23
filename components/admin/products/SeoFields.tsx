@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
+import { isRemoteImage } from "@/lib/is-remote-image";
 import { useFormContext } from "react-hook-form";
 import { ImagePlus, Loader2, X } from "lucide-react";
 
@@ -64,7 +65,7 @@ export function SeoFields() {
           {ogImage ? (
             <div className="relative w-fit overflow-hidden rounded-xl border border-border">
               <div className="relative h-32 w-56">
-                <Image src={ogImage} alt="OpenGraph preview" fill sizes="224px" className="object-cover" />
+                <Image src={ogImage} alt="OpenGraph preview" fill unoptimized={isRemoteImage(ogImage)} sizes="224px" className="object-cover" />
               </div>
               <button
                 type="button"

@@ -1,5 +1,7 @@
 import { Section } from "@/components/common/section";
 import { SectionHeading } from "@/components/common/section-heading";
+import { paperTexture } from "@/components/common/section-paper";
+import { TestimonialsBackdrop } from "@/components/home/TestimonialsBackdrop";
 import { TestimonialsCarousel } from "@/components/home/TestimonialsCarousel";
 import { getTestimonials } from "@/services/testimonial-service";
 
@@ -12,11 +14,14 @@ export async function Testimonials() {
   const testimonials = await getTestimonials();
 
   return (
-    <Section spacing="lg" className="relative overflow-hidden">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(45%_45%_at_50%_45%,color-mix(in_oklab,var(--accent)_10%,transparent),transparent_70%)]"
-      />
+    <Section
+      spacing="lg"
+      style={{ backgroundImage: paperTexture(0.02) }}
+      // `isolate` makes this a stacking context so the backdrop's -z-10 layers
+      // sit behind the content instead of behind the section's own background.
+      className="relative isolate overflow-hidden"
+    >
+      <TestimonialsBackdrop />
 
       <SectionHeading
         eyebrow="Testimonials"

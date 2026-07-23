@@ -9,6 +9,14 @@ const familyValues = FRAGRANCE_FAMILIES as readonly [FragranceFamily, ...Fragran
 const optionalText = (max: number) =>
   z.string().trim().max(max, `Must be ${max} characters or fewer`).optional().or(z.literal(""));
 
+export const imageSchema = z.object({
+  id: z.string().optional(),
+  url: z.string().url(),
+  alt: z.string().optional(),
+  isPrimary: z.boolean(),
+  displayOrder: z.number().int(),
+});
+
 /** A single variant row. Prices are entered in rupees (converted to paise on save). */
 export const variantSchema = z
   .object({
@@ -20,19 +28,14 @@ export const variantSchema = z
     stock: z.coerce.number().int("Whole number").nonnegative("Must be ≥ 0"),
     lowStockThreshold: z.coerce.number().int("Whole number").nonnegative("Must be ≥ 0"),
     active: z.boolean(),
+    // A variant's own gallery. Optional and additive: a variant with no images
+    // falls back to the product's shared gallery on the storefront.
+    images: z.array(imageSchema).default([]),
   })
   .refine(
     (v) => v.comparePrice == null || v.comparePrice === 0 || v.comparePrice >= v.price,
     { message: "MRP must be greater than or equal to the selling price", path: ["comparePrice"] },
   );
-
-export const imageSchema = z.object({
-  id: z.string().optional(),
-  url: z.string().url(),
-  alt: z.string().optional(),
-  isPrimary: z.boolean(),
-  displayOrder: z.number().int(),
-});
 
 export const productSchema = z.object({
   name: z.string().trim().min(2, "Name is required").max(120, "Too long"),
@@ -50,11 +53,14 @@ export const productSchema = z.object({
   concentration: optionalText(80),
   fragranceFamily: z.enum(familyValues),
   isFeatured: z.boolean(),
+  isSignature: z.boolean(),
   active: z.boolean(),
   topNotes: z.array(z.string().trim().min(1)),
   heartNotes: z.array(z.string().trim().min(1)),
   baseNotes: z.array(z.string().trim().min(1)),
-  images: z.array(imageSchema),
+  // A product with no image stores featured_image = "" and renders as a broken
+  // card on the storefront. Required here so that cannot be saved at all.
+  images: z.array(imageSchema).min(1, "Add at least one product image."),
   metaTitle: optionalText(70),
   metaDescription: optionalText(180),
   keywords: z.array(z.string().trim().min(1)),

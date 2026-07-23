@@ -12,7 +12,7 @@ export function Logo({ className }: LogoProps) {
       href="/"
       aria-label="Akram Perfumes home"
       className={cn(
-        "font-heading text-xl font-semibold tracking-[0.2em] text-foreground transition-opacity hover:opacity-80 sm:text-2xl",
+        "text-xl font-semibold tracking-[0.2em] text-foreground transition-opacity hover:opacity-80 sm:text-2xl",
         className,
       )}
     >

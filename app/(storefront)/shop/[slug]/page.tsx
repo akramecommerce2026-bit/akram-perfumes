@@ -3,15 +3,21 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 
+import { Accordion } from "@/components/common/accordion";
 import { Container } from "@/components/common/container";
+import { Surface } from "@/components/common/surface";
 import { FragranceNotes } from "@/components/product/FragranceNotes";
 import { ProductDescription } from "@/components/product/ProductDescription";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductInfo } from "@/components/product/ProductInfo";
+import { VariantSelectionProvider } from "@/components/product/variant-selection-context";
+import { RecentlyViewed } from "@/components/product/RecentlyViewed";
+import { RecordView } from "@/components/product/RecordView";
 import { PurchasePanel } from "@/components/product/PurchasePanel";
 import { RelatedProducts } from "@/components/product/RelatedProducts";
 import { ReviewSection } from "@/components/product/ReviewSection";
 import { getProductReviews } from "@/services/review-service";
+import { toProductSummary } from "@/lib/product-summary";
 import { productService } from "@/services/product-service";
 import type { Product, ProductSummary } from "@/types/product";
 
@@ -119,18 +125,28 @@ export default async function ProductPage({ params }: ProductPageProps) {
     getProductReviews(product.id),
   ]);
 
-  const galleryImages = [product.featuredImage, ...product.galleryImages].filter(
-    (image, index, all) => all.indexOf(image) === index,
+  const dedupe = (urls: readonly string[]) =>
+    urls.filter((url, index, all) => url && all.indexOf(url) === index);
+
+  // The product's shared gallery, used for variants that have no images of their
+  // own. JSON-LD advertises this set (the always-present one).
+  const sharedImages = dedupe([product.featuredImage, ...product.galleryImages]);
+
+  // Each variant's own gallery, keyed by id. A variant with images shows only
+  // those on the storefront; one without falls back to `sharedImages`.
+  const variantImages: Record<string, string[]> = Object.fromEntries(
+    product.variants.map((variant) => [variant.id, dedupe(variant.images)]),
   );
 
   return (
-    <div className="py-section-sm lg:py-section">
+    <div className="py-8 lg:py-12">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: productJsonLd(product, galleryImages) }}
+        dangerouslySetInnerHTML={{ __html: productJsonLd(product, sharedImages) }}
       />
+      <RecordView product={toProductSummary(product)} />
       <Container>
-        <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground lg:mb-10">
+        <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1.5 text-[13px] text-muted-foreground lg:mb-8">
           <Link href="/" className="transition-colors hover:text-foreground">
             Home
           </Link>
@@ -142,13 +158,48 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <span className="text-foreground">{product.name}</span>
         </nav>
 
-        <div className="grid gap-8 md:grid-cols-2 lg:gap-12">
-          <ProductGallery images={galleryImages} name={product.name} />
-          <div className="flex flex-col gap-8">
-            <ProductInfo product={product} />
-            <PurchasePanel product={product} />
+        {/*
+          The gallery sticks; the right column scrolls past it.
+          
+          Only the shorter column can stick: the taller one defines the row, so it
+          has no travel inside its grid area and `position: sticky` is inert on it.
+          The right column carries the copy, the panel and the disclosures, so it
+          is always the taller — which makes the gallery the one that can hold.
+          `items-start` is what gives it room to move within its area.
+        */}
+        <VariantSelectionProvider initialVariantId={product.variants[0]?.id ?? ""}>
+          <div className="grid gap-8 lg:grid-cols-2 lg:items-start lg:gap-12">
+            <div className="lg:sticky lg:top-24">
+              <ProductGallery
+                sharedImages={sharedImages}
+                variantImages={variantImages}
+                name={product.name}
+              />
+            </div>
+
+            <div className="flex flex-col gap-7">
+              <ProductInfo product={product} />
+              <PurchasePanel product={product} />
+
+              {/* Detail lives behind disclosures beside the buy button rather than
+                  a scroll away, which is what keeps the panel shippable on mobile. */}
+              <Surface className="px-5">
+                <Accordion title="Description" defaultOpen>
+                  {product.description}
+                </Accordion>
+                <Accordion title="Delivery & Returns">
+                  Free delivery on every order, dispatched in 1–2 business days and typically
+                  arriving in 3–7 days across India. Unopened items can be returned within 7 days
+                  of delivery.
+                </Accordion>
+                <Accordion title="Authenticity">
+                  Every bottle is filled and sealed in-house in Madurai, and quality-checked
+                  before dispatch.
+                </Accordion>
+              </Surface>
+            </div>
           </div>
-        </div>
+        </VariantSelectionProvider>
 
         <div className="mt-16 lg:mt-24">
           <ProductDescription product={product} />
@@ -160,6 +211,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
         <div className="mt-16 lg:mt-24">
           <RelatedProducts products={related} />
+        </div>
+
+        <div className="mt-16 lg:mt-24">
+          <RecentlyViewed currentId={product.id} />
         </div>
 
         <div className="mt-16 lg:mt-24">

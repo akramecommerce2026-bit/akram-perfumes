@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
+
+import { isRemoteImage } from "@/lib/is-remote-image";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { Trash2 } from "lucide-react";
 
 import { useCart } from "@/components/cart/cart-context";
@@ -20,27 +21,20 @@ export function CartLineItem({ item, onNavigate }: CartLineItemProps) {
   const { updateQuantity, removeItem } = useCart();
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, x: -16 }}
-      transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-      className="flex gap-4"
-    >
+    <div className="flex gap-4 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-(--animate-duration-base) ease-lux">
       <Link
         href={`/shop/${item.productSlug}`}
         onClick={onNavigate}
         className="relative aspect-square w-20 shrink-0 overflow-hidden rounded-xl border border-border/60 bg-muted sm:w-24"
       >
-        <Image src={item.featuredImage} alt={item.productName} fill sizes="96px" className="object-cover" />
+        <Image src={item.featuredImage} alt={item.productName} fill unoptimized={isRemoteImage(item.featuredImage)} sizes="96px" className="object-cover" />
       </Link>
 
       <div className="flex flex-1 flex-col gap-2">
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-col gap-0.5">
             <Link href={`/shop/${item.productSlug}`} onClick={onNavigate}>
-              <h3 className="font-heading text-base font-semibold text-foreground transition-colors hover:text-accent">
+              <h3 className="text-base font-semibold text-foreground transition-colors hover:text-accent">
                 {item.productName}
               </h3>
             </Link>
@@ -66,6 +60,6 @@ export function CartLineItem({ item, onNavigate }: CartLineItemProps) {
           <span className="font-medium text-foreground">{formatMoney(item.subtotal)}</span>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

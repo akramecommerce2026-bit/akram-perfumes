@@ -5,6 +5,7 @@ import { ArrowDown, ArrowUp, GripVertical, Plus, Trash2 } from "lucide-react";
 
 import { Field, TextInput } from "@/components/admin/ui/form-fields";
 import { Toggle } from "@/components/admin/ui/Toggle";
+import { VariantImageUploader } from "@/components/admin/products/VariantImageUploader";
 import type { ProductFormValues } from "@/lib/admin/product-schema";
 import { cn } from "@/lib/utils";
 
@@ -30,6 +31,20 @@ export function VariantsEditor() {
 
   const rootError = errors.variants?.message ?? errors.variants?.root?.message;
 
+  /**
+   * Auto-suggest a SKU the moment a variant is named, so the admin never has to
+   * invent one — but leave it editable, and never overwrite a SKU they typed.
+   * Shape: AKR-<product code>-<variant code>, e.g. AKR-ROYALO-12ML.
+   */
+  function suggestSku(index: number) {
+    if (watch(`variants.${index}.sku`)?.trim()) return;
+    const name = watch("name") ?? "";
+    const variantName = watch(`variants.${index}.variantName`) ?? "";
+    const productCode = name.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6) || "PROD";
+    const variantCode = variantName.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 5) || String(index + 1);
+    setValue(`variants.${index}.sku`, `AKR-${productCode}-${variantCode}`, { shouldValidate: true, shouldDirty: true });
+  }
+
   return (
     <section className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm">
       <header className="flex items-center justify-between">
@@ -41,7 +56,7 @@ export function VariantsEditor() {
         </div>
         <button
           type="button"
-          onClick={() => append({ ...NEW_VARIANT })}
+          onClick={() => append({ ...NEW_VARIANT, images: [] })}
           className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground transition-colors hover:border-accent hover:text-accent"
         >
           <Plus className="size-4" aria-hidden="true" /> Add Variant
@@ -54,6 +69,11 @@ export function VariantsEditor() {
         {fields.map((field, index) => {
           const variantErrors = errors.variants?.[index];
           const active = watch(`variants.${index}.active`);
+          // Live discount readout: the same maths the storefront runs, shown as
+          // the admin types, so the saving is never a surprise after publish.
+          const price = Number(watch(`variants.${index}.price`)) || 0;
+          const mrp = Number(watch(`variants.${index}.comparePrice`)) || 0;
+          const discount = mrp > price && price > 0 ? Math.round(((mrp - price) / mrp) * 100) : 0;
           return (
             <div key={field.id} className="rounded-xl border border-border bg-background p-4">
               <div className="mb-3 flex items-center justify-between">
@@ -93,7 +113,12 @@ export function VariantsEditor() {
 
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
                 <Field label="Size" htmlFor={`v-${index}-name`} error={variantErrors?.variantName?.message} className="col-span-2 sm:col-span-1">
-                  <TextInput id={`v-${index}-name`} placeholder="6ml" {...register(`variants.${index}.variantName`)} aria-invalid={!!variantErrors?.variantName} />
+                  <TextInput
+                    id={`v-${index}-name`}
+                    placeholder="6ml"
+                    {...register(`variants.${index}.variantName`, { onBlur: () => suggestSku(index) })}
+                    aria-invalid={!!variantErrors?.variantName}
+                  />
                 </Field>
                 <Field label="Price (₹)" htmlFor={`v-${index}-price`} error={variantErrors?.price?.message}>
                   <TextInput id={`v-${index}-price`} type="number" min="0" step="0.01" {...register(`variants.${index}.price`)} aria-invalid={!!variantErrors?.price} />
@@ -101,8 +126,8 @@ export function VariantsEditor() {
                 <Field label="MRP (₹)" htmlFor={`v-${index}-mrp`} error={variantErrors?.comparePrice?.message} optional>
                   <TextInput id={`v-${index}-mrp`} type="number" min="0" step="0.01" {...register(`variants.${index}.comparePrice`)} aria-invalid={!!variantErrors?.comparePrice} />
                 </Field>
-                <Field label="SKU" htmlFor={`v-${index}-sku`} error={variantErrors?.sku?.message}>
-                  <TextInput id={`v-${index}-sku`} placeholder="AKR-XXX-006" {...register(`variants.${index}.sku`)} aria-invalid={!!variantErrors?.sku} />
+                <Field label="SKU" htmlFor={`v-${index}-sku`} error={variantErrors?.sku?.message} hint="Auto-filled — edit if you like.">
+                  <TextInput id={`v-${index}-sku`} placeholder="Auto-generated" {...register(`variants.${index}.sku`)} aria-invalid={!!variantErrors?.sku} />
                 </Field>
                 <Field label="Stock" htmlFor={`v-${index}-stock`} error={variantErrors?.stock?.message}>
                   <TextInput id={`v-${index}-stock`} type="number" min="0" step="1" {...register(`variants.${index}.stock`)} aria-invalid={!!variantErrors?.stock} />
@@ -112,7 +137,7 @@ export function VariantsEditor() {
                 </Field>
               </div>
 
-              <div className="mt-3 flex items-center gap-2">
+              <div className="mt-3 flex items-center gap-3">
                 <Toggle
                   checked={active}
                   onChange={(checked) => setValue(`variants.${index}.active`, checked, { shouldDirty: true })}
@@ -120,7 +145,14 @@ export function VariantsEditor() {
                 <span className={cn("text-sm", active ? "text-foreground" : "text-muted-foreground")}>
                   {active ? "Active" : "Inactive"}
                 </span>
+                {discount > 0 && (
+                  <span className="ml-auto inline-flex items-center rounded-full bg-accent/15 px-2.5 py-1 text-xs font-semibold text-accent">
+                    {discount}% off
+                  </span>
+                )}
               </div>
+
+              <VariantImageUploader variantIndex={index} />
             </div>
           );
         })}

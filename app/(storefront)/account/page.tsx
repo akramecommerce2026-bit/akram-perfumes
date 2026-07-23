@@ -40,7 +40,7 @@ export default async function AccountPage() {
         <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-xs font-medium tracking-[0.2em] text-accent uppercase">My Account</p>
-            <h1 className="mt-2 font-heading text-3xl font-semibold text-foreground sm:text-4xl">
+            <h1 className="mt-2 text-3xl font-semibold text-foreground sm:text-4xl">
               Hello, {name}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">{email}</p>
@@ -54,39 +54,39 @@ export default async function AccountPage() {
 
         {/* Overview stats */}
         <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <div className="flex flex-col gap-1 rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <div className="flex flex-col gap-1 rounded-lg border border-border bg-card p-5">
             <span className="flex items-center gap-2 text-sm text-muted-foreground">
               <ShoppingBag className="size-4 text-accent" aria-hidden="true" /> Orders
             </span>
-            <span className="font-heading text-2xl font-semibold text-foreground">{account.orderCount}</span>
+            <span className="text-2xl font-semibold text-foreground">{account.orderCount}</span>
           </div>
-          <div className="flex flex-col gap-1 rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <div className="flex flex-col gap-1 rounded-lg border border-border bg-card p-5">
             <span className="flex items-center gap-2 text-sm text-muted-foreground">
               <Wallet className="size-4 text-accent" aria-hidden="true" /> Total spent
             </span>
-            <span className="font-heading text-2xl font-semibold text-foreground">
+            <span className="text-2xl font-semibold text-foreground">
               {formatMoney(account.totalSpent)}
             </span>
           </div>
           <AccountWishlistCard />
           <Link
             href="/track"
-            className="flex flex-col gap-1 rounded-2xl border border-border bg-card p-5 shadow-sm transition-colors hover:border-accent/60"
+            className="flex flex-col gap-1 rounded-lg border border-border bg-card p-5 transition-colors hover:border-accent/60"
           >
             <span className="flex items-center gap-2 text-sm text-muted-foreground">
               <Package className="size-4 text-accent" aria-hidden="true" /> Tracking
             </span>
-            <span className="font-heading text-lg font-semibold text-foreground">Track an order</span>
+            <span className="text-lg font-semibold text-foreground">Track an order</span>
             <span className="text-xs text-accent">Enter order number →</span>
           </Link>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-start">
           {/* Orders */}
-          <section className="flex flex-col rounded-2xl border border-border bg-card shadow-sm">
+          <section className="flex flex-col rounded-lg border border-border bg-card">
             <header className="flex items-center gap-2 border-b border-border px-6 py-4">
               <ShoppingBag className="size-4 text-accent" aria-hidden="true" />
-              <h2 className="font-heading text-lg font-semibold text-foreground">Order History</h2>
+              <h2 className="text-lg font-semibold text-foreground">Order History</h2>
             </header>
             {account.orders.length === 0 ? (
               <div className="flex flex-col items-center gap-3 px-6 py-12 text-center">
@@ -123,8 +123,8 @@ export default async function AccountPage() {
 
           {/* Profile + Addresses */}
           <div className="flex flex-col gap-6">
-            <section className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-6 shadow-sm">
-              <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-foreground">
+            <section className="flex flex-col gap-3 rounded-lg border border-border bg-card p-6">
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
                 <User className="size-4 text-accent" aria-hidden="true" /> Profile
               </h2>
               <dl className="flex flex-col gap-2 text-sm">
@@ -143,8 +143,8 @@ export default async function AccountPage() {
               </dl>
             </section>
 
-            <section className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-6 shadow-sm">
-              <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-foreground">
+            <section className="flex flex-col gap-3 rounded-lg border border-border bg-card p-6">
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
                 <MapPin className="size-4 text-accent" aria-hidden="true" /> Saved Addresses
               </h2>
               {account.addresses.length === 0 ? (

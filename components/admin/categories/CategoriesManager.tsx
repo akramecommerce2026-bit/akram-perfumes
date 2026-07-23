@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import Image from "next/image";
+import { isRemoteImage } from "@/lib/is-remote-image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, ImageIcon, Pencil, Plus, Search, Trash2 } from "lucide-react";
@@ -139,7 +140,7 @@ export function CategoriesManager({ items, total, page, pageSize, totalPages, qu
                     <div className="flex items-center gap-3">
                       <div className="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/60 bg-muted">
                         {item.imageUrl ? (
-                          <Image src={item.imageUrl} alt={item.name} fill sizes="40px" className="object-cover" />
+                          <Image src={item.imageUrl} alt={item.name} fill unoptimized={isRemoteImage(item.imageUrl)} sizes="40px" className="object-cover" />
                         ) : (
                           <ImageIcon className="size-4 text-muted-foreground" aria-hidden="true" />
                         )}

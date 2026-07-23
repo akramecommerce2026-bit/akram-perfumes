@@ -1,7 +1,10 @@
 import { redirect } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 
+import { isAdminUser } from "@/lib/auth/roles";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+export { isAdminUser };
 
 /** The authenticated admin, resolved from the request session. */
 export interface AdminUser {
@@ -11,13 +14,14 @@ export interface AdminUser {
   readonly initials: string;
 }
 
-/** Returns the current admin, or null when unauthenticated. */
+/** Returns the current admin, or null when unauthenticated or not an admin. */
 export async function getAdminUser(): Promise<AdminUser | null> {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  return user ? toAdminUser(user) : null;
+  if (!user || !isAdminUser(user)) return null;
+  return toAdminUser(user);
 }
 
 /**

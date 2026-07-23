@@ -2,6 +2,7 @@
 
 import { useRef, useState, type DragEvent } from "react";
 import Image from "next/image";
+import { isRemoteImage } from "@/lib/is-remote-image";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { ArrowLeft, ArrowRight, ImagePlus, Loader2, Star, Trash2 } from "lucide-react";
 
@@ -125,7 +126,7 @@ export function ImageUploader() {
                 )}
               >
                 <div className="relative aspect-square">
-                  <Image src={image.url} alt="" fill sizes="200px" className="object-cover" />
+                  <Image src={image.url} alt="" fill unoptimized={isRemoteImage(image.url)} sizes="200px" className="object-cover" />
                 </div>
                 {image.isPrimary && (
                   <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-accent px-2 py-0.5 text-[10px] font-medium text-accent-foreground">

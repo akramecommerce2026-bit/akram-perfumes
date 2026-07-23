@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, Trash2 } from "lucide-react";
 
 import { CartLineItem } from "@/components/cart/CartLineItem";
@@ -37,15 +36,13 @@ export function CartView() {
           </button>
         </div>
 
-        <motion.ul layout className="flex flex-col divide-y divide-border">
-          <AnimatePresence initial={false} mode="popLayout">
-            {items.map((item) => (
-              <li key={item.variantId} className="py-6">
-                <CartLineItem item={item} />
-              </li>
-            ))}
-          </AnimatePresence>
-        </motion.ul>
+        <ul className="flex flex-col divide-y divide-border">
+          {items.map((item) => (
+            <li key={item.variantId} className="py-6">
+              <CartLineItem item={item} />
+            </li>
+          ))}
+        </ul>
 
         <Link
           href="/shop"

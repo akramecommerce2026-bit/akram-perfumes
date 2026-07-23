@@ -1,29 +1,13 @@
-"use client";
+import { CategoryCard } from "@/components/home/CategoryCard";
+import type { Category } from "@/types/category";
 
-import { MotionConfig, motion, type Variants } from "framer-motion";
-
-import { CollectionCard, type Collection } from "@/components/home/CollectionCard";
-
-const grid: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
-};
-
-/** Animated grid of collection cards, reused by the Collections page. */
-export function CollectionsGrid({ collections }: { collections: readonly Collection[] }) {
+/** Grid of category tiles, sharing the homepage's card so the two never drift. */
+export function CollectionsGrid({ categories }: { categories: readonly Category[] }) {
   return (
-    <MotionConfig reducedMotion="user">
-      <motion.div
-        variants={grid}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, amount: 0.1 }}
-        className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8"
-      >
-        {collections.map((collection) => (
-          <CollectionCard key={collection.href} {...collection} />
-        ))}
-      </motion.div>
-    </MotionConfig>
+    <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:gap-x-6 lg:grid-cols-4">
+      {categories.map((category) => (
+        <CategoryCard key={category.id} category={category} />
+      ))}
+    </div>
   );
 }

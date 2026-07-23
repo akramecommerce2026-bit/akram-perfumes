@@ -10,23 +10,16 @@ interface CartTotalsProps {
 }
 
 export function CartTotals({ totals, className }: CartTotalsProps) {
-  const freeShipping = totals.shipping.amount === 0;
-
   return (
     <dl className={cn("flex flex-col gap-3 text-sm", className)}>
       <Row label="Subtotal" value={formatMoney(totals.subtotal)} />
-      <Row
-        label="Estimated shipping"
-        value={freeShipping ? "Free" : formatMoney(totals.shipping)}
-        muted={freeShipping}
-      />
       <Row label="Taxes" value="Calculated at checkout" muted />
       {totals.discount.amount > 0 && (
         <Row label="Discount" value={`− ${formatMoney(totals.discount)}`} />
       )}
       <div className="mt-1 flex items-baseline justify-between border-t border-border pt-4">
-        <dt className="font-heading text-base font-semibold text-foreground">Grand Total</dt>
-        <dd className="font-heading text-lg font-semibold text-foreground">
+        <dt className="text-base font-semibold text-foreground">Grand Total</dt>
+        <dd className="text-lg font-semibold text-foreground">
           {formatMoney(totals.total)}
         </dd>
       </div>

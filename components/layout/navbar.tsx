@@ -1,57 +1,58 @@
 "use client";
 
 import { useState } from "react";
-import { motion, MotionConfig } from "framer-motion";
 import { Menu } from "lucide-react";
 
 import { Container } from "@/components/common/container";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/layout/logo";
-import { DesktopNav } from "@/components/layout/desktop-nav";
 import { NavActions } from "@/components/layout/nav-actions";
 import { MobileMenu } from "@/components/layout/mobile-menu";
-import { useScrollState } from "@/hooks/use-scroll-state";
 
+/**
+ * Storefront header.
+ *
+ * Structure follows the design benchmark: a single row that stays put — menu on
+ * the left, brand optically centred, actions on the right — at every breakpoint.
+ * The catalogue lives behind the menu rather than as an inline bar, which keeps
+ * the row quiet and lets the brand hold the centre.
+ *
+ * It is opaque and always visible rather than fading in on scroll: a header that
+ * hides and reappears fights the calm the rest of the page is going for, and the
+ * actions (search, cart) should never be a scroll away.
+ */
 export function Navbar() {
-  const { scrolled, hidden } = useScrollState();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <MotionConfig reducedMotion="user">
-      <motion.header
-        animate={{ y: hidden ? "-100%" : "0%" }}
-        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        className="sticky top-0 z-40"
-      >
-        <motion.div
-          aria-hidden="true"
-          className="absolute inset-0 -z-10 border-b border-border bg-background/75 shadow-sm backdrop-blur-xl"
-          initial={false}
-          animate={{ opacity: scrolled ? 1 : 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-        />
+    <>
+      <header className="sticky top-0 z-40 border-b border-border bg-background">
         <Container>
-          <div className="flex h-16 items-center justify-between md:h-20">
-            <Logo />
-            <DesktopNav />
-            <div className="flex items-center gap-1">
-              <NavActions className="hidden md:flex" />
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Open menu"
-                aria-haspopup="dialog"
-                aria-expanded={mobileOpen}
-                onClick={() => setMobileOpen(true)}
-                className="lg:hidden"
-              >
-                <Menu className="size-5" aria-hidden="true" />
-              </Button>
+          <div className="relative flex h-16 items-center justify-between md:h-18">
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Open menu"
+              aria-haspopup="dialog"
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen(true)}
+              className="-ml-2"
+            >
+              <Menu className="size-5" aria-hidden="true" />
+            </Button>
+
+            {/* Absolutely centred so the brand sits mid-header regardless of how
+                wide the flanking controls get. */}
+            <div className="pointer-events-none absolute inset-x-0 flex justify-center">
+              <Logo className="pointer-events-auto" />
             </div>
+
+            <NavActions className="-mr-2" />
           </div>
         </Container>
-      </motion.header>
-      <MobileMenu open={mobileOpen} onOpenChange={setMobileOpen} />
-    </MotionConfig>
+      </header>
+
+      <MobileMenu open={menuOpen} onOpenChange={setMenuOpen} />
+    </>
   );
 }

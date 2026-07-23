@@ -48,7 +48,9 @@ export function CustomerAuthForm({ mode }: { mode: "login" | "register" }) {
         password,
         options: {
           data: { full_name: name },
-          emailRedirectTo: `${window.location.origin}/account`,
+          // Confirmation links must land on the callback, which establishes the
+          // session before forwarding — /account alone can't exchange the token.
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/account`,
         },
       });
       setLoading(false);

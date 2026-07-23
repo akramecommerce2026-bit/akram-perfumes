@@ -53,7 +53,7 @@ export class SupabaseProductRepository implements ProductRepository {
       .eq("status", "active")
       .order("display_order", { ascending: true });
     if (error) throw error;
-    return (data ?? []).map(mapVariant);
+    return (data ?? []).map((row) => mapVariant(row));
   }
 
   async findVariantsByProductId(productId: string): Promise<readonly ProductVariant[]> {
@@ -64,7 +64,22 @@ export class SupabaseProductRepository implements ProductRepository {
       .eq("status", "active")
       .order("display_order", { ascending: true });
     if (error) throw error;
-    return (data ?? []).map(mapVariant);
+    const variants = data ?? [];
+    if (variants.length === 0) return [];
+
+    // Attach each variant's own gallery. One query for the whole product's
+    // images (by product_id — always present), grouped by variant_id in memory.
+    // Reading the column rather than filtering on it keeps this resilient if the
+    // variant_id migration has not been applied yet: rows simply group as shared.
+    const images = await this.fetchImages([productId]);
+    const byVariant = new Map<string, Tables<"product_images">[]>();
+    for (const image of images) {
+      if (!image.variant_id) continue;
+      const list = byVariant.get(image.variant_id) ?? [];
+      list.push(image);
+      byVariant.set(image.variant_id, list);
+    }
+    return variants.map((variant) => mapVariant(variant, byVariant.get(variant.id) ?? []));
   }
 
   async findAllCategories(): Promise<readonly Category[]> {

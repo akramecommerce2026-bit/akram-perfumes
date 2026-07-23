@@ -15,23 +15,19 @@ const arrowClass = cn(
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-background",
 );
 
+/**
+ * Sits in the hero's bottom bar beside the pagination rather than floating over
+ * the artwork: the copy is anchored bottom-left and the product is centred, so
+ * mid-height side arrows land on top of one or the other. Hidden at touch
+ * widths, where swiping is the natural gesture.
+ */
 export function HeroControls({ onPrev, onNext }: HeroControlsProps) {
   return (
-    <div className="pointer-events-none absolute inset-x-4 top-1/2 z-20 hidden -translate-y-1/2 justify-between md:flex lg:inset-x-8">
-      <button
-        type="button"
-        aria-label="Previous slide"
-        onClick={onPrev}
-        className={cn(arrowClass, "pointer-events-auto")}
-      >
+    <div className="hidden items-center gap-2 md:flex">
+      <button type="button" aria-label="Previous slide" onClick={onPrev} className={arrowClass}>
         <ChevronLeft className="size-5" aria-hidden="true" />
       </button>
-      <button
-        type="button"
-        aria-label="Next slide"
-        onClick={onNext}
-        className={cn(arrowClass, "pointer-events-auto")}
-      >
+      <button type="button" aria-label="Next slide" onClick={onNext} className={arrowClass}>
         <ChevronRight className="size-5" aria-hidden="true" />
       </button>
     </div>

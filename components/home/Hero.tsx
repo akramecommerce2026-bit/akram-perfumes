@@ -10,37 +10,35 @@ import { HeroControls } from "@/components/home/HeroControls";
 import { HeroPagination } from "@/components/home/HeroPagination";
 import type { HeroSlideData } from "@/components/home/HeroSlide";
 
+/**
+ * Imagery only — the headline and CTAs are fixed across every slide, so the eye
+ * stays on the copy while the scenery moves behind it. `alt` still varies: the
+ * picture is what changes, and that is what a screen reader needs described.
+ */
 const slides: HeroSlideData[] = [
   {
     src: "/hero/slide-1.webp",
-    alt: "Akram eau de parfum on green marble beneath a glass arch",
-    badge: "Timeless Elegance",
-    headlineLead: "Luxury, Crafted for",
-    headlineAccent: "Every Occasion",
-    description:
-      "A refined composition of rare essences, poured into glass and gold for those who wear distinction effortlessly.",
+    alt: "An ornate gold Akram attar bottle with a crystal stopper, wreathed in incense smoke in a candle-lit palace hall",
   },
   {
     src: "/hero/slide-2.webp",
-    alt: "Akram eau de parfum amid lush tropical greenery and dark orchids",
-    badge: "The Maison Collection",
-    headlineLead: "Experience the Art of",
-    headlineAccent: "Fine Fragrance",
-    description:
-      "Where precious oud, orchid and warm amber entwine — a scent composed with the patience of a masterpiece.",
+    alt: "Raw perfumery ingredients — citrus, oud, resins, rose and vanilla — laid across a rustic wooden table",
   },
   {
     src: "/hero/slide-3.webp",
-    alt: "Akram Al Oudh eau de parfum on emerald marble with gold detailing",
-    badge: "Your Signature",
-    headlineLead: "Discover Your",
-    headlineAccent: "Signature Scent",
-    description:
-      "Luminous, bold and unforgettable — find the fragrance that lingers long after you leave the room.",
+    alt: "A marble perfumery workbench lined with essential-oil bottles, a precision balance and a formulator's notebook",
+  },
+  {
+    src: "/hero/slide-4.webp",
+    alt: "A traditional stone atelier with a copper distillation still, oud wood, saffron and rose petals",
+  },
+  {
+    src: "/hero/slide-5.webp",
+    alt: "A luxury Arabian perfume boutique with amber bottles and oud arrayed on carved wooden shelves",
   },
 ];
 
-const AUTOPLAY_MS = 5000;
+const AUTOPLAY_MS = 6000;
 const SWIPE_THRESHOLD = 50;
 
 export function Hero() {
@@ -83,8 +81,6 @@ export function Hero() {
     touchStartX.current = null;
   }
 
-  const active = slides[index];
-
   return (
     <MotionConfig reducedMotion="user">
       <section
@@ -100,24 +96,36 @@ export function Hero() {
       >
         <HeroCarousel slides={slides} index={index} />
 
-        {/* Readability scrims (constant, above imagery, below content) */}
+        {/*
+          Readability scrims (constant, above imagery, below content). The
+          product sits dead centre in every slide, so the weight is kept to the
+          bottom and left — behind the copy — leaving the bottle itself clear.
+        */}
         <div aria-hidden="true" className="absolute inset-0 z-[1]">
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,color-mix(in_oklab,var(--foreground)_82%,transparent),color-mix(in_oklab,var(--foreground)_38%,transparent)_38%,transparent_66%)]" />
-          <div className="absolute inset-0 bg-[linear-gradient(0deg,color-mix(in_oklab,var(--foreground)_80%,transparent),transparent_46%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(0deg,color-mix(in_oklab,var(--foreground)_88%,transparent),color-mix(in_oklab,var(--foreground)_45%,transparent)_32%,transparent_62%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,color-mix(in_oklab,var(--foreground)_72%,transparent),color-mix(in_oklab,var(--foreground)_28%,transparent)_42%,transparent_68%)]" />
+          {/*
+            Portrait crops a 3:2 frame hard, which lifts the centred bottle right
+            behind the copy — the left-hand scrim can't help when the text spans
+            the full width. This deepens the lower half on small screens only, so
+            the words stay legible without dulling the wide layouts.
+          */}
+          <div className="absolute inset-0 bg-[linear-gradient(0deg,color-mix(in_oklab,var(--foreground)_94%,transparent),color-mix(in_oklab,var(--foreground)_70%,transparent)_38%,transparent_72%)] sm:hidden" />
           <div className="absolute inset-x-0 top-0 h-32 bg-[linear-gradient(180deg,color-mix(in_oklab,var(--foreground)_32%,transparent),transparent)]" />
         </div>
 
-        {/* Content */}
-        <Container className="relative z-10 flex h-full items-end pb-32 sm:items-center sm:pb-16">
-          <HeroContent key={index} slide={active} />
+        {/* Content — anchored bottom-left at every breakpoint so it never crosses
+            the centred bottle. Bottom padding clears the pagination. */}
+        <Container className="relative z-10 flex h-full items-end pb-28 sm:pb-32">
+          <HeroContent />
         </Container>
 
-        <HeroControls onPrev={prev} onNext={next} />
-
-        {/* Pagination */}
+        {/* Bottom bar: progress on the left under the copy, arrows on the right,
+            clear of both the centred product and the headline. */}
         <div className="absolute inset-x-0 bottom-8 z-20">
-          <Container>
+          <Container className="flex items-center justify-between gap-4">
             <HeroPagination count={slides.length} index={index} onSelect={select} />
+            <HeroControls onPrev={prev} onNext={next} />
           </Container>
         </div>
       </section>

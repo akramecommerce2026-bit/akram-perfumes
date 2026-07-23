@@ -1,6 +1,7 @@
-import { BadgeCheck, Quote, Star } from "lucide-react";
+import { BadgeCheck, Quote } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { StarRating } from "@/components/common/star-rating";
+import { Surface } from "@/components/common/surface";
 import type { Testimonial } from "@/types/testimonial";
 
 function getInitials(name: string): string {
@@ -16,21 +17,20 @@ function getInitials(name: string): string {
 export function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
   const { name, rating, verified, product, review } = testimonial;
 
+  // The shadow is warm rather than neutral — a grey drop shadow on ivory reads
+  // as dirt, where a gold-tinted one reads as depth. Two stops: a tight contact
+  // shadow that seats the card, and a wide soft one that lifts it off the
+  // lattice. Nothing about the card's own design changes.
   return (
-    <figure className="flex flex-col items-center gap-6 rounded-3xl border border-border/60 bg-card px-6 py-10 text-center shadow-md sm:px-12 sm:py-12">
+    <Surface
+      as="figure"
+      className="flex flex-col items-center gap-6 px-6 py-10 text-center shadow-[0_2px_6px_oklch(0.55_0.05_75/0.05),0_18px_44px_-12px_oklch(0.55_0.06_75/0.14)] sm:px-12 sm:py-12"
+    >
       <Quote className="size-8 text-accent/60" aria-hidden="true" />
 
-      <div className="flex items-center gap-1 text-accent" aria-label={`Rated ${rating} out of 5`}>
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Star
-            key={i}
-            className={cn("size-4", i < rating ? "fill-current" : "fill-none text-muted-foreground/40")}
-            aria-hidden="true"
-          />
-        ))}
-      </div>
+      <StarRating rating={rating} />
 
-      <blockquote className="max-w-xl font-heading text-lg leading-relaxed text-foreground sm:text-xl">
+      <blockquote className="max-w-xl text-lg leading-relaxed text-foreground sm:text-xl">
         &ldquo;{review}&rdquo;
       </blockquote>
 
@@ -44,14 +44,14 @@ export function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
         <div className="flex flex-col items-center gap-1">
           <span className="font-medium text-foreground">{name}</span>
           {verified && (
-            <span className="inline-flex items-center gap-1 text-xs font-medium text-accent">
+            <span className="inline-flex items-center gap-1 text-[13px] font-medium text-accent">
               <BadgeCheck className="size-3.5" aria-hidden="true" />
               Verified Buyer
             </span>
           )}
-          {product && <span className="text-xs text-muted-foreground">Purchased &middot; {product}</span>}
+          {product && <span className="text-[13px] text-muted-foreground">Purchased &middot; {product}</span>}
         </div>
       </figcaption>
-    </figure>
+    </Surface>
   );
 }

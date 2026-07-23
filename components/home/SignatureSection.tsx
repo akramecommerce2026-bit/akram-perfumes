@@ -1,59 +1,52 @@
-"use client";
+import Link from "next/link";
 
-import { MotionConfig, motion, useReducedMotion } from "framer-motion";
+import { Section } from "@/components/common/section";
+import { SectionHeading } from "@/components/common/section-heading";
+import { ProductSlider } from "@/components/shop/ProductSlider";
+import { productService } from "@/services/product-service";
 
-import { Container } from "@/components/common/container";
-import { SignatureBottle } from "@/components/home/SignatureBottle";
-import { SignatureContent } from "@/components/home/SignatureContent";
+const RAIL_LIMIT = 10;
 
-// Deterministic particle field (no Math.random) for SSR-safe markup.
-const particles = [
-  { left: "12%", top: "24%", size: 5, delay: 0, duration: 11, drift: 16 },
-  { left: "30%", top: "68%", size: 4, delay: 1.5, duration: 12, drift: 13 },
-  { left: "46%", top: "16%", size: 4, delay: 0.7, duration: 10.5, drift: 18 },
-  { left: "68%", top: "72%", size: 5, delay: 2.1, duration: 12.5, drift: 14 },
-  { left: "82%", top: "34%", size: 6, delay: 1, duration: 10, drift: 20 },
-  { left: "90%", top: "60%", size: 4, delay: 0.4, duration: 11.5, drift: 15 },
-] as const;
-
-export function SignatureSection() {
-  const shouldReduceMotion = useReducedMotion();
+/**
+ * Signature Collection.
+ *
+ * The same shape as Best Sellers — Section, SectionHeading, ProductSlider — so
+ * the two rails are one component structure with one card, differing only in
+ * which slice of the catalogue they read. Best Sellers sorts by sales; this
+ * filters on the product's `signature` flag.
+ *
+ * Entirely data-driven: membership is the `is_signature` column on `products`,
+ * toggled per product in `/admin/products`. Adding or removing a product from
+ * this rail is an admin action, never a code change. Nothing here is hardcoded
+ * to any one product, and there is no CMS record behind the heading — the
+ * section is the collection, not a featured item.
+ *
+ * Renders nothing rather than an empty rail when no products are flagged.
+ */
+export async function SignatureSection() {
+  const items = await productService.getSignatureProducts(RAIL_LIMIT);
+  if (items.length === 0) return null;
 
   return (
-    <MotionConfig reducedMotion="user">
-      <section id="signature" className="relative overflow-hidden py-section-lg">
-        {/* Luxury ivory + soft gold background */}
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-[radial-gradient(60%_45%_at_50%_0%,color-mix(in_oklab,var(--accent)_16%,transparent),transparent_70%)]" />
-          <motion.div
-            className="absolute inset-0 bg-[radial-gradient(45%_45%_at_22%_62%,color-mix(in_oklab,var(--accent)_12%,transparent),transparent_66%)]"
-            animate={shouldReduceMotion ? undefined : { opacity: [0.55, 1, 0.55] }}
-            transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
-          />
-          {/* Subtle texture, softly masked toward the center */}
-          <div className="absolute inset-0 opacity-[0.25] bg-[radial-gradient(color-mix(in_oklab,var(--foreground)_8%,transparent)_1px,transparent_1px)] [background-size:28px_28px] [mask-image:radial-gradient(70%_70%_at_50%_40%,#000,transparent)]" />
+    <Section id="signature" spacing="lg">
+      <SectionHeading
+        eyebrow="The House of Akram"
+        title="Signature Collection"
+        subtitle="The fragrances that define the house."
+      />
 
-          {!shouldReduceMotion &&
-            particles.map((p, i) => (
-              <motion.span
-                key={i}
-                className="absolute rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--accent)_90%,white),color-mix(in_oklab,var(--accent)_55%,transparent))] shadow-[0_0_8px_color-mix(in_oklab,var(--accent)_55%,transparent)]"
-                style={{ left: p.left, top: p.top, width: p.size, height: p.size }}
-                animate={{ y: [0, -p.drift, 0], opacity: [0, 0.8, 0], scale: [0.8, 1, 0.8] }}
-                transition={{ duration: p.duration, delay: p.delay, repeat: Infinity, ease: "easeInOut" }}
-              />
-            ))}
-        </div>
+      <div className="mt-10">
+        <ProductSlider products={items} />
+      </div>
 
-        <Container>
-          <div className="grid items-start gap-12 lg:grid-cols-2 lg:gap-16">
-            <div className="lg:sticky lg:top-28">
-              <SignatureBottle />
-            </div>
-            <SignatureContent />
-          </div>
-        </Container>
-      </section>
-    </MotionConfig>
+      <div className="mt-8 flex justify-center">
+        <Link
+          href="/shop"
+          className="inline-flex h-11 items-center justify-center rounded-md border border-foreground/85 px-8 text-[13px] font-bold tracking-wide text-foreground uppercase transition-colors duration-300 hover:bg-foreground hover:text-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        >
+          Shop
+        </Link>
+      </div>
+    </Section>
   );
 }

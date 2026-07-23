@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 import { Container } from "@/components/common/container";
 import { cn } from "@/lib/utils";
@@ -24,6 +24,8 @@ interface SectionProps {
   background?: SectionBackground;
   container?: boolean;
   className?: string;
+  /** For scoping theme variables to one section, as the footer does. */
+  style?: CSSProperties;
   children: ReactNode;
 }
 
@@ -33,11 +35,13 @@ export function Section({
   background = "none",
   container = true,
   className,
+  style,
   children,
 }: SectionProps) {
   return (
     <section
       id={id}
+      style={style}
       className={cn(spacingClasses[spacing], backgroundClasses[background], className)}
     >
       {container ? <Container>{children}</Container> : children}

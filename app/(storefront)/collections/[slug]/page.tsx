@@ -32,7 +32,7 @@ export default async function CollectionPage({ params }: PageProps) {
   const { items } = await productService.listProducts({ categorySlug: slug, sort: "featured" });
 
   return (
-    <div className="py-section-sm lg:py-section">
+    <div className="py-10 lg:py-14">
       <Container>
         <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground">
           <Link href="/collections" className="transition-colors hover:text-foreground">
@@ -43,7 +43,7 @@ export default async function CollectionPage({ params }: PageProps) {
         </nav>
 
         <header className="mb-8 lg:mb-12">
-          <h1 className="font-heading text-4xl font-semibold text-foreground sm:text-5xl">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
             {category.name}
           </h1>
           {category.description && (

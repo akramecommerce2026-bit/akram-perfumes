@@ -1,13 +1,17 @@
 import type { CartItem, CartTotals } from "@/types/cart";
 import type { Money } from "@/types/money";
 
-/** Delivery speeds offered at checkout. Extend the union to add new tiers. */
+/**
+ * Delivery tier stored on an order. Every new order is `standard` (delivery is
+ * free and no tier is offered); `express` only appears on historical orders.
+ */
 export type DeliveryMethodId = "standard" | "express";
 
 /**
- * Payment methods. `razorpay` settles online (Razorpay Checkout handles UPI,
- * cards, net banking and wallets internally); `cod` is cash on delivery, which
- * is created with a pending payment status and settled on delivery.
+ * Payment method stored on an order. `razorpay` is the only method checkout
+ * offers — Razorpay Checkout handles UPI, cards, net banking and wallets
+ * internally. `cod` only appears on historical orders placed before online
+ * payment became the sole option.
  */
 export type PaymentMethodId = "razorpay" | "cod";
 

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { CartView } from "@/components/cart/CartView";
 import { Container } from "@/components/common/container";
+import { PageHeader } from "@/components/common/page-header";
 
 export const metadata: Metadata = {
   title: "Your Cart — Akram Perfumes",
@@ -10,14 +11,12 @@ export const metadata: Metadata = {
 
 export default function CartPage() {
   return (
-    <div className="py-section-sm lg:py-section">
+    <div className="py-10 lg:py-14">
       <Container>
-        <header className="mb-8 lg:mb-12">
-          <p className="text-xs font-medium tracking-[0.2em] text-accent uppercase">Your Selection</p>
-          <h1 className="mt-3 font-heading text-4xl font-semibold text-foreground sm:text-5xl">
-            Shopping Cart
-          </h1>
-        </header>
+        <PageHeader
+          eyebrow="Your Selection"
+          title="Shopping Cart"
+        />
 
         <CartView />
       </Container>

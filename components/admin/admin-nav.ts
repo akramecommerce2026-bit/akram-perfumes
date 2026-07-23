@@ -17,8 +17,7 @@ export interface AdminNavItem {
 
 /**
  * Admin sidebar navigation. Single source of truth so the sidebar and any
- * future breadcrumb/command-palette stay in sync. Routes beyond the dashboard
- * are added in later milestones (Products, Categories, …).
+ * future breadcrumb/command-palette stay in sync.
  */
 export const ADMIN_NAV: readonly AdminNavItem[] = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },

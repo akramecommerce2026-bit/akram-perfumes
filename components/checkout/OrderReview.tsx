@@ -1,9 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { MapPin, Pencil, Truck, Wallet } from "lucide-react";
+import { MapPin, Pencil, Wallet } from "lucide-react";
 
-import { getDeliveryOption, PAYMENT_OPTIONS } from "@/lib/checkout";
+import { PAYMENT_OPTIONS } from "@/lib/checkout";
 import type { CheckoutFormValues } from "@/lib/checkout-schema";
 
 interface OrderReviewProps {
@@ -16,18 +15,12 @@ interface OrderReviewProps {
  * placed. Purely presentational — edits go back to the form via `onEdit`.
  */
 export function OrderReview({ values, onEdit }: OrderReviewProps) {
-  const delivery = getDeliveryOption(values.deliveryMethod);
   const payment = PAYMENT_OPTIONS.find((option) => option.id === values.paymentMethod);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="flex flex-col gap-4"
-    >
+    <div className="flex flex-col gap-4 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-(--animate-duration-base) ease-lux">
       <div className="flex items-center justify-between">
-        <h2 className="font-heading text-xl font-semibold text-foreground">Review your order</h2>
+        <h2 className="text-xl font-semibold text-foreground">Review your order</h2>
         <button
           type="button"
           onClick={onEdit}
@@ -49,16 +42,11 @@ export function OrderReview({ values, onEdit }: OrderReviewProps) {
         </p>
       </ReviewCard>
 
-      <ReviewCard icon={<Truck className="size-4" aria-hidden="true" />} title="Delivery">
-        <p className="font-medium text-foreground">{delivery.name}</p>
-        <p>{delivery.estimate}</p>
-      </ReviewCard>
-
       <ReviewCard icon={<Wallet className="size-4" aria-hidden="true" />} title="Payment">
         <p className="font-medium text-foreground">{payment?.name}</p>
         <p>{payment?.description}</p>
       </ReviewCard>
-    </motion.div>
+    </div>
   );
 }
 
@@ -72,7 +60,7 @@ function ReviewCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+    <div className="rounded-lg border border-border bg-card p-6">
       <div className="mb-2 flex items-center gap-2 text-xs font-medium tracking-wide text-accent-foreground uppercase">
         <span className="text-accent">{icon}</span>
         {title}
