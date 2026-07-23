@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 
 import { isAdminUser } from "@/lib/auth/roles";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export { isAdminUser };
@@ -16,6 +17,11 @@ export interface AdminUser {
 
 /** Returns the current admin, or null when unauthenticated or not an admin. */
 export async function getAdminUser(): Promise<AdminUser | null> {
+  // Degrade gracefully rather than crash: without Supabase credentials the
+  // server client can't be created (it throws "…URL and Key are required…").
+  // Mirrors the proxy's own guard, so /admin/login renders the form instead of
+  // returning a 500 when the deployment is missing its env vars.
+  if (!isSupabaseConfigured()) return null;
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
